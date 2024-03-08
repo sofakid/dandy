@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComfyUI Canvas Editor</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="cash.min.js"></script>
+    <script src="support.js"></script>
+    <script src="paintTools.js"></script>
+    <script src="bspaint.js"></script>
+</head>
+<body>
+  <div class="fillparent">
+    <div class="panel noselect">
+      <div id="import_control">
+        <label for="import_mode">
+          Incoming Images
+        </label>
+        <select id="import_mode">
+          <option value="replace_target">Replace Targeted Layer</option>
+          <option value="layer">Add layer <small>(if size matches)</small></option>
+          <option value="image">Create new Image</option>
+          <option value="ignore">Ignore</option>
+        </select>
+      </div>
+      <div id="pen" title="Brush 🇧" class="tool button"></div>
+      <div id="eraser" title="Eraser 🇪" class="tool button" style="background-image:url(images/eraser.png);"></div>
+      <div id="pixels" title="Pixels 🇿" class="tool button" style="background-image:url(images/pixels.png);"></div>
+      <div id="fine_eraser" title="Clear pixels" class="tool button" style="background-image:url(images/fine_eraser.png);"></div>
+      <div id="eyedropper" title="Sample color 🇵" class="tool button" ></div>
+      <div id="transform" title="Tansform Layer 🇹" class="tool button" ></div>
+      <div class="subpanel actions">
+        <div id="clear" class="action button" ></div>
+        <div id="undo" class="action button" ></div>
+        <div id="redo" class="action button" ></div>
+        <button id="newImageBtn">New Image</button>
+
+      </div>
+    </div>
+    <div id="palette" class="noselect">
+      <div id="brush_opacity">
+      <label for="opacity">opacity</label>
+      <input class="percentage" type="text" value="100%">
+      <br>
+      <input name="opacity" type="range" min="0" max="100" value="100" step="1">
+      </div>
+      <input id="foreground" type="color" value="#000000">
+      <input id="background" type="color" value="#ff00ff">
+    </div>
+    <div id="workspace" class="background noselect">
+    </div>
+    <div id="right_panel">
+      <div id="command_control" class = "sidepanel_block"> 
+
+      </div>
+
+      <div id="layer_control" class = "sidepanel_block"> 
+
+      </div>
+    </div>
+  </div>
+  
+
+  <div id="newImageModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <h2>Create New Image</h2>
+      <div>
+        <label for="imageWidth">Width:</label>
+        <input type="number" id="imageWidth" name="imageWidth" min="1" value="512">
+        <br>
+        <label for="imageHeight">Height:</label>
+        <input type="number" id="imageHeight" name="imageHeight" min="1" value="512">
+  
+      </div>
+      <div>
+        <button class="create-button">Create</button>
+        <button class="cancel-button">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
