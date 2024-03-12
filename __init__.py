@@ -1,11 +1,3 @@
-"""
-@author: Lerc
-@title: Canvas Tab
-@nickname: Canvas Tab
-@description: This extension provides a full page image editor with mask support. There are two nodes, one to receive images from the editor and one to send images to the editor.
-"""
-
-
 import torch
 import base64
 import os
@@ -42,16 +34,17 @@ class DandyEditor:
 
     RETURN_TYPES = ()
 
-    FUNCTION = "collect_images"
+    FUNCTION = "run"
 
     OUTPUT_NODE = True
 
-    CATEGORY = "image"
+    CATEGORY = "DandyLand"
+
     def IS_CHANGED(self, unique_id, images):
-        self.updateTick+=1
+        self.updateTick += 1
         return hex(self.updateTick)
 
-    def collect_images(self, unique_id,  images=None):
+    def run(self, unique_id,  images=None):
 
         collected_images = list()
         if images is not None:
@@ -94,7 +87,7 @@ class DandyCanvas:
 
     #OUTPUT_NODE = False
 
-    CATEGORY = "image"
+    CATEGORY = "DandyLand"
 
     def image_buffer(self, unique_id, mask, canvas, images=None):
 
@@ -132,6 +125,7 @@ class DandyCanvas:
         return (rgb_image, mask_data) 
 
 
+# Set the web directory, any .js file in that directory will be loaded by the frontend as a frontend extension
 WEB_DIRECTORY = "web"
 
 NODE_CLASS_MAPPINGS = {
