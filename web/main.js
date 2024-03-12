@@ -6,6 +6,7 @@ import { ComfyWidgets } from "../../scripts/widgets.js";
 const extension_name = "dandy"
 const extension_webroot = "/extensions/dandy/"
 
+let DANDY_INITIALIZED = false
 const initDandy = () => {
   console.log("initDandy()")
   
@@ -27,6 +28,9 @@ const initDandy = () => {
     "mode/javascript_worker", "worker-javascript.js_",
   ]
 
+  const n_features = features_and_codes.length / 2
+  let i_feature = 0
+
   pairwise(features_and_codes).forEach(async pair => {
     const [feature, js_] = pair;
     const response = await fetch(`${extension_webroot}ace/${js_}`);
@@ -34,6 +38,10 @@ const initDandy = () => {
     const blob = new Blob([text], { type: 'application/javascript' });
     const url = URL.createObjectURL(blob);
     ace.config.setModuleUrl(`ace/${feature}`, url);
+    console.log(`${i_feature}/${n_features}:ace.config.setModuleUrl("ace/${feature}", ${url});`)
+    if (++i_feature == n_features)
+      console.log("DANDY_INITIALIZED")
+      DANDY_INITIALIZED = true
   });
 }
 
@@ -76,10 +84,11 @@ const initDandyEditorNode = (node) => {
   editor.setOption('hasCssTransforms', true); 
   
 
-	// editor_pre.addEventListener("all", (event) => {
-  //   console.log('Event type:', event.type);
-  //   console.log('Event details:', event);
-	// })
+	editor_pre.addEventListener("resize", (event) => {
+    console.log('Event type:', event.type);
+    console.log('Event details:', event);
+    editor.resize()
+	})
 
   // let lastTransform = null
   // const observer = new MutationObserver(function(mutations) {
@@ -145,19 +154,32 @@ const ext = {
 		//delete ext.loadedGraphNode;
 	},
 	nodeCreated(node, app) {
-		// Fires every time a node is constructed
-		// You can modify widgets/add handlers/etc here
+    // Fires every time a node is constructed
+    // You can modify widgets/add handlers/etc here
 
-    const title = node.getTitle();
-    // node.type not set at this point? 
-    switch (title) {
-      case "Dandy Editor":
-        initDandyEditorNode(node);
-        break;
-      case "Dandy Canvas":
-        initDandyCanvasNode(node);
-        break;
+    // we load stuff async in init, so we postpone till everythign is ready. 
+    // when nodes are already in the workflow when it starts up they'll run this before we're ready
+    function when_up(f) {
+      if (DANDY_INITIALIZED === false) {
+        window.requestAnimationFrame(() => when_up(f))
+        return
+      }
+      f()
     }
+
+    when_up(() => {
+      const title = node.getTitle();
+      // node.type not set at this point? 
+      switch (title) {
+        case "Dandy Editor":
+          initDandyEditorNode(node);
+          break;
+        case "Dandy Canvas":
+          initDandyCanvasNode(node);
+          break;
+      }
+
+    })
 	}
 };
 
