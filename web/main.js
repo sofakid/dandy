@@ -5,11 +5,24 @@ import { ComfyWidgets } from "../../scripts/widgets.js";
 
 const extension_name = "dandy"
 const extension_webroot = "/extensions/dandy/"
+const extension_css = `${extension_webroot}dandy.css`
+
+const loadDandyCss = (doc) => {
+  const dandycss = doc.createElement("link")
+  dandycss.rel = 'stylesheet'
+  dandycss.type = 'text/css'
+  dandycss.href = `${extension_css}`
+  doc.head.appendChild(dandycss)
+}
+
+const dandyCssLink = `<link rel="stylesheet" type="text/css" href="${extension_css}" />`
 
 let DANDY_INITIALIZED = false
 const initDandy = () => {
   console.log("initDandy()")
   
+  loadDandyCss(document)
+
   const pairwise = (a) => {
     const x = [];
     for (let i = 0; i < a.length; i += 2)
@@ -45,22 +58,27 @@ const initDandy = () => {
   });
 }
 
+
+const simple_widget_getter_setter = (el) => {
+  return {
+		getValue()  { return el.value },
+		setValue(v) { el.value = v },
+	}
+}
+
+const add_simple_node = (node, el) => {
+  console.log("node.addDOMWidget(", el.id, el.id, el, simple_widget_getter_setter(el), ")")
+  return node.addDOMWidget(el.id, el.id, el, simple_widget_getter_setter(el));
+}
+
 const initDandyEditorNode = (node) => {
   console.log("initDandyEditorNode(node)", node)
   const editor_id = `dandy_editor_${node.id}`
-  const div_id = `dandy_node_${node.id}`
 
   const dandy_div = document.createElement("div")
   dandy_div.classList.add("dandy-node")
   
-	const widget = node.addDOMWidget(div_id, "dandydandydandy", dandy_div, {
-		getValue() {
-			return dandy_div.value;
-		},
-		setValue(v) {
-			dandy_div.value = v;
-		},
-	});
+  const widget = add_simple_node(node, dandy_div)
   
   const editor_pre = document.createElement("pre")
   editor_pre.classList.add("dandy-editor")
@@ -81,39 +99,50 @@ const initDandyEditorNode = (node) => {
   
   // comfyui uses css transforms 
   // without this line, cursor postion and mouse clicks won't line up
-  editor.setOption('hasCssTransforms', true); 
-  
+  editor.setOption('hasCssTransforms', true)
 
 	editor_pre.addEventListener("resize", (event) => {
-    console.log('Event type:', event.type);
-    console.log('Event details:', event);
+    console.log('Event type:', event.type)
+    console.log('Event details:', event)
     editor.resize()
 	})
 
-  // let lastTransform = null
-  // const observer = new MutationObserver(function(mutations) {
-  //   mutations.forEach(function(mutation) {
-  //     // if (mutation.type === 'attributes' && 
-  //     //    (mutation.attributeName === 'style' || mutation.attributeName === 'transform')) {
-  //     //   // Handle the style or transform change here
-  //     if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-  //       const t = dandy_div.style.transform
-  //       if (t !== lastTransform) {
-  //         lastTransform = t
-  //         console.log('transform changed:', t);
-  //         // Adjust Ace editor or perform other necessary actions
-  //         editor.resize()
-  //         //editor.renderer.updateFull();
-  //       }
+}
 
-  //     }
-         
- 
-  //   });
-  // });
+let iDandies = 0
+const getNextId = () => {
+  return iDandies++
+}
 
-  // const observerConfig = { attributes: true, attributeFilter: ['style', 'transform'], subtree: true };
-  // observer.observe(dandy_div, observerConfig);
+const initDandyCanvasNode = async (node) => {
+  const dandyland = document.createElement("iframe")
+  dandyland.classList.add('dandyMax')
+  dandyland.id = `dandyland_${getNextId()}`
+
+  const js_files = ["p5/p5.js_"]
+  const n_files = js_files.length
+  const js_blob_urls = []
+
+  for (let i_file = 0; i_file < n_files; i_file++) {
+    const js_ = js_files[i_file]
+    const response = await fetch(`${extension_webroot}${js_}`)
+    const text = await response.text()
+    const blob = new Blob([text], { type: 'application/javascript' })
+    const url = URL.createObjectURL(blob)
+    js_blob_urls.push(url)
+  }
+
+  const script_tags = js_blob_urls.map((url) => `<script type="application/javascript" src=${url}></script>`)
+
+  dandyland.srcdoc = `<html class="dandyMax"><head>${dandyCssLink}</head><body class="dandyMax">
+    ${script_tags.join("\n    ")}
+    <canvas class="dandyMax" />
+  </body></html>`
+  
+  // Add the iframe to the DOM after all scripts are loaded
+  const widget = add_simple_node(node, dandyland)
+  widget.dandyland = dandyland
+  widget.js_blob_urls = js_blob_urls
 }
 
 // -----------------------------------------------------------------------------------
@@ -135,6 +164,12 @@ const ext = {
 	async getCustomWidgets(app) {
 		// Return custom widget types
 		// See ComfyWidgets for widget examples
+    return {
+      JAVASCRIPT(node, inputName, inputData, app) {
+        console.log("GET CUSTOME WIGET CANVAS", CANVAS)
+        return addCanvasWidget(node,inputName,inputData, app)
+      } 
+    }
 	},
 	async beforeRegisterNodeDef(nodeType, nodeData, app) {
 		// Run custom logic before a node definition is registered with the graph
@@ -144,7 +179,10 @@ const ext = {
 	},
 	async registerCustomNodes(app) {
 		// Register any custom node implementations here allowing for more flexability than a custom node def
-	},
+    class DandyLand {
+
+    }
+  },
 	loadedGraphNode(node, app) {
 		// Fires for each node when loading/dragging/etc a workflow json or png
 		// If you break something in the backend and want to patch workflows in the frontend
@@ -176,6 +214,9 @@ const ext = {
           break;
         case "Dandy Canvas":
           initDandyCanvasNode(node);
+          break;
+        case "Dandy JavaScript Loader":
+          initDandyJavaScriptLoaderNode(node);
           break;
       }
 
