@@ -7,6 +7,13 @@
   overflow: hidden;
 }
 
+.dandyUL {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 .dandyLI {
   display: flex;
   justify-content: space-between;
@@ -20,6 +27,6 @@
 
 .dandySpanButton {
   /* The buttons will be stacked on the right */
-  margin-left: 5px;
-  cursor: pointer;
+  margin-left: 10px;
+  cursor: crosshair;
 }
