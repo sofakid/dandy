@@ -6,3 +6,20 @@
   border: none;
   overflow: hidden;
 }
+
+.dandyLI {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dandyFileSpan {
+  /* The filename will take the available space on the left */
+  flex-grow: 1;
+}
+
+.dandySpanButton {
+  /* The buttons will be stacked on the right */
+  margin-left: 5px;
+  cursor: pointer;
+}
