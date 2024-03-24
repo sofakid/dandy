@@ -118,7 +118,7 @@ export class DandyP5JsSetup extends DandyEditor {
 
 export class DandyP5JsDraw extends DandyEditor {
   static default_text = `function draw() {
-  background(0,0,0)
+  background(0, 0, 0)
 }`
 
   constructor(node, app) {

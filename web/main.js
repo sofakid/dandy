@@ -1,7 +1,8 @@
 import { app } from "../../scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
+import { DandyWidget } from "/extensions/dandy/dandymisc.js"
 import { DandyEditor, DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
-import { new_dandy_capture_widget, DandyLand } from "/extensions/dandy/dandyland.js"
+import { DandyLand } from "/extensions/dandy/dandyland.js"
 import { DandyJsLoader, DandyP5JsLoader } from "/extensions/dandy/js_loaders.js"
 
 const extension_name = "dandy"
@@ -64,9 +65,12 @@ const ext = {
 	},
 	getCustomWidgets: async (app) => {
     return {
-      DANDYCAPTURE(node, inputName, inputData, app) {
-        console.log("getCustomWidgets DANDYCAPTURE")
-        return new_dandy_capture_widget(node, inputName, inputData, app)
+      JS_URLS(node, inputName, inputData, app) {
+        return new DandyWidget(node, inputName, inputData, app)
+      },
+
+      DANDY_CAPTURE(node, inputName, inputData, app) {
+        return new DandyWidget(node, inputName, inputData, app)
       }
     }
 	},

@@ -7,6 +7,10 @@
   overflow: hidden;
 }
 
+.dandyInvisible {
+  display: none;
+}
+
 .dandyUL {
   margin-top: 0;
   margin-bottom: 0;

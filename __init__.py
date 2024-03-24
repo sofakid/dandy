@@ -6,6 +6,14 @@ from PIL import Image, ImageOps
 from PIL.PngImagePlugin import PngInfo
 import numpy as np
 
+JS_NAME = "js"
+JS_TYPE = "JS_URLS"
+JS_TYPE_INPUT = (JS_TYPE,)
+
+CAPTURE_NAME = "capture"
+CAPTURE_TYPE = "DANDY_CAPTURE"
+CAPTURE_TYPE_INPUT = (CAPTURE_TYPE,)
+
 def image_to_data_url(image):
   buffered = BytesIO()
   image.save(buffered, format="PNG")
@@ -36,65 +44,67 @@ def make_mask(filename):
 
   return mask_data_torch 
 
+def collect_images(images):
+  collected_images = list()
+  if images is not None:
+    for image in images:
+      i = 255. * image.cpu().numpy()
+      img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8)) 
+      collected_images.append(image_to_data_url(img))
+
+  return { "ui": {"collected_images":collected_images} }
+
 class DandyEditor:
   def __init__(self):
-    self.updateTick = 1
     pass
 
   @classmethod
-  def INPUT_TYPES(s):
+  def INPUT_TYPES(self):
     return {
       "required": {
       }, 
       "hidden": {
       },
       "optional": {
-        "seed": ("SEED", 0),
+        JS_NAME: JS_TYPE_INPUT
       },
     }
 
-  RETURN_TYPES = ()
-  RETURN_NAMES = ()
+  RETURN_TYPES = (JS_TYPE,)
+  RETURN_NAMES = (JS_NAME,)
 
-  FUNCTION = "run"
+  FUNCTION = "onExecute"
   OUTPUT_NODE = False
   CATEGORY = "DandyLand"
 
-  def run(self):
-    collected_images = list()
-    if images is not None:
-      for image in images:
-        i = 255. * image.cpu().numpy()
-        img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8)) 
-        collected_images.append(image_to_data_url(img))
-
-    return { "ui": {"collected_images":collected_images} }
+  def onExecute(self, js):
+    return (js,)
+  
 
 class DandyP5JsSetup:
   def __init__(self):
-    self.updateTick = 1
     pass
 
   @classmethod
-  def INPUT_TYPES(s):
+  def INPUT_TYPES(self):
     return {
       "required": {
       }, 
       "hidden": {
       },
       "optional": {
-        "seed": ("SEED", 0),
+        JS_NAME: JS_TYPE_INPUT
       },
     }
 
-  RETURN_TYPES = ()
-  RETURN_NAMES = ()
-  FUNCTION = "run"
+  RETURN_TYPES = (JS_TYPE,)
+  RETURN_NAMES = (JS_NAME,)
+  FUNCTION = "onExecute"
   OUTPUT_NODE = False
   CATEGORY = "DandyLand"
 
-  def run(self):
-    pass
+  def onExecute(self, js):
+    return (js,)
 
 
 class DandyP5JsDraw:
@@ -102,25 +112,25 @@ class DandyP5JsDraw:
     pass
 
   @classmethod
-  def INPUT_TYPES(s):
+  def INPUT_TYPES(self):
     return {
       "required": {
       }, 
       "hidden": {
       },
       "optional": {
-        "seed": ("SEED", 0),
+        JS_NAME: JS_TYPE_INPUT
       },
     }
 
-  RETURN_TYPES = ()
-  RETURN_NAMES = ()
-  FUNCTION = "run"
+  RETURN_TYPES = (JS_TYPE,)
+  RETURN_NAMES = (JS_NAME,)
+  FUNCTION = "onExecute"
   OUTPUT_NODE = False
   CATEGORY = "DandyLand"
 
-  def run(self):
-    pass
+  def onExecute(self, js):
+    return (js, )
 
 
 class DandyJsLoader:
@@ -135,21 +145,18 @@ class DandyJsLoader:
       "hidden": {
       },
       "optional": {
+        JS_NAME: JS_TYPE_INPUT
       },
     }
 
-  RETURN_TYPES = ()
-  RETURN_NAMES = ()
-  FUNCTION = "run"
+  RETURN_TYPES = (JS_TYPE,)
+  RETURN_NAMES = (JS_NAME,)
+  FUNCTION = "onExecute"
   OUTPUT_NODE = False
   CATEGORY = "DandyLand"
 
-  def IS_CHANGED(self, js=None):
-    self.updateTick += 1
-    return hex(self.updateTick)
-
-  def run(self, js=None):
-    pass
+  def onExecute(self, js):
+    return (js,)
 
 class DandyP5JsLoader:
   def __init__(self):
@@ -163,17 +170,18 @@ class DandyP5JsLoader:
       "hidden": {
       },
       "optional": {
+        JS_NAME: JS_TYPE_INPUT
       },
     }
 
-  RETURN_TYPES = ()
-  RETURN_NAMES = ()
-  FUNCTION = "run"
+  RETURN_TYPES = (JS_TYPE,)
+  RETURN_NAMES = (JS_NAME,)
+  FUNCTION = "onExecute"
   OUTPUT_NODE = False
   CATEGORY = "DandyLand"
 
-  def run(self):
-    pass
+  def onExecute(self, js):
+    return (js,)
 
 class DandyLand:
   def __init__(self):
@@ -183,25 +191,27 @@ class DandyLand:
   def INPUT_TYPES(s):
     return {
       "required": {
-        "capture": ("DANDYCAPTURE", "")
       }, 
       "hidden": {
       },
       "optional": {
+        #"seed": ("SEED",),
+        CAPTURE_NAME: CAPTURE_TYPE_INPUT,
+        JS_NAME: JS_TYPE_INPUT
       },
     }
 
-  RETURN_TYPES = ("IMAGE", "MASK",)
-  RETURN_NAMES = ("Image", "Mask",)
-
-  FUNCTION = "run"
+  RETURN_TYPES = ("IMAGE", "MASK", JS_TYPE,)
+  RETURN_NAMES = ("Image", "Mask", JS_NAME,)
+  FUNCTION = "onExecute"
   OUTPUT_NODE = True
   CATEGORY = "DandyLand"
 
-  def run(self, capture):
+  def onExecute(self, seed, capture, js):
+    print("DandyLand :: capture: " + str(capture) + " :: js: " + str(js))
     rgb_image = make_rgb(capture)
     mask = make_mask(capture)
-    return (rgb_image, mask) 
+    return (rgb_image, mask, js)
 
 # Set the web directory, any .js file in that directory will be loaded by the frontend as a frontend extension
 WEB_DIRECTORY = "web"

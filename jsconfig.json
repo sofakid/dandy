@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./web/",
+    "paths": {
+      "/extensions/dandy/*": ["./*"],
+      "/scripts/*": ["../../../web/scripts/*"]
+    }
+  }
+}

@@ -1,3 +1,4 @@
+import { DandyWidget } from "/extensions/dandy/dandymisc.js"
 
 const JS_TYPE = 'JS_URLS'
 const JS_NAME = 'js'
@@ -11,17 +12,24 @@ export class DandyJsChain {
     this.node = node
     this.app = app
     this.js_urls = ''  // current node will put their contributions here
-    this.out_urls = '' // all the collected urls
 
+    const js_widget = node.widgets.find((x) => x.name === JS_NAME)
+    this.js_widget = js_widget
+    js_widget.value = ''
+    js_widget.size = [0, -4] // litegraph will pad it by 4
+    js_widget.callback = () => {}
+    
     let in_slot = node.findInputSlot(JS_NAME)
     let out_slot = node.findOutputSlot(JS_NAME)
 
     if (in_slot === -1) {
+      console.error("no input slot")
       node.addInput(JS_NAME, JS_TYPE)
       in_slot = node.findInputSlot(JS_NAME)
     }
 
     if (out_slot === -1) {
+      console.error("no output slot")
       node.addOutput(JS_NAME, JS_TYPE)
       out_slot = node.findOutputSlot(JS_NAME)
     }
@@ -39,6 +47,7 @@ export class DandyJsChain {
         js_chain.update_js()
       })
     }
+    console.log("JS Chain constructed", this)
   }
 
   // f_each_node: (js_chain) => {}
@@ -109,7 +118,7 @@ export class DandyJsChain {
     node.setOutputData(out_slot_javascript, out_urls)
     node.triggerSlot(out_slot_javascript)
 
-    this.out_urls = out_urls
+    this.js_widget.value = out_urls
 
     if (DandyJsChain.debug_blobs) {
       this.urls_widget.widget.element.value = out_urls
