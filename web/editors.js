@@ -1,4 +1,37 @@
-import { DandyJsChain } from "/extensions/dandy/js_chain.js"
+import { DandyJsChain } from "./chains.js"
+
+const dandy_webroot = "/extensions/dandy/"
+
+export const initDandyEditors = async () => {
+  // comfyui will try to load these if we leave them as .js files.
+  // but ace wants to load them its own way,
+  // so we rename them to .js_ and map the features here
+  const features_and_codes = [
+    "theme/twilight", "theme-twilight.js_",
+    "theme/cloud9_day", "theme-cloud9_day.js_",
+    "theme/crimson_editor", "theme-crimson_editor.js_",
+    "mode/javascript", "mode-javascript.js_",
+    "mode/html", "mode-html.js_",
+    "mode/css", "mode-css.js_",
+    "mode/json", "mode-json.js_",
+    "mode/yaml", "mode-yaml.js_",
+    "mode/javascript_worker", "worker-javascript.js_",
+    "mode/html_worker", "worker-html.js_",
+    "mode/css_worker", "worker-css.js_",
+    "mode/json_worker", "worker-json.js_",
+  ]
+
+  for (let i = 0; i < features_and_codes.length; i += 2) {
+    const feature = features_and_codes[i]
+    const js_ = features_and_codes[i + 1]
+    const response = await fetch(`${dandy_webroot}ace/${js_}`)
+    const text = await response.text()
+    const blob = new Blob([text], { type: 'application/javascript' })
+    const url = URL.createObjectURL(blob)
+    ace.config.setModuleUrl(`ace/${feature}`, url)
+    //console.log(`ace.config.setModuleUrl("ace/${feature}", ${url})`)
+  }
+}
 
 // ========================================================================
 export class DandyEditor {
@@ -7,9 +40,7 @@ export class DandyEditor {
   constructor(node, app) {
     this.node = node
     this.app = app
-    this.js_chain = new DandyJsChain(this, node, app)
-    this.js_url = null
-    this.js_blob = null
+    
     this.editor = null
     this.widget = null
     if (node.properties === undefined) {
@@ -40,10 +71,12 @@ export class DandyEditor {
     const editor = ace.edit(editor_id)
     this.editor = editor
     editor.setTheme('ace/theme/twilight')
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/javascript')
+    editor.setOptions({
+      useSoftTabs: true,
+      tabSize: 2
+    })
     
-    // comfyui uses css transforms 
+    // LiteGraph uses css transforms 
     // without this line, cursor postion and mouse clicks won't line up
     editor.setOption('hasCssTransforms', true)
 
@@ -58,65 +91,80 @@ export class DandyEditor {
       clearTimeout(typingTimer)
 
       typingTimer = setTimeout(() => {
-        this.apply_js()
+        this.apply_text()
       }, oneSecond)
     }
 
-    // Add event listener for text change events
+    const editor_session = editor.getSession()
     editor_session.on('change', handleTextChange)
 
     // restore saved text if it exists
-    const { dandyEditorText } = node.properties
-    if (dandyEditorText !== undefined) {
-      this.set_js(dandyEditorText)
+    const { editor_text } = node.properties
+    if (editor_text !== undefined) {
+      this.set_text(editor_text)
     }
     
   }
 
-  set_js(text) {
-    const { editor } = this
+  // override
+  apply_text() {
+  }
+
+  set_text(text) {
+    const { editor, node } = this
     editor.setValue(text)
     editor.clearSelection()
     editor.resize()
-    this.apply_js()
+    node.properties.editor_text = text
+    this.apply_text()
   }
 
-  apply_js() {
-    const { editor, node } = this
-    const text = editor.getValue()
-    
-    node.properties.dandyEditorText = text
+}
 
-    this.js_blob = new Blob([text], { type: 'application/javascript' })
+export class DandyJs extends DandyEditor {
+  constructor(node, app) {
+    super(node, app)
+    const { editor } = this
+    node.size = [400, 300]
+    this.js_chain = new DandyJsChain(this, node, app)
+    this.js_url = null
+    this.js_blob = null
+
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/javascript')
+  }
+
+  apply_text() {
+    const { js_chain } = this
+    const { editor_text } = this.node.properties
+    this.js_blob = new Blob([editor_text], { type: 'application/javascript' })
     if (this.js_url !== null) {
       URL.revokeObjectURL(this.js_url)
     }
     this.js_url = URL.createObjectURL(this.js_blob)
-    const { js_chain } = this
     console.log("apply_js()", this.js_url)
-    js_chain.js_urls = this.js_url
+    js_chain.contributions = this.js_url
     js_chain.update_chain()
   }
-
 }
 
-export class DandyP5JsSetup extends DandyEditor {
+export class DandyP5JsSetup extends DandyJs {
   static default_text = `function setup() {
   noLoop()
-  createCanvas(512, 512)
+  createCanvas(dandy.width, dandy.height)
 }`
 
   constructor(node, app) {
     super(node, app)
-    node.size = [300, 180]
-    const { dandyEditorText } = node.properties
-    if (dandyEditorText === undefined) {
-      this.set_js(DandyP5JsSetup.default_text)
+    node.size = [400, 180]
+    const { editor_text } = node.properties
+    if (editor_text === undefined) {
+      this.set_text(DandyP5JsSetup.default_text)
     }
   }
 }
 
-export class DandyP5JsDraw extends DandyEditor {
+export class DandyP5JsDraw extends DandyJs {
   static default_text = `function draw() {
   background(0, 0, 0)
 }`
@@ -124,10 +172,84 @@ export class DandyP5JsDraw extends DandyEditor {
   constructor(node, app) {
     super(node, app)
     node.size = [300, 180]
-    const { dandyEditorText } = node.properties
-    if (dandyEditorText === undefined) {
-      this.set_js(DandyP5JsDraw.default_text)
+    const { editor_text } = node.properties
+    if (editor_text === undefined) {
+      this.set_text(DandyP5JsDraw.default_text)
     }
   }
 }
 
+export class DandyHtml extends DandyEditor {
+  static default_text = `<html>
+  <head></head>
+  <body>
+    <canvas id='my_canvas' width='\${dandy.width}' height='\${dandy.height}'></canvas>
+  </body>
+</html>`
+
+  constructor(node, app) {
+    super(node, app)
+    const { editor } = this
+    node.size = [600, 180]
+    
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/html')
+
+    const { editor_text } = node.properties
+    if (editor_text === undefined) {
+      this.set_text(DandyHtml.default_text)
+    }
+  }
+}
+
+export class DandyCss extends DandyEditor {
+  static default_text = `body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }`
+
+  constructor(node, app) {
+    super(node, app)
+    const { editor } = this
+    node.size = [300, 180]
+    
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/css')
+
+    const { editor_text } = node.properties
+    if (editor_text === undefined) {
+      this.set_text(DandyCss.default_text)
+    }
+  }
+}
+
+export class DandyJson extends DandyEditor {
+  static default_text = `{
+}`
+
+  constructor(node, app) {
+    super(node, app)
+    const { editor } = this
+    node.size = [300, 180]
+    
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/json')
+
+    const { editor_text } = node.properties
+    if (editor_text === undefined) {
+      this.set_text(DandyJson.default_text)
+    }
+  }
+}
+
+export class DandyYaml extends DandyEditor {
+  constructor(node, app) {
+    super(node, app)
+    const { editor } = this
+    node.size = [300, 180]
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/yaml')
+  }
+}

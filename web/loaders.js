@@ -1,4 +1,4 @@
-import { DandyJsChain } from "/extensions/dandy/js_chain.js"
+import { DandyChain, DandyJsChain } from "./chains.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
@@ -12,12 +12,17 @@ export class DandyJsLoader {
     this.app = app
     this.js_chain = new DandyJsChain(this, node, app)
 
-    this.files_order = []
     this.filemap = {}
     this.urlmap = {}
     this.blobmap = {}
 
     node.serialize_widgets = true
+    if (node.properties === undefined) {
+      node.properties = {
+        texts: {},
+        order: []
+      }
+    }
       
     const file_input = document.createElement("input")
     const js_files_selected = async () => {
@@ -37,39 +42,41 @@ export class DandyJsLoader {
 
     this.file_input = file_input
 
-    const load_js_widget = node.addWidget("button", "JAVASCRIPT", "javascript", () => {
+    const load_js_widget = node.addWidget("button", "choose_js_button", "", () => {
       file_input.click()
+      this.reset_file_input()
     })
     load_js_widget.label = "Choose files..."
-    load_js_widget.serialize = false
+    load_js_widget.options.serialize = false
 
     const files_pre = document.createElement("pre")
 
     files_pre.classList.add("dandyMax")
     files_pre.id = `files_pre_${i_files_pre++}`
-    const files_widget = node.addDOMWidget(files_pre.id, "pre", files_pre)
-    files_widget.serialize = false
-
+    node.addDOMWidget(files_pre.id, "pre", files_pre, { serialize: false })
+    
     const ul = document.createElement('ul')
     ul.classList.add('dandyUL')
     files_pre.appendChild(ul)
     this.ul_filelist = ul
+  
+    this.load_from_properties()
   }
 
   reset_file_input() {
-    this.file_input.value = null; // Reset the value to clear selected files
+    this.file_input.value = null
   }
 
   move_up(filename) {
-    const { files_order } = this
-    const i = files_order.indexOf(filename)
+    const { order } = this.node.properties
+    const i = order.indexOf(filename)
     const j = i - 1
     const exists_and_not_at_front = i > 0
     
     if (exists_and_not_at_front) {
-      const x = files_order[j]
-      files_order[j] = files_order[i]
-      files_order[i] = x
+      const x = order[j]
+      order[j] = order[i]
+      order[i] = x
     }
 
     this.render_file_list()
@@ -77,16 +84,16 @@ export class DandyJsLoader {
   }
 
   move_down(filename) {
-    const { files_order } = this
-    const i = files_order.indexOf(filename)
+    const { order } = this.node.properties
+    const i = order.indexOf(filename)
     const j = i + 1
     const found = i >= 0
-    const not_at_end = i < files_order.length - 1
+    const not_at_end = i < order.length - 1
     
     if (found && not_at_end) {
-      const x = files_order[j]
-      files_order[j] = files_order[i]
-      files_order[i] = x
+      const x = order[j]
+      order[j] = order[i]
+      order[i] = x
     }
 
     this.render_file_list()
@@ -94,13 +101,16 @@ export class DandyJsLoader {
   }
   
   remove_file(filename) {
+    const { properties } = this.node
+    const { texts } = properties
     const { blobmap, urlmap, filemap } = this
   
-    this.files_order = this.files_order.filter( (x) => x !== filename )
+    properties.order = properties.order.filter( (x) => x !== filename )
     URL.revokeObjectURL(urlmap[filename])
     urlmap[filename] = undefined
     filemap[filename] = undefined
     blobmap[filename] = undefined
+    texts[filename] = undefined
 
     this.reset_file_input()
     this.render_file_list()
@@ -108,15 +118,16 @@ export class DandyJsLoader {
   }
 
   render_file_list() {
-    const { files_order, ul_filelist } = this
+    const { order } = this.node.properties
+    const { ul_filelist } = this
 
     ul_filelist.innerHTML = ''
-    const n_files = files_order.length
+    const n_files = order.length
     if (n_files === 0) {
       return
     }
 
-    files_order.forEach((filename, i) => {
+    order.forEach((filename, i) => {
       const li = document.createElement('li')
       const file_span = document.createElement('span')
       const move_up_button = document.createElement('span')
@@ -151,18 +162,19 @@ export class DandyJsLoader {
   }
 
   update_chain() {
-    const { files_order, urlmap, js_chain } = this
+    const { order } = this.node.properties
+    const { urlmap, js_chain } = this
     let s = ''
-    files_order.forEach((filename) => {
+    order.forEach((filename) => {
       const url = urlmap[filename]
       s += `${url}\n`
     })
-    js_chain.js_urls = s
+    js_chain.contributions = s
     js_chain.update_chain()
   }
 
   async add_js_files(chosen_files) {
-    const { files_order, filemap, urlmap, blobmap } = this
+    const { order } = this.node.properties
 
     let i_file = 0
     const n_files = chosen_files.length
@@ -172,25 +184,15 @@ export class DandyJsLoader {
       const file = chosen_files[i]
       const { name, size, lastModified } = file
 
-      if (files_order.indexOf(name) === -1) {
-        files_order.push(name)
+      if (order.indexOf(name) === -1) {
+        order.push(name)
       }
       
       const reader = new FileReader()
       reader.onload = (event) => {
-        const scriptText = event.target.result
-        const blob = new Blob([scriptText], { type: 'application/javascript' })
-        const url = URL.createObjectURL(blob)
-
-        const existing = urlmap[name]
-        if (existing) {
-          URL.revokeObjectURL(existing)
-        }
-
-        filemap[name] = file
-        blobmap[name] = blob
-        urlmap[name] = url
-
+        const text = event.target.result
+        this.load_maps(name, text)
+        
         if (++i_file === n_files) {
           this.update_chain()
           this.render_file_list()
@@ -199,6 +201,33 @@ export class DandyJsLoader {
   
       reader.readAsText(file)
     }
+  }
+
+  load_from_properties() {
+    const { texts } = this.node.properties
+    Object.entries(texts).forEach(([filename, text]) => {
+      this.load_maps(filename, text)
+    })
+    this.update_chain()
+    this.render_file_list()
+  }
+
+  load_maps(filename, text) {
+    const { texts } = this.node.properties
+    const { urlmap, blobmap } = this
+
+    const blob = new Blob([text], { type: 'application/javascript' })
+    const url = URL.createObjectURL(blob)
+
+    const existing = urlmap[filename]
+    if (existing) {
+      URL.revokeObjectURL(existing)
+    }
+
+    texts[filename] = text
+    blobmap[filename] = blob
+    urlmap[filename] = url
+
   }
 }
 
@@ -209,7 +238,7 @@ export class DandyP5JsLoader {
     this.app = app
     this.js_chain = new DandyJsChain(this, node, app)
 
-    if (DandyJsChain.debug_blobs) {
+    if (DandyChain.debug_blobs) {
       node.size = [380, 100]
     } else {
       node.size = [290, 75]
@@ -237,7 +266,7 @@ export class DandyP5JsLoader {
     this.js_blob = new Blob([text], { type: 'application/javascript' })
     this.js_url = URL.createObjectURL(this.js_blob)
 
-    this.js_chain.js_urls = this.js_url
+    this.js_chain.contributions = this.js_url
     this.js_chain.update_chain()
 
     const p = new Promise((resolve, reject) => {
