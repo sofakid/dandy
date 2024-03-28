@@ -1,5 +1,5 @@
 import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode } from "/extensions/dandy/dandymisc.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
@@ -36,12 +36,11 @@ export const initDandyEditors = async () => {
 }
 
 // ========================================================================
-export class DandyEditor {
+export class DandyEditor extends DandyNode {
   static i_editor = 0
 
   constructor(node, app, mimetype) {
-    this.node = node
-    this.app = app
+    super(node, app)
     this.mimetype = mimetype
     
     this.editor = null
@@ -105,19 +104,19 @@ export class DandyEditor {
 
     const editor_session = editor.getSession()
     editor_session.on('change', handleTextChange)
+  }
 
-    node.onConfigure = (info) => {
-      // restore saved text if it exists
-      const { properties } = node
-      const { text } = properties
-      properties.brand_new_node = false
-      if (text !== undefined) {
-        this.set_text(text)
-      } else {
-        this.set_text("")
-      } 
+  on_configure(info) {
+    // restore saved text if it exists
+    const { node } = this
+    const { properties } = node
+    const { text } = properties
+    properties.brand_new_node = false
+    if (text !== undefined) {
+      this.set_text(text)
+    } else {
+      this.set_text("")
     } 
-    
   }
 
   apply_text() {
@@ -127,13 +126,11 @@ export class DandyEditor {
     properties.text = text
 
     if (chain) {
-      console.log("apply_text", `<${text}>`, this.node)
       this.text_blob = new Blob([text], { type: this.mimetype })
       if (this.text_url !== null) {
         URL.revokeObjectURL(this.text_url)
       }
       this.text_url = URL.createObjectURL(this.text_blob)
-      console.log("apply_text()", this.text_url)
       chain.contributions = this.text_url
       chain.update_chain()
     }
@@ -144,7 +141,6 @@ export class DandyEditor {
     editor.setValue(text)
     editor.clearSelection()
     editor.resize()
-    console.log("SET_TEXT", `<${text}>`, this.node)
     this.apply_text()
   }
 }
@@ -190,7 +186,7 @@ export class DandyHtml extends DandyEditor {
   static default_text = `<html>
   <head></head>
   <body>
-    <canvas id='my_canvas' width='\${dandy.width}' height='\${dandy.height}'></canvas>
+    <canvas id='my_canvas'></canvas>
   </body>
 </html>`
 

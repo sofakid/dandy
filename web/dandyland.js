@@ -1,5 +1,5 @@
 import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyYamlChain } from '/extensions/dandy/chains.js'
-import { Mimes, DandyNames } from '/extensions/dandy/dandymisc.js'
+import { Mimes, DandyNames, DandyNode } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { api } from '/scripts/api.js'
 
@@ -35,13 +35,12 @@ const load_list_of_urls = async (urls, f) => {
 // ======================================================================
 let i_dandy_land = 0
 let i_iframe = 0
-export class DandyLand {
+export class DandyLand extends DandyNode {
   static capture_entire = 'entire'
   static capture_canvas = 'canvas'
 
   constructor(node, app) {
-    this.node = node
-    this.app = app
+    super(node, app)
     this.js_chain = new DandyJsChain(this, node, app)
     this.html_chain = new DandyHtmlChain(this, node, app)
     this.css_chain = new DandyCssChain(this, node, app)
@@ -55,18 +54,22 @@ export class DandyLand {
     node.dandy = this
 
     node.size = [535, 605]
-
-    this.iframes = []
-    this.iframe_widgets = []
     
     const find_widget = (widget_name) => {
       return node.widgets.find((x) => x.name === widget_name)
     }
 
-    this.width_widget = find_widget("width")
-    this.height_widget = find_widget("height")
+    const width_widget = this.width_widget = find_widget("width")
+    const height_widget = this.height_widget = find_widget("height")
     this.images_widget = find_widget("images")
     this.masks_widget = find_widget("masks")
+
+    width_widget.callback = () => {
+      this.reload_iframe()
+    }
+    height_widget.callback = () => {
+      this.reload_iframe()
+    }
 
     const capture_widget = find_widget(DandyNames.CAPTURES)
     this.capture_widget = capture_widget
@@ -124,7 +127,6 @@ export class DandyLand {
     const blobs = await this.get_canvases_blobs()
     const filenames = []
 
-    console.log("capture() blobs", blobs)
     for (let i = 0; i < blobs.length; ++i) {
       const blob = blobs[i]
       const form = new FormData()
@@ -147,7 +149,7 @@ export class DandyLand {
   }
 
   on_chain_updated(type) {
-    console.log(`Dandyland chain updated. reloading: ${this.reloading} dirty: ${this.dirty}`)
+    // console.log(`Dandyland chain updated. reloading: ${this.reloading} dirty: ${this.dirty}`)
     this.reload_iframe()
   }
 
@@ -178,7 +180,7 @@ export class DandyLand {
   }
 
   async reload_iframe_job (when_done) {
-    const { node, divvy, 
+    const { divvy, 
       js_chain, html_chain, css_chain, json_chain, yaml_chain,
       width_widget, height_widget, images_widget, masks_widget 
     } = this
@@ -250,8 +252,9 @@ export class DandyLand {
     
     if (htmls.length === 0) {
       const iframe = make_iframe(when_done)
-      iframe.srcdoc = `<html class="dandyMax"><head>${dandy_css_link}${css_links}</head>
-                       <body class="dandyMax">${script_tags}</body></html>`
+      const html = `<html class="dandyMax"><head>${dandy_css_link}${css_links}</head>
+                    <body class="dandyMax">${script_tags}</body></html>`
+      iframe.srcdoc = html
       divvy.appendChild(iframe)
       
     } else {
@@ -260,7 +263,6 @@ export class DandyLand {
       let i_htmls_loaded = 0
       const on_load = () => {
         if (++i_htmls_loaded === n_htmls) {
-          console.log("done loading iframes")
           when_done()
         }
       }
@@ -270,13 +272,9 @@ export class DandyLand {
         const completed_html = lazy_html(html)
         const html_with_css = html_insert_css(completed_html)
         const html_with_css_scripts = html_insert_scripts(html_with_css)
-        console.log("setting srcdoc", html_with_css_scripts)
         iframe.srcdoc = html_with_css_scripts
         divvy.appendChild(iframe)
       })
     }
-
   }
-
-  
 }

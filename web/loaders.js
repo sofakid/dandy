@@ -1,23 +1,20 @@
 import { DandyChain, DandyJsChain, DandyHtmlChain, DandyCssChain, DandyJsonChain, DandyYamlChain } from "./chains.js"
-import { DandyTypes, Mimes } from "/extensions/dandy/dandymisc.js"
+import { DandyNode, DandyTypes, Mimes } from "/extensions/dandy/dandymisc.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
 let i_files_pre = 0
 let i_texty_widget = 0
 
-class DandyFileLoader {
+class DandyFileLoader extends DandyNode {
   constructor(node, app, mimetype, type) {
-    this.node = node
-    this.app = app
+    super(node, app)
     this.mimetype = mimetype
     this.type = type
     this.filemap = {}
     this.urlmap = {}
     this.blobmap = {}
     this.chains = {}
-
-    node.serialize_widgets = false
 
     if (node.properties === undefined) {
       node.properties = {
@@ -61,9 +58,10 @@ class DandyFileLoader {
     files_pre.appendChild(ul)
     this.ul_filelist = ul
 
-    node.onConfigure = (info) => {
-      this.load_from_properties()
-    }
+  }
+
+  on_configure(info) {
+    this.load_from_properties()
   }
 
   reset_file_input() {
@@ -168,7 +166,6 @@ class DandyFileLoader {
     const { order } = this.node.properties
     const { urlmap, chains, type } = this
     const chain = chains[type]
-    console.log("update_chain()", chain, type, chains, this)
     let s = ''
     order.forEach((filename) => {
       const url = urlmap[filename]
@@ -273,11 +270,10 @@ export class DandyYamlLoader extends DandyFileLoader {
 }
 
 // ==========================================================================================
-export class DandyP5JsLoader {
+export class DandyP5JsLoader extends DandyNode {
   constructor(node, app) {
-    this.node = node
-    this.app = app
-    new DandyJsChain(this, node, app)
+    super(node, app)
+    this.chain = new DandyJsChain(this, node, app)
     this.type = DandyTypes.JS
 
     if (DandyChain.debug_blobs) {
