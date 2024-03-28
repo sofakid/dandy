@@ -374,6 +374,132 @@ class DandyP5JsLoader:
 
 
 
+
+class DandyHtmlLoader:
+  def __init__(self):
+    pass
+
+  @classmethod
+  def INPUT_TYPES(self):
+    return {
+      "required": {
+      }, 
+      "hidden": {
+      },
+      "optional": {
+        HTML_NAME: HTML_TYPE_INPUT
+      },
+    }
+  
+  @classmethod
+  def IS_CHANGED(self, js):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = (HTML_TYPE,)
+  RETURN_NAMES = (HTML_NAME,)
+  FUNCTION = "run"
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self, html):
+    return (html,)
+
+
+
+class DandyCssLoader:
+  def __init__(self):
+    pass
+
+  @classmethod
+  def INPUT_TYPES(self):
+    return {
+      "required": {
+      }, 
+      "hidden": {
+      },
+      "optional": {
+        CSS_NAME: CSS_TYPE_INPUT
+      },
+    }
+  
+  @classmethod
+  def IS_CHANGED(self, js):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = (CSS_TYPE,)
+  RETURN_NAMES = (CSS_NAME,)
+  FUNCTION = "run"
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self, css):
+    return (css,)
+
+  
+
+class DandyJsonLoader:
+  def __init__(self):
+    pass
+
+  @classmethod
+  def INPUT_TYPES(self):
+    return {
+      "required": {
+      }, 
+      "hidden": {
+      },
+      "optional": {
+        JSON_NAME: JSON_TYPE_INPUT
+      },
+    }
+  
+  
+  @classmethod
+  def IS_CHANGED(self, js):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = (JSON_TYPE,)
+  RETURN_NAMES = (JSON_NAME,)
+  FUNCTION = "run"
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self, js):
+    return (js,)
+
+
+
+class DandyYamlLoader:
+  def __init__(self):
+    pass
+
+  @classmethod
+  def INPUT_TYPES(self):
+    return {
+      "required": {
+      }, 
+      "hidden": {
+      },
+      "optional": {
+        YAML_NAME: YAML_TYPE_INPUT
+      },
+    }
+  
+  @classmethod
+  def IS_CHANGED(self, js):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = (YAML_TYPE,)
+  RETURN_NAMES = (YAML_NAME,)
+  FUNCTION = "run"
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self, yaml):
+    return (yaml,)
+
+
+
 class DandyLand:
   def __init__(self):
     pass
@@ -446,7 +572,11 @@ NODE_CLASS_MAPPINGS = {
   "DandyP5JsSetup": DandyP5JsSetup,
   "DandyP5JsDraw": DandyP5JsDraw,
   "DandyJsLoader": DandyJsLoader,
-  "DandyP5JsLoader": DandyP5JsLoader
+  "DandyP5JsLoader": DandyP5JsLoader,
+  "DandyJsonLoader": DandyJsonLoader,
+  "DandyYamlLoader": DandyYamlLoader,
+  "DandyCssLoader": DandyCssLoader,
+  "DandyHtmlLoader": DandyHtmlLoader
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -458,6 +588,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyYaml": "Dandy Yaml",
   "DandyJsLoader": "Dandy Js Loader",
   "DandyP5JsLoader": "Dandy p5.js Loader",
+  "DandyJsonLoader": "Dandy Json Loader",
+  "DandyYamlLoader": "Dandy Yaml Loader",
+  "DandyCssLoader": "Dandy Css Loader",
+  "DandyHtmlLoader": "Dandy Html Loader",
   "DandyP5JsSetup": "Dandy p5.js Setup",
   "DandyP5JsDraw": "Dandy p5.js Draw"
 }

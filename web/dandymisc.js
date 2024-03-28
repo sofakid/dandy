@@ -1,9 +1,33 @@
 
+export const DandyTypes = {
+  JS: 'JS_URLS',
+  HTML: 'HTML_URLS',
+  CSS: 'CSS_URLS',
+  JSON: 'JSON_URLS',
+  YAML: 'YAML_URLS',
+  CAPTURES: 'DANDY_CAPTURE',
+}
+
+export const DandyNames = {
+  JS: 'js',
+  HTML: 'html',
+  CSS: 'css',
+  JSON: 'json',
+  YAML: 'yaml',
+  CAPTURES: 'captures'
+}
+
+export const Mimes = {
+  JS: 'application/javascript',
+  HTML: 'text/html',
+  CSS: 'text/css',
+  JSON: 'application/json',
+  YAML: 'application/yaml',
+}
 
 let i_dandy_widget = 0
 export class DandyWidget {
   constructor(node, inputName, inputData, app) {
-    console.log('new DandyWidget', inputName, inputData[0])
     this.type = inputData[0]
     this.name = inputName
     if (++i_dandy_widget === Number.MAX_SAFE_INTEGER) {

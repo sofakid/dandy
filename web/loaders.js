@@ -1,22 +1,24 @@
-import { DandyChain, DandyJsChain } from "./chains.js"
+import { DandyChain, DandyJsChain, DandyHtmlChain, DandyCssChain, DandyJsonChain, DandyYamlChain } from "./chains.js"
+import { DandyTypes, Mimes } from "/extensions/dandy/dandymisc.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
 let i_files_pre = 0
 let i_texty_widget = 0
 
-// ==========================================================================================
-export class DandyJsLoader {
-  constructor(node, app) {
+class DandyFileLoader {
+  constructor(node, app, mimetype, type) {
     this.node = node
     this.app = app
-    this.js_chain = new DandyJsChain(this, node, app)
-
+    this.mimetype = mimetype
+    this.type = type
     this.filemap = {}
     this.urlmap = {}
     this.blobmap = {}
+    this.chains = {}
 
-    node.serialize_widgets = true
+    node.serialize_widgets = false
+
     if (node.properties === undefined) {
       node.properties = {
         texts: {},
@@ -25,42 +27,43 @@ export class DandyJsLoader {
     }
       
     const file_input = document.createElement("input")
-    const js_files_selected = async () => {
+    const on_files_selected = async () => {
       if (file_input.files.length) {
-        await this.add_js_files(file_input.files)
+        await this.add_files(file_input.files)
       }
     }
 
     Object.assign(file_input, {
       type: "file",
       multiple: true,
-      accept: "application/javascript",
+      accept: mimetype,
       style: "display: none",
-      onchange: js_files_selected,
+      onchange: on_files_selected,
     })
     document.body.appendChild(file_input)
 
     this.file_input = file_input
 
-    const load_js_widget = node.addWidget("button", "choose_js_button", "", () => {
+    const load_file_widget = node.addWidget("button", "choose_file_button", "", () => {
       file_input.click()
       this.reset_file_input()
     })
-    load_js_widget.label = "Choose files..."
-    load_js_widget.options.serialize = false
+    load_file_widget.label = "Choose files..."
 
     const files_pre = document.createElement("pre")
 
     files_pre.classList.add("dandyMax")
     files_pre.id = `files_pre_${i_files_pre++}`
-    node.addDOMWidget(files_pre.id, "pre", files_pre, { serialize: false })
+    node.addDOMWidget(files_pre.id, "pre", files_pre, {})
     
     const ul = document.createElement('ul')
     ul.classList.add('dandyUL')
     files_pre.appendChild(ul)
     this.ul_filelist = ul
-  
-    this.load_from_properties()
+
+    node.onConfigure = (info) => {
+      this.load_from_properties()
+    }
   }
 
   reset_file_input() {
@@ -163,23 +166,24 @@ export class DandyJsLoader {
 
   update_chain() {
     const { order } = this.node.properties
-    const { urlmap, js_chain } = this
+    const { urlmap, chains, type } = this
+    const chain = chains[type]
+    console.log("update_chain()", chain, type, chains, this)
     let s = ''
     order.forEach((filename) => {
       const url = urlmap[filename]
       s += `${url}\n`
     })
-    js_chain.contributions = s
-    js_chain.update_chain()
+    chain.contributions = s
+    chain.update_chain()
   }
 
-  async add_js_files(chosen_files) {
+  async add_files(chosen_files) {
     const { order } = this.node.properties
 
     let i_file = 0
     const n_files = chosen_files.length
     
-    // foreach doesn't work :()
     for (let i = 0; i < n_files; ++i) {
       const file = chosen_files[i]
       const { name, size, lastModified } = file
@@ -213,10 +217,11 @@ export class DandyJsLoader {
   }
 
   load_maps(filename, text) {
-    const { texts } = this.node.properties
+    const { mimetype, node } = this
+    const { texts } = node.properties
     const { urlmap, blobmap } = this
 
-    const blob = new Blob([text], { type: 'application/javascript' })
+    const blob = new Blob([text], { type: mimetype })
     const url = URL.createObjectURL(blob)
 
     const existing = urlmap[filename]
@@ -229,6 +234,42 @@ export class DandyJsLoader {
     urlmap[filename] = url
 
   }
+
+}
+
+export class DandyJsLoader extends DandyFileLoader {
+  constructor(node, app) {
+    super(node, app, Mimes.JS, DandyTypes.JS)
+    new DandyJsChain(this, node, app)
+  }
+}
+
+export class DandyHtmlLoader extends DandyFileLoader {
+  constructor(node, app) {
+    super(node, app, Mimes.HTML, DandyTypes.HTML)
+    new DandyHtmlChain(this, node, app)
+  }
+}
+
+export class DandyCssLoader extends DandyFileLoader {
+  constructor(node, app) {
+    super(node, app, Mimes.CSS, DandyTypes.CSS)
+    new DandyCssChain(this, node, app)
+  }
+}
+
+export class DandyJsonLoader extends DandyFileLoader {
+  constructor(node, app) {
+    super(node, app, Mimes.JSON, DandyTypes.JSON)
+    new DandyJsonChain(this, node, app)
+  }
+}
+
+export class DandyYamlLoader extends DandyFileLoader {
+  constructor(node, app) {
+    super(node, app, Mimes.YAML, DandyTypes.YAML)
+    new DandyYamlChain(this, node, app)
+  }
 }
 
 // ==========================================================================================
@@ -236,7 +277,8 @@ export class DandyP5JsLoader {
   constructor(node, app) {
     this.node = node
     this.app = app
-    this.js_chain = new DandyJsChain(this, node, app)
+    new DandyJsChain(this, node, app)
+    this.type = DandyTypes.JS
 
     if (DandyChain.debug_blobs) {
       node.size = [380, 100]
@@ -246,8 +288,7 @@ export class DandyP5JsLoader {
 
     this.js_blob = null
     this.js_url = ""
-    this.serialize_widgets = true
-    this.isVirtualNode = true
+    this.serialize_widgets = false
 
     const texty = document.createElement("pre")
     texty.id = `texty_${i_texty_widget++}`
@@ -255,7 +296,6 @@ export class DandyP5JsLoader {
     this.texty = texty
 
     const texty_widget = node.addDOMWidget(texty.id, "pre", texty)
-    texty_widget.serialize = false
 
     this.load_p5js()
   }
@@ -263,11 +303,11 @@ export class DandyP5JsLoader {
   async load_p5js() {
     const response = await fetch(`${dandy_webroot}p5/p5.js_`)
     const text = await response.text()
-    this.js_blob = new Blob([text], { type: 'application/javascript' })
+    this.js_blob = new Blob([text], { type: Mimes.JS })
     this.js_url = URL.createObjectURL(this.js_blob)
 
-    this.js_chain.contributions = this.js_url
-    this.js_chain.update_chain()
+    this.chain.contributions = this.js_url
+    this.chain.update_chain()
 
     const p = new Promise((resolve, reject) => {
       const reader = new FileReader()
@@ -287,10 +327,10 @@ export class DandyP5JsLoader {
     })
 
     p.then(topLine => {
-        this.texty.innerText = topLine
+      this.texty.innerText = topLine
     })
     .catch(error => {
-        console.error("Error reading top line of p5.js:", error)
+      console.error("Error reading top line of p5.js:", error)
     })
   }
 }

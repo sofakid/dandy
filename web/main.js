@@ -1,9 +1,9 @@
 import { app } from "../../scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
-import { DandyWidget } from "/extensions/dandy/dandymisc.js"
+import { DandyWidget, DandyTypes } from "/extensions/dandy/dandymisc.js"
 import { initDandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
 import { DandyLand } from "/extensions/dandy/dandyland.js"
-import { DandyJsLoader, DandyP5JsLoader } from "./loaders.js"
+import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, DandyYamlLoader } from "./loaders.js"
 
 const extension_name = "dandy"
 
@@ -15,14 +15,14 @@ const dandy_nodes = {
   "Dandy Html": DandyHtml,
   "Dandy Css": DandyCss,
   "Dandy Js Loader": DandyJsLoader,
+  "Dandy Json Loader": DandyJsonLoader,
+  "Dandy Yaml Loader": DandyYamlLoader,
+  "Dandy Css Loader": DandyCssLoader,
+  "Dandy Html Loader": DandyHtmlLoader,
   "Dandy p5.js Loader": DandyP5JsLoader,
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw
 }
-
-const dandy_widgets = [
-  "JS_URLS", "DANDY_CAPTURE"
-]
 
 const initDandy = async () => {
   load_dandy_css(document)
@@ -47,8 +47,8 @@ const ext = {
 	},
 	getCustomWidgets: async (app) => {
     const o = {}
-    dandy_widgets.forEach((x) => {
-      o[x] = (node, inputName, inputData, app) => {
+    Object.entries(DandyTypes).forEach(([_, type]) => {
+      o[type] = (node, inputName, inputData, app) => {
         return new DandyWidget(node, inputName, inputData, app)
       }
     })

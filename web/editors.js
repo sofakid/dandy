@@ -1,4 +1,5 @@
-import { DandyJsChain } from "./chains.js"
+import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
+import { Mimes } from "/extensions/dandy/dandymisc.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
@@ -19,6 +20,7 @@ export const initDandyEditors = async () => {
     "mode/html_worker", "worker-html.js_",
     "mode/css_worker", "worker-css.js_",
     "mode/json_worker", "worker-json.js_",
+    "mode/yaml_worker", "worker-yaml.js_",
   ]
 
   for (let i = 0; i < features_and_codes.length; i += 2) {
@@ -26,7 +28,7 @@ export const initDandyEditors = async () => {
     const js_ = features_and_codes[i + 1]
     const response = await fetch(`${dandy_webroot}ace/${js_}`)
     const text = await response.text()
-    const blob = new Blob([text], { type: 'application/javascript' })
+    const blob = new Blob([text], { type: Mimes.JS })
     const url = URL.createObjectURL(blob)
     ace.config.setModuleUrl(`ace/${feature}`, url)
     //console.log(`ace.config.setModuleUrl("ace/${feature}", ${url})`)
@@ -37,18 +39,24 @@ export const initDandyEditors = async () => {
 export class DandyEditor {
   static i_editor = 0
 
-  constructor(node, app) {
+  constructor(node, app, mimetype) {
     this.node = node
     this.app = app
+    this.mimetype = mimetype
     
     this.editor = null
     this.widget = null
-    if (node.properties === undefined) {
-      node.properties = {}
-    }
-
+    this.chain = null
+    
     const node_type = 'dandy_editor'
     const editor_id = `${node_type}_${DandyEditor.i_editor++}`
+
+    if (node.properties === undefined) {
+      node.properties = {
+        brand_new_node: true,
+        text: ''
+      }
+    }
 
     const dandy_div = document.createElement('div')
     dandy_div.classList.add('dandy_node')
@@ -98,53 +106,58 @@ export class DandyEditor {
     const editor_session = editor.getSession()
     editor_session.on('change', handleTextChange)
 
-    // restore saved text if it exists
-    const { editor_text } = node.properties
-    if (editor_text !== undefined) {
-      this.set_text(editor_text)
-    }
+    node.onConfigure = (info) => {
+      // restore saved text if it exists
+      const { properties } = node
+      const { text } = properties
+      properties.brand_new_node = false
+      if (text !== undefined) {
+        this.set_text(text)
+      } else {
+        this.set_text("")
+      } 
+    } 
     
   }
 
-  // override
   apply_text() {
-  }
+    const { editor, node, chain } = this
+    const { properties } = node
+    const text = editor.getValue()
+    properties.text = text
 
+    if (chain) {
+      console.log("apply_text", `<${text}>`, this.node)
+      this.text_blob = new Blob([text], { type: this.mimetype })
+      if (this.text_url !== null) {
+        URL.revokeObjectURL(this.text_url)
+      }
+      this.text_url = URL.createObjectURL(this.text_blob)
+      console.log("apply_text()", this.text_url)
+      chain.contributions = this.text_url
+      chain.update_chain()
+    }
+  }
+ 
   set_text(text) {
-    const { editor, node } = this
+    const { editor } = this
     editor.setValue(text)
     editor.clearSelection()
     editor.resize()
-    node.properties.editor_text = text
+    console.log("SET_TEXT", `<${text}>`, this.node)
     this.apply_text()
   }
-
 }
 
 export class DandyJs extends DandyEditor {
   constructor(node, app) {
-    super(node, app)
-    const { editor } = this
+    super(node, app, Mimes.JS)
+    this.chain = new DandyJsChain(this, node, app)
     node.size = [400, 300]
-    this.js_chain = new DandyJsChain(this, node, app)
-    this.js_url = null
-    this.js_blob = null
 
+    const { editor } = this
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/javascript')
-  }
-
-  apply_text() {
-    const { js_chain } = this
-    const { editor_text } = this.node.properties
-    this.js_blob = new Blob([editor_text], { type: 'application/javascript' })
-    if (this.js_url !== null) {
-      URL.revokeObjectURL(this.js_url)
-    }
-    this.js_url = URL.createObjectURL(this.js_blob)
-    console.log("apply_js()", this.js_url)
-    js_chain.contributions = this.js_url
-    js_chain.update_chain()
   }
 }
 
@@ -153,14 +166,10 @@ export class DandyP5JsSetup extends DandyJs {
   noLoop()
   createCanvas(dandy.width, dandy.height)
 }`
-
   constructor(node, app) {
-    super(node, app)
+    super(node, app, Mimes.JS)
     node.size = [400, 180]
-    const { editor_text } = node.properties
-    if (editor_text === undefined) {
-      this.set_text(DandyP5JsSetup.default_text)
-    }
+    this.set_text(DandyP5JsSetup.default_text)
   }
 }
 
@@ -170,12 +179,10 @@ export class DandyP5JsDraw extends DandyJs {
 }`
 
   constructor(node, app) {
-    super(node, app)
+    super(node, app, Mimes.JS)
     node.size = [300, 180]
-    const { editor_text } = node.properties
-    if (editor_text === undefined) {
-      this.set_text(DandyP5JsDraw.default_text)
-    }
+
+    this.set_text(DandyP5JsDraw.default_text)
   }
 }
 
@@ -188,40 +195,36 @@ export class DandyHtml extends DandyEditor {
 </html>`
 
   constructor(node, app) {
-    super(node, app)
+    super(node, app, Mimes.HTML)
+    this.chain = new DandyHtmlChain(this, node, app)
+    node.size = [700, 180]
+
     const { editor } = this
-    node.size = [600, 180]
-    
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/html')
 
-    const { editor_text } = node.properties
-    if (editor_text === undefined) {
-      this.set_text(DandyHtml.default_text)
-    }
+    this.set_text(DandyHtml.default_text)
   }
 }
 
 export class DandyCss extends DandyEditor {
   static default_text = `body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-  }`
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}`
 
   constructor(node, app) {
-    super(node, app)
-    const { editor } = this
+    super(node, app, Mimes.HTML)
+    this.chain = new DandyCssChain(this, node, app)
     node.size = [300, 180]
-    
+
+    const { editor } = this
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/css')
 
-    const { editor_text } = node.properties
-    if (editor_text === undefined) {
-      this.set_text(DandyCss.default_text)
-    }
+    this.set_text(DandyCss.default_text)
   }
 }
 
@@ -230,26 +233,28 @@ export class DandyJson extends DandyEditor {
 }`
 
   constructor(node, app) {
-    super(node, app)
-    const { editor } = this
+    super(node, app, Mimes.JSON)
+    this.chain = new DandyJsonChain(this, node, app)
     node.size = [300, 180]
     
+    const { editor } = this
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/json')
 
-    const { editor_text } = node.properties
-    if (editor_text === undefined) {
-      this.set_text(DandyJson.default_text)
-    }
+    this.set_text(DandyJson.default_text)
   }
+
 }
 
 export class DandyYaml extends DandyEditor {
   constructor(node, app) {
-    super(node, app)
-    const { editor } = this
+    super(node, app, Mimes.YAML)
+    this.chain = new DandyYamlChain(this, node, app)
     node.size = [300, 180]
+    
+    const { editor } = this
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/yaml')
+    this.set_text("")
   }
 }
