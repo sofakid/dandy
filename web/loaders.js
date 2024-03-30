@@ -237,35 +237,35 @@ class DandyFileLoader extends DandyNode {
 export class DandyJsLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.JS, DandyTypes.JS)
-    new DandyJsChain(this, node, app)
+    new DandyJsChain(this)
   }
 }
 
 export class DandyHtmlLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.HTML, DandyTypes.HTML)
-    new DandyHtmlChain(this, node, app)
+    new DandyHtmlChain(this)
   }
 }
 
 export class DandyCssLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.CSS, DandyTypes.CSS)
-    new DandyCssChain(this, node, app)
+    new DandyCssChain(this)
   }
 }
 
 export class DandyJsonLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.JSON, DandyTypes.JSON)
-    new DandyJsonChain(this, node, app)
+    new DandyJsonChain(this)
   }
 }
 
 export class DandyYamlLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.YAML, DandyTypes.YAML)
-    new DandyYamlChain(this, node, app)
+    new DandyYamlChain(this)
   }
 }
 
@@ -273,7 +273,7 @@ export class DandyYamlLoader extends DandyFileLoader {
 export class DandyP5JsLoader extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.chain = new DandyJsChain(this, node, app)
+    this.chain = new DandyJsChain(this)
     this.type = DandyTypes.JS
 
     if (DandyChain.debug_blobs) {

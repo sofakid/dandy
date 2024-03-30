@@ -1,20 +1,30 @@
 
 export const DandyTypes = {
-  JS: 'JS_URLS',
-  HTML: 'HTML_URLS',
-  CSS: 'CSS_URLS',
-  JSON: 'JSON_URLS',
-  YAML: 'YAML_URLS',
+  URL: 'DANDY_URLS',
+  JS: 'DANDY_JS_URLS',
+  HTML: 'DANDY_HTML_URLS',
+  CSS: 'DANDY_CSS_URLS',
+  JSON: 'DANDY_JSON_URLS',
+  YAML: 'DANDY_YAML_URLS',
+  WASM: 'DANDY_WASM_URLS',
   CAPTURES: 'DANDY_CAPTURE',
+  B64IMAGES: 'DANDY_B64IMAGES',
+  B64MASKS: 'DANDY_B64MASKS',
+  DIRTY: 'DANDY_DIRTY',
 }
 
 export const DandyNames = {
+  URL: 'url',
   JS: 'js',
   HTML: 'html',
   CSS: 'css',
   JSON: 'json',
   YAML: 'yaml',
-  CAPTURES: 'captures'
+  WASM: 'wasm',
+  CAPTURES: 'captures',
+  B64IMAGES: 'b64images',
+  B64MASKS: 'b64masks',
+  DIRTY: 'dandy_dirty',
 }
 
 export const Mimes = {
@@ -23,6 +33,7 @@ export const Mimes = {
   CSS: 'text/css',
   JSON: 'application/json',
   YAML: 'application/yaml',
+  WASM: 'application/wasm',
 }
 
 export class DandyNode {
@@ -39,13 +50,14 @@ export class DandyNode {
       // the values it puts in the chains are invalid by now
       if (chains) {
         Object.entries(chains).forEach(([type, chain]) => {
+          // console.log(`setting chain ${chain.type}`, chain)
           chain.widget.value = ''
           if (chain.debug_blobs_widget) {
             chain.debug_blobs_widget.widget.value = ''
           }
         })
       }
-      this.on_configure()
+      this.on_configure(info)
     }
 
     node.onConnectionsChange = (type, index, connected, link_info) => {
@@ -59,11 +71,52 @@ export class DandyNode {
           }
         }
       }
+      this.on_connections_change(type, index, connected, link_info)
+    }
+
+    node.onExecutionStart = () => {
+      this.on_execution_start()
+    }
+
+    node.onExecuted = (output) => {
+      this.on_executed(output)      
     }
   }
 
   on_configure(info) {
   }
+
+  on_connections_change() {
+  }
+
+  on_execution_start() {
+  }
+
+  on_executed(output) {
+  }
+
+  put_input_slot(name, type) {
+    const { node } = this
+    const slot = node.findInputSlot(name)
+    if (slot === -1) {
+      node.addInput(name, type)
+    }
+    return node.findInputSlot(name)
+  }
+
+  put_output_slot(name, type) {
+    const { node } = this
+    const slot = node.findOutputSlot(name)
+    if (slot === -1) {
+      node.addOutput(name, type)
+    }
+    return node.findOutputSlot(name)
+  }
+
+  find_widget(name) {
+    return this.node.widgets.find((x) => x.name === name)
+  }
+
 }
 
 let i_dandy_widget = 0
@@ -82,6 +135,8 @@ export class DandyWidget {
     this.value_ = null
     this.size = [0, 0]
     node.addCustomWidget(this)
+    console.log(`DandyWidget<${this.name}, ${this.type}>`, this)
+
   }
 
   get value() {

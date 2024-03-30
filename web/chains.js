@@ -7,12 +7,13 @@ const T = DandyTypes
 export class DandyChain {
   static debug_blobs = false
 
-  constructor(dandy, node, app, name, type) {
+  constructor(dandy, name, type) {
     this.dandy = dandy
-    this.node = node
-    this.app = app
+    this.node = dandy.node
+    this.app = dandy.app
     this.name = name
     this.type = type
+    const { node, app } = this
 
     if (dandy.chains === undefined) {
       dandy.chains = {}
@@ -27,24 +28,8 @@ export class DandyChain {
     widget.size = [0, -4] // litegraph will pad it by 4
     widget.callback = () => {}
 
-    let in_slot = node.findInputSlot(name)
-    let out_slot = node.findOutputSlot(name)
-
-    // not an error, we've added a widget so 
-    // the input slot is removed automatically
-    if (in_slot === -1) {
-      node.addInput(name, type)
-      in_slot = node.findInputSlot(name)
-    }
-
-    if (out_slot === -1) {
-      console.error('no output slot')
-      node.addOutput(name, type)
-      out_slot = node.findOutputSlot(name)
-    }
-
-    this.in_slot = in_slot
-    this.out_slot = out_slot
+    this.in_slot = dandy.put_input_slot(name, type)
+    this.out_slot = dandy.put_output_slot(name, type)
 
     if (DandyChain.debug_blobs) {
       this.debug_blobs_widget = ComfyWidgets.STRING(node, 'debug_blobs', ['', {
@@ -115,23 +100,27 @@ export class DandyChain {
   update_data() {
     const { in_slot, out_slot, node, contributions, dandy, type } = this
 
-    let out_urls = ''
+    let out_data = ''
     if (node.isInputConnected(in_slot)) {
       const force_update = false
-      const in_urls = node.getInputData(in_slot, force_update)
-      if (in_urls) {
-        out_urls += `${in_urls}\n`
+      const in_data = node.getInputData(in_slot, force_update)
+      if (in_data) {
+        out_data += `${in_data}\n`
       }
     }
 
-    out_urls += contributions
-    node.setOutputData(out_slot, out_urls)
+    out_data += contributions
+    node.setOutputData(out_slot, out_data)
     node.triggerSlot(out_slot)
 
-    this.widget.value = out_urls
+    this.widget.value = out_data
 
     if (DandyChain.debug_blobs) {
-      this.debug_blobs_widget.widget.element.value = out_urls
+      this.debug_blobs_widget.widget.element.value = out_data.split('\n').map((x) => {
+        const p = x.length - 50
+        const q = x.length
+        return x.slice(p, q)
+      }).join('\n')
     }
 
     if (dandy.on_chain_updated) {
@@ -139,39 +128,58 @@ export class DandyChain {
     }
   }
 
-  get urls() {
-    const no_fakes = (url) => url !== 'undefined' && url.length > 0
+  get data() {
+    const no_fakes = (datum) => datum !== 'undefined' && datum.length > 0
+    //console.log(`chain<${this.type}>: ${this.widget.value}`)
     return this.widget.value.split('\n').filter(no_fakes)
   }
 }
 
 // ==========================================================================================
 export class DandyJsChain extends DandyChain {
-  constructor(dandy, node, app) {
-    super(dandy, node, app, N.JS, T.JS)
+  constructor(dandy) {
+    super(dandy, N.JS, T.JS)
   }
 }
 
 export class DandyHtmlChain extends DandyChain {
-  constructor(dandy, node, app) {
-    super(dandy, node, app, N.HTML, T.HTML)
+  constructor(dandy) {
+    super(dandy, N.HTML, T.HTML)
   }
 }
 
 export class DandyCssChain extends DandyChain {
-  constructor(dandy, node, app) {
-    super(dandy, node, app, N.CSS, T.CSS)
+  constructor(dandy) {
+    super(dandy, N.CSS, T.CSS)
   }
 }
 
 export class DandyJsonChain extends DandyChain {
-  constructor(dandy, node, app) {
-    super(dandy, node, app, N.JSON, T.JSON)
+  constructor(dandy) {
+    super(dandy, N.JSON, T.JSON)
   }
 }
 
 export class DandyYamlChain extends DandyChain {
-  constructor(dandy, node, app) {
-    super(dandy, node, app, N.YAML, T.YAML)
+  constructor(dandy) {
+    super(dandy, N.YAML, T.YAML)
+  }
+}
+
+export class DandyWasmChain extends DandyChain {
+  constructor(dandy) {
+    super(dandy, N.WASM, T.WASM)
+  }
+}
+
+export class DandyB64ImagesChain extends DandyChain {
+  constructor(dandy) {
+    super(dandy, N.B64IMAGES, T.B64IMAGES)
+  }
+}
+
+export class DandyB64MasksChain extends DandyChain {
+  constructor(dandy) {
+    super(dandy, N.B64MASKS, T.B64MASKS)
   }
 }

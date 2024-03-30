@@ -148,7 +148,7 @@ export class DandyEditor extends DandyNode {
 export class DandyJs extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.JS)
-    this.chain = new DandyJsChain(this, node, app)
+    this.chain = new DandyJsChain(this)
     node.size = [400, 300]
 
     const { editor } = this
@@ -192,7 +192,7 @@ export class DandyHtml extends DandyEditor {
 
   constructor(node, app) {
     super(node, app, Mimes.HTML)
-    this.chain = new DandyHtmlChain(this, node, app)
+    this.chain = new DandyHtmlChain(this)
     node.size = [700, 180]
 
     const { editor } = this
@@ -213,7 +213,7 @@ export class DandyCss extends DandyEditor {
 
   constructor(node, app) {
     super(node, app, Mimes.HTML)
-    this.chain = new DandyCssChain(this, node, app)
+    this.chain = new DandyCssChain(this)
     node.size = [300, 180]
 
     const { editor } = this
@@ -230,7 +230,7 @@ export class DandyJson extends DandyEditor {
 
   constructor(node, app) {
     super(node, app, Mimes.JSON)
-    this.chain = new DandyJsonChain(this, node, app)
+    this.chain = new DandyJsonChain(this)
     node.size = [300, 180]
     
     const { editor } = this
@@ -245,7 +245,7 @@ export class DandyJson extends DandyEditor {
 export class DandyYaml extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.YAML)
-    this.chain = new DandyYamlChain(this, node, app)
+    this.chain = new DandyYamlChain(this)
     node.size = [300, 180]
     
     const { editor } = this
