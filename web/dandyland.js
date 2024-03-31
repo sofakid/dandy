@@ -1,8 +1,9 @@
-import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyYamlChain, 
-         DandyB64ImagesChain, DandyB64MasksChain } from '/extensions/dandy/chains.js'
+import { IO, DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain,
+         DandyYamlChain, DandyB64ImagesChain, DandyB64MasksChain } from '/extensions/dandy/chains.js'
 import { Mimes, DandyNames, DandyTypes, DandyNode } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { api } from '/scripts/api.js'
+import { DandySocket } from '/extensions/dandy/socket.js'
 
 
 const load_url = async (url) => {
@@ -42,16 +43,17 @@ export class DandyLand extends DandyNode {
 
   constructor(node, app) {
     super(node, app)
-    this.js_chain = new DandyJsChain(this)
-    this.html_chain = new DandyHtmlChain(this)
-    this.css_chain = new DandyCssChain(this)
-    this.json_chain = new DandyJsonChain(this)
-    this.yaml_chain = new DandyYamlChain(this)
-    this.b64images_chain = new DandyB64ImagesChain(this)
-    this.b64masks_chain = new DandyB64MasksChain(this)
+    this.js_chain = new DandyJsChain(this, IO.IN)
+    this.html_chain = new DandyHtmlChain(this, IO.IN)
+    this.css_chain = new DandyCssChain(this, IO.IN)
+    this.json_chain = new DandyJsonChain(this, IO.IN)
+    this.yaml_chain = new DandyYamlChain(this, IO.IN)
+    this.b64images_chain = new DandyB64ImagesChain(this, IO.IN)
+    this.b64masks_chain = new DandyB64MasksChain(this, IO.IN)
 
     this.chain_cache = {}
-    
+    this.socket = new DandySocket()
+
     this.dandy_continue_event_listener = null
     this.iframe = null
     this.reloading = false
@@ -60,7 +62,6 @@ export class DandyLand extends DandyNode {
 
     this.id = `DandyLand_${i_dandy_land}`
     node.dandy = this
-
     node.size = [535, 605]
     
     const width_widget = this.width_widget = this.find_widget("width")

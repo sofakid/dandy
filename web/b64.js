@@ -1,11 +1,11 @@
-import { DandyB64ImagesChain, DandyB64MasksChain } from "/extensions/dandy/chains.js"
+import { DandyB64ImagesChain, DandyB64MasksChain, IO } from "/extensions/dandy/chains.js"
 import { DandyNames, DandyTypes, DandyNode } from "/extensions/dandy/dandymisc.js"
 
 export class DandyB64Encoder extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.images_chain = new DandyB64ImagesChain(this)
-    this.masks_chain = new DandyB64MasksChain(this)
+    this.images_chain = new DandyB64ImagesChain(this, IO.IN_OUT)
+    this.masks_chain = new DandyB64MasksChain(this, IO.IN_OUT)
     
     this.dirty_widget = this.find_widget(DandyNames.DIRTY)
     this.images_widget = this.find_widget(DandyNames.B64IMAGES)

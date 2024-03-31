@@ -8,6 +8,77 @@ import numpy as np
 import hashlib
 import comfy.utils
 
+import multiprocessing as mp
+import asyncio
+import websockets
+import json
+import atexit
+import os
+import sys
+
+
+DANDY_WS_PORT = 7872
+
+async def handle_client(websocket, path):
+  async for message in websocket:
+    # Here you handle messages received from JavaScript
+    print(f"Received message from JavaScript: {message}")
+    # Example: Send a response back to JavaScript
+    await websocket.send("Response from Python")
+
+async def start_server():
+  async with websockets.serve(handle_client, "localhost", DANDY_WS_PORT):
+    try:
+      await asyncio.Future()
+    except asyncio.CancelledError:
+      print("exiting dandy socket...")
+      pass
+
+def run_server():
+  print("Dandy :: Starting with run_server")
+  asyncio.run(start_server())
+
+def launch_server():
+  script_path = os.path.abspath(__file__)
+  print("Dandy :: Path to the main process:", script_path)
+  dandy_module_path = os.path.dirname(script_path)
+  custom_nodes_path = os.path.dirname(dandy_module_path)
+  print("Dandy :: custom_nodes_path:", custom_nodes_path)
+
+  sys.path.append(custom_nodes_path)
+  # cwd = os.getcwd()
+  # print("Dandy :: cwd: " + cwd)
+  # os.chdir(custom_nodes_path)
+  ctx = mp.get_context('spawn')
+  q = ctx.Queue()
+  server_process = ctx.Process(target=run_server)#, args=(,))
+  server_process.start()
+  # os.chdir(cwd)
+
+  def shutdown():
+    server_process.join()
+
+  atexit.register(shutdown)
+
+print("Dandy :: __name__: " + mp.current_process().name)
+print("Dandy :: sys.path: " + str(sys.path))
+print("Dandy :: __name__: " + mp.current_process().name)
+
+if mp.current_process().name == 'MainProcess':
+  launch_server()
+
+async def send_message_async(data):
+  async with websockets.connect('ws://localhost:' + str(DANDY_WS_PORT)) as websocket:
+    s = json.dumps(data)
+    print('send_message(): ' + s)
+    await websocket.send(s)
+    response = await websocket.recv()
+    print('response: ' + response)
+    return json.loads(response)
+      
+def send_data(data):
+  return asyncio.run(send_message_async(data))
+            
 MAX_RESOLUTION = 12800
 WIDTH_HEIGHT_INPUT = ("INT", {"default": 512, "min": 10, "max": MAX_RESOLUTION, "step": 128})
 NEVER_CHANGE = "never change".encode().hex()
@@ -16,6 +87,10 @@ DANDY_CATEGORY = "Dandy"
 DIRTY_NAME = 'dandy_dirty'
 DIRTY_TYPE = 'DANDY_DIRTY'
 DIRTY_TYPE_INPUT = (DIRTY_TYPE,)
+
+URL_NAME = "url"
+URL_TYPE = "DANDY_URLS"
+URL_TYPE_INPUT = (URL_TYPE,)
 
 JS_NAME = "js"
 JS_TYPE = "DANDY_JS_URLS"
@@ -102,10 +177,10 @@ def make_mask(filename):
   m = ImageOps.exif_transpose(m)
 
   if "A" in m.getbands():
-      m = np.array(m.getchannel("A")).astype(np.float32) / 255.0
-      m = torch.from_numpy(m)
+    m = np.array(m.getchannel("A")).astype(np.float32) / 255.0
+    m = torch.from_numpy(m)
   else:
-      m = torch.zeros((64,64), dtype=torch.float32, device="cpu")
+    m = torch.zeros((64,64), dtype=torch.float32, device="cpu")
 
   return m 
 
@@ -546,6 +621,40 @@ class DandyWasmLoader:
   def run(self, wasm):
     return (wasm,)
 
+class DandyUrlLoader:
+  def __init__(self):
+    pass
+
+  @classmethod
+  def INPUT_TYPES(self):
+    return {
+      "required": {
+      }, 
+      "hidden": {
+      },
+      "optional": {
+        URL_NAME: URL_TYPE_INPUT,
+        HTML_NAME: HTML_TYPE_INPUT,
+        CSS_NAME: CSS_TYPE_INPUT,
+        JS_NAME: JS_TYPE_INPUT,
+        JSON_NAME: JSON_TYPE_INPUT,
+        YAML_NAME: YAML_TYPE_INPUT,
+        WASM_NAME: WASM_TYPE_INPUT,
+      },
+    }
+  
+  @classmethod
+  def IS_CHANGED(self, url, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, JSON_TYPE, YAML_TYPE, WASM_TYPE)
+  RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, JSON_NAME, YAML_NAME, WASM_NAME)
+  FUNCTION = "run"
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self, url, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
+    return (html, css, js, json, yaml, wasm)
 
 
 class DandyB64Encoder:
@@ -613,11 +722,12 @@ class DandyLand:
       "optional": {
         #"seed": ("SEED",),
         CAPTURE_NAME: CAPTURE_TYPE_INPUT,
+        HTML_NAME: HTML_TYPE_INPUT,
+        CSS_NAME: CSS_TYPE_INPUT,
         JS_NAME: JS_TYPE_INPUT,
         JSON_NAME: JSON_TYPE_INPUT,
         YAML_NAME: YAML_TYPE_INPUT,
-        HTML_NAME: HTML_TYPE_INPUT,
-        CSS_NAME: CSS_TYPE_INPUT,
+        WASM_NAME: WASM_TYPE_INPUT,
         "width": WIDTH_HEIGHT_INPUT,
         "height": WIDTH_HEIGHT_INPUT,
         B64IMAGES_NAME: B64IMAGES_TYPE_INPUT,
@@ -626,8 +736,9 @@ class DandyLand:
     }
 
   @classmethod
-  def IS_CHANGED(self, captures, js=None, json=None, yaml=None, html=None,
-                 css=None, width=None, height=None, b64images=None, b64masks=None):
+  def IS_CHANGED(self, captures, html=None, css=None, js=None, json=None, 
+                 yaml=None, wasm=None, width=None, height=None, b64images=None, 
+                 b64masks=None):
     m = hashlib.sha256()
     for capture in captures.split("\n"):
       image_path = folder_paths.get_annotated_filepath(capture)
@@ -641,8 +752,12 @@ class DandyLand:
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, captures, js=None, json=None, yaml=None, html=None,
-          css=None, width=None, height=None, b64images=None, b64masks=None):
+  def run(self, captures, html=None, css=None, js=None, json=None, 
+          yaml=None, wasm=None, width=None, height=None, b64images=None, 
+          b64masks=None):
+    
+    send_data({"DandyLand": "DandyLand.run"})
+
     print("DandyLand :: captures: " + str(captures) + " :: js: " + str(js))
     
     files = list(filter(lambda x: x.split(), captures.split("\n")))
@@ -678,6 +793,7 @@ NODE_CLASS_MAPPINGS = {
   "DandyYamlLoader": DandyYamlLoader,
   "DandyCssLoader": DandyCssLoader,
   "DandyHtmlLoader": DandyHtmlLoader,
+  "DandyUrlLoader": DandyUrlLoader,
   "DandyB64Encoder": DandyB64Encoder,
 }
 
@@ -694,6 +810,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyYamlLoader": "Dandy Yaml Loader",
   "DandyCssLoader": "Dandy Css Loader",
   "DandyHtmlLoader": "Dandy Html Loader",
+  "DandyUrlLoader": "Dandy Url Loader",
   "DandyP5JsLoader": "Dandy p5.js Loader",
   "DandyP5JsSetup": "Dandy p5.js Setup",
   "DandyP5JsDraw": "Dandy p5.js Draw",

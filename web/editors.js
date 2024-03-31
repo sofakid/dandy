@@ -1,4 +1,5 @@
-import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
+import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
+         DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
 import { Mimes, DandyNode } from "/extensions/dandy/dandymisc.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -148,7 +149,7 @@ export class DandyEditor extends DandyNode {
 export class DandyJs extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.JS)
-    this.chain = new DandyJsChain(this)
+    this.chain = new DandyJsChain(this, IO.IN_OUT)
     node.size = [400, 300]
 
     const { editor } = this
@@ -184,15 +185,15 @@ export class DandyP5JsDraw extends DandyJs {
 
 export class DandyHtml extends DandyEditor {
   static default_text = `<html>
-  <head></head>
-  <body>
-    <canvas id='my_canvas'></canvas>
+  <head class='dandyMax'></head>
+  <body class='dandyMax'>
+    <canvas id='my_canvas' width='512' height='512'></canvas>
   </body>
 </html>`
 
   constructor(node, app) {
     super(node, app, Mimes.HTML)
-    this.chain = new DandyHtmlChain(this)
+    this.chain = new DandyHtmlChain(this, IO.OUT)
     node.size = [700, 180]
 
     const { editor } = this
@@ -212,8 +213,8 @@ export class DandyCss extends DandyEditor {
 }`
 
   constructor(node, app) {
-    super(node, app, Mimes.HTML)
-    this.chain = new DandyCssChain(this)
+    super(node, app, Mimes.CSS)
+    this.chain = new DandyCssChain(this, IO.IN_OUT)
     node.size = [300, 180]
 
     const { editor } = this
@@ -230,7 +231,7 @@ export class DandyJson extends DandyEditor {
 
   constructor(node, app) {
     super(node, app, Mimes.JSON)
-    this.chain = new DandyJsonChain(this)
+    this.chain = new DandyJsonChain(this, IO.IN_OUT)
     node.size = [300, 180]
     
     const { editor } = this
@@ -245,7 +246,7 @@ export class DandyJson extends DandyEditor {
 export class DandyYaml extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.YAML)
-    this.chain = new DandyYamlChain(this)
+    this.chain = new DandyYamlChain(this, IO.IN_OUT)
     node.size = [300, 180]
     
     const { editor } = this

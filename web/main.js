@@ -4,7 +4,7 @@ import { DandyWidget, DandyTypes } from "/extensions/dandy/dandymisc.js"
 import { DandyB64Encoder } from "/extensions/dandy/b64.js"
 import { initDandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
 import { DandyLand } from "/extensions/dandy/dandyland.js"
-import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, DandyYamlLoader } from "./loaders.js"
+import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, DandyYamlLoader, DandyUrlLoader } from "./loaders.js"
 
 const extension_name = "dandy"
 
@@ -20,6 +20,7 @@ const dandy_nodes = {
   "Dandy Yaml Loader": DandyYamlLoader,
   "Dandy Css Loader": DandyCssLoader,
   "Dandy Html Loader": DandyHtmlLoader,
+  "Dandy Url Loader": DandyUrlLoader,
   "Dandy p5.js Loader": DandyP5JsLoader,
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw,

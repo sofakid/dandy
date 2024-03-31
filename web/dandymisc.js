@@ -113,6 +113,22 @@ export class DandyNode {
     return node.findOutputSlot(name)
   }
 
+  remove_input_slot(name) {
+    const { node } = this
+    const slot = node.findInputSlot(name)
+    if (slot !== -1) {
+      node.removeInput(name)
+    }
+  }
+
+  remove_output_slot(name) {
+    const { node } = this
+    const slot = node.findInputSlot(name)
+    if (slot !== -1) {
+      node.removeOutput(name)
+    }
+  }
+
   find_widget(name) {
     return this.node.widgets.find((x) => x.name === name)
   }
