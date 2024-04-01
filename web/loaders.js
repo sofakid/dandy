@@ -434,7 +434,7 @@ export class DandyUrlLoader extends DandyNode {
     this.yaml_chain = new DandyYamlChain(this, IO.IN_OUT)
     this.wasm_chain = new DandyWasmChain(this, IO.IN_OUT)
 
-    this.widget = this.find_widget(DandyNames.URL)
+    this.url_widget = this.find_widget(DandyNames.URL)
 
     this.input_widget = ComfyWidgets.STRING(node, 'url', ['', {
       default:'', multiline: false, serialize: true}], app)
