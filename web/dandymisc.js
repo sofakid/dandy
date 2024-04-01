@@ -1,5 +1,7 @@
 
+
 export const DandyTypes = {
+  SERVICE_ID: 'DANDY_SERVICE_ID',
   URL: 'DANDY_URLS',
   JS: 'DANDY_JS_URLS',
   HTML: 'DANDY_HTML_URLS',
@@ -14,6 +16,7 @@ export const DandyTypes = {
 }
 
 export const DandyNames = {
+  SERVICE_ID: 'service_id',
   URL: 'url',
   JS: 'js',
   HTML: 'html',

@@ -1,17 +1,19 @@
 import hashlib
 import folder_paths
 from .constants import *
-from .socket import send_data
+from .client import DandyServicesClient
 from .image import *
     
 class DandyLand:
   def __init__(self):
+    self.client = DandyServicesClient()
     pass
   
   @classmethod
   def INPUT_TYPES(s):
     return DandyWidgets({
         #'seed': ('SEED',),
+        SERVICE_ID_NAME: SERVICE_ID_TYPE_INPUT,
         CAPTURE_NAME: CAPTURE_TYPE_INPUT,
         HTML_NAME: HTML_TYPE_INPUT,
         CSS_NAME: CSS_TYPE_INPUT,
@@ -26,7 +28,7 @@ class DandyLand:
     })
 
   @classmethod
-  def IS_CHANGED(self, captures, html=None, css=None, js=None, json=None, 
+  def IS_CHANGED(self, service_id, captures, html=None, css=None, js=None, json=None, 
                  yaml=None, wasm=None, width=None, height=None, b64images=None, 
                  b64masks=None):
     m = hashlib.sha256()
@@ -42,12 +44,12 @@ class DandyLand:
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, captures, html=None, css=None, js=None, json=None, 
+  def run(self, service_id, captures, html=None, css=None, js=None, json=None, 
           yaml=None, wasm=None, width=None, height=None, b64images=None, 
           b64masks=None):
     
-    send_data({'DandyLand': 'DandyLand.run'})
-
+    o = self.client.request_captures(service_id)
+    print('Dandyland :: captures from services: ' + str(o))
     print('DandyLand :: captures: ' + str(captures) + ' :: js: ' + str(js))
     
     files = list(filter(lambda x: x.split(), captures.split('\n')))

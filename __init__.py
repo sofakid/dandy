@@ -1,7 +1,9 @@
+import multiprocessing as mp
 from .editors import *
 from .loaders import *
 from .dandyland import *
 from .p5 import *
+from .socket import launch_server
 
 WEB_DIRECTORY = "web"
 
@@ -42,3 +44,18 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyP5JsSetup": "Dandy p5.js Setup",
   "DandyP5JsDraw": "Dandy p5.js Draw",
 }
+
+print("DANDY =====================")
+print("DANDY =====================")
+print("DANDY =====================")
+print("DANDY =====================")
+print("DANDY =====================")
+print("DANDY =====================")
+print("DANDY =====================")
+
+
+if mp.current_process().name == 'MainProcess':
+  print("DandySocket :: launching server")
+  launch_server()
+else:
+  print("Dandy :: process: " + mp.current_process().name)

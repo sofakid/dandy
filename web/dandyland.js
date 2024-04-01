@@ -52,8 +52,14 @@ export class DandyLand extends DandyNode {
     this.b64masks_chain = new DandyB64MasksChain(this, IO.IN)
 
     this.chain_cache = {}
-    this.socket = new DandySocket()
+    const socket = this.socket = new DandySocket()
 
+    const service_widget = this.service_widget = this.find_widget(DandyNames.SERVICE_ID)
+    service_widget.serializeValue = async () => {
+      console.warn("Serializing serivce_id...")
+      return await socket.get_service_id()
+    }
+    
     this.dandy_continue_event_listener = null
     this.iframe = null
     this.reloading = false
