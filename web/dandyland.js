@@ -256,7 +256,7 @@ export class DandyLand extends DandyNode {
     } = this
 
     this.clear_iframe()
-
+    
     const js_urls = js_chain.data
     const html_urls = html_chain.data
     const css_urls = css_chain.data
@@ -264,11 +264,11 @@ export class DandyLand extends DandyNode {
     const yaml_urls = yaml_chain.data
     const image_urls = b64images_chain.data
     const mask_urls = b64masks_chain.data
-
+    
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
     const yamls = await load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
-
+    
     const dandy_o = {
       images: [],
       masks: [],
@@ -278,7 +278,7 @@ export class DandyLand extends DandyNode {
       height: height_widget.value 
     }
     const dandy_o_json = JSON.stringify(dandy_o)
-
+    
     const load_one_image = (dst, url) => `(() => {
       const img = document.createElement('img')
       img.onload = image_loaded
@@ -373,6 +373,5 @@ export class DandyLand extends DandyNode {
     const html_with_css = html_insert_css(completed_html)
     const html_with_css_scripts = html_insert_scripts(html_with_css)
     make_iframe(html_with_css_scripts, when_done)
-
   }
 }

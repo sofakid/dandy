@@ -125,18 +125,18 @@ export class DandyChain {
 
   update_data() {
     const { in_slot, out_slot, node, contributions, dandy, type } = this
-
     let out_data = ''
-    if (in_slot && node.isInputConnected(in_slot)) {
+    if (in_slot !== null && node.isInputConnected(in_slot)) {
       const force_update = false
       const in_data = node.getInputData(in_slot, force_update)
+
       if (in_data) {
         out_data += `${in_data}\n`
       }
     }
 
     out_data += contributions
-    if (out_slot) {
+    if (out_slot !== null) {
       node.setOutputData(out_slot, out_data)
       node.triggerSlot(out_slot)
     }
