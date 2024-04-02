@@ -1,6 +1,6 @@
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
          DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
@@ -58,6 +58,8 @@ export class DandyEditor extends DandyNode {
       }
     }
 
+    this.init_widgets_above_editor()
+
     const dandy_div = document.createElement('div')
     dandy_div.classList.add('dandy_node')
     
@@ -107,6 +109,9 @@ export class DandyEditor extends DandyNode {
     editor_session.on('change', handleTextChange)
   }
 
+  init_widgets_above_editor() {
+  }
+
   on_configure(info) {
     // restore saved text if it exists
     const { node } = this
@@ -151,10 +156,14 @@ export class DandyJs extends DandyEditor {
     super(node, app, Mimes.JS)
     this.chain = new DandyJsChain(this, IO.IN_OUT)
     node.size = [400, 300]
-
+    
     const { editor } = this
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/javascript')
+  }
+  
+  init_widgets_above_editor() {
+    dandy_js_plain_module_toggle(this)
   }
 }
 
@@ -166,6 +175,8 @@ export class DandyP5JsSetup extends DandyJs {
   constructor(node, app) {
     super(node, app, Mimes.JS)
     node.size = [400, 180]
+    dandy_js_plain_module_toggle(this)
+
     this.set_text(DandyP5JsSetup.default_text)
   }
 }
@@ -178,6 +189,7 @@ export class DandyP5JsDraw extends DandyJs {
   constructor(node, app) {
     super(node, app, Mimes.JS)
     node.size = [300, 180]
+    dandy_js_plain_module_toggle(this)
 
     this.set_text(DandyP5JsDraw.default_text)
   }

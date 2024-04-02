@@ -1,9 +1,9 @@
 import { IO, DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain,
          DandyYamlChain, DandyB64ImagesChain, DandyB64MasksChain } from '/extensions/dandy/chains.js'
-import { Mimes, DandyNames, DandyTypes, DandyNode, DandyDelay } from '/extensions/dandy/dandymisc.js'
+import { Mimes, DandyNames, dandyCash, DandyNode, DandyDelay } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { DandySocket } from '/extensions/dandy/socket.js'
-
+import { api } from '/scripts/api.js'
 
 const load_url = async (url) => {
   try {
@@ -57,12 +57,37 @@ export class DandyLand extends DandyNode {
       this.render(py_client)
     }
 
+    socket.on_request_hash = (py_client) => {
+      this.deliver_hash(py_client)
+    }
+
     const service_widget = this.service_widget = this.find_widget(DandyNames.SERVICE_ID)
     service_widget.serializeValue = async () => {
       console.warn("Serializing serivce_id...")
       return await socket.get_service_id()
     }
+
+    this.canvas_hash = dandyCash([`${Date.now()}`])
+    const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
+
+    const hash_f = async () => {
+      const b64s = await this.get_canvases_b64s()
+      return dandyCash(b64s)
+    }
+
+    hash_widget.serializeValue = hash_f
     
+    const check_for_changes = async () => {
+      const hash = await hash_f()
+      if (hash !== this.canvas_hash) {
+        this.canvas_hash = hash
+        api.dispatchEvent(new CustomEvent("graphChanged"))
+      }
+    }
+    
+    const half_sec = 500
+    this.changes_interval = setInterval(check_for_changes, half_sec)
+
     this.dandy_continue_event_listener = null
     this.iframe = null
     this.reloading = false
@@ -121,7 +146,13 @@ export class DandyLand extends DandyNode {
     divvy.id = this.id
     const div_widget = node.addDOMWidget(divvy.id, "divvy", divvy, { serialize: false })
     //console.log("DandyLand constructed", this)
+    this.constructed = true
     this.reload_iframe()
+  }
+
+  on_removed() {
+    console.warn('Removing dandyland node')
+    clearInterval(this.changes_interval)
   }
 
   render(py_client) {
@@ -130,6 +161,13 @@ export class DandyLand extends DandyNode {
       this.reload_iframe()
     } 
     this.done_rendering(py_client)
+  }
+
+  async deliver_hash(py_client) {
+    const { socket } = this
+    const b64s = await this.get_canvases_b64s()
+    const hash = dandyCash(b64s)
+    socket.deliver_hash(hash, py_client)
   }
 
   async done_rendering(py_client) {
@@ -144,24 +182,28 @@ export class DandyLand extends DandyNode {
   async capture_and_deliver(py_client) {
     const { socket } = this
     const b64s = await this.get_canvases_b64s()
+    this.canvas_hash = dandyCash(b64s)
     socket.deliver_captures(b64s, py_client)
   }
 
   async get_canvases() {
     const { iframe } = this
 
-    const dandydoc = iframe.contentDocument || iframe.contentWindow.document
-    
-    if (dandydoc.readyState !== 'complete') {
-      console.error("dandyland content not fully loaded")
-      return canvases_out
-    }
-    
     const canvases_out = [] 
-    const canvas_list = dandydoc.body.querySelectorAll('canvas')
-    canvas_list.forEach((x) => {
-      canvases_out.push(x)
-    })
+
+    if (iframe) {
+      const dandydoc = iframe.contentDocument || iframe.contentWindow.document
+      
+      if (dandydoc.readyState !== 'complete') {
+        console.error("dandyland content not fully loaded")
+        return canvases_out
+      }
+      
+      const canvas_list = dandydoc.body.querySelectorAll('canvas')
+      canvas_list.forEach((x) => {
+        canvases_out.push(x)
+      })
+    }
 
     if (canvases_out.length === 0) {
       const c = await this.no_canvas_found()
@@ -198,8 +240,14 @@ export class DandyLand extends DandyNode {
 
   async no_canvas_found() {
     const { width_widget, height_widget, divvy } = this
-    const canvas = document.createElement("canvas")
-    divvy.appendChild(canvas)
+    const no_canvas_id = 'dandy_no_canvas_found'
+    let canvas = document.getElementById(no_canvas_id)
+
+    if (!canvas) {
+      canvas = document.createElement("canvas")
+      canvas.id = no_canvas_id
+      divvy.appendChild(canvas)
+    }
 
     const width = width_widget.value
     const height = height_widget.value
@@ -221,18 +269,26 @@ export class DandyLand extends DandyNode {
   }
 
   on_chain_updated(type) {
-    const { chain_cache, chains } = this
+    const { chain_cache, chains, constructed } = this
+    if (!constructed) {
+      console.warn(`DandyLand.on_chain_updated(${type}) :: dandyland not constructed yet`)
+      return
+    }
     const cached_value = chain_cache[type]
     const new_value = chains[type].data.join()
 
-    if (new_value != cached_value) {
+    const v = new_value != cached_value ? '!==' : '==='
+    const cv = `${cached_value}`.slice(0, 80)
+    const nv = `${new_value}`.slice(0, 80)
+    console.warn(`on_chain_updated(${type}) <${cv}> ${v} <${nv}>`)
+    if (new_value !== cached_value) {
       chain_cache[type] = new_value
       this.reload_iframe()
     }
   }
 
   clear_iframe() {
-    const { dandy_o_url, load_images_url, divvy, iframe } = this
+    const { dandy_o_url, load_images_url, divvy, iframe, constructed } = this
     if (dandy_o_url) {
       URL.revokeObjectURL(dandy_o_url)
     }
@@ -240,16 +296,7 @@ export class DandyLand extends DandyNode {
       URL.revokeObjectURL(load_images_url)
     }
 
-    if (iframe !== null) {
-      const iframe_win = iframe.contentWindow.document
-      const iframe_doc = iframe.contentDocument || iframe_win.document
-  
-      iframe_doc.querySelectorAll('*').forEach( (x) => {
-        const deep = true
-        const clone = x.cloneNode(deep)
-        x.parentNode.replaceChild(clone, x)
-      })
-  
+    if (iframe) {
       iframe.src = 'about:blank'
       this.iframe = null
     }
@@ -285,18 +332,23 @@ export class DandyLand extends DandyNode {
 
     this.clear_iframe()
     
-    const js_urls = js_chain.data
-    const html_urls = html_chain.data
-    const css_urls = css_chain.data
-    const json_urls = json_chain.data
-    const yaml_urls = yaml_chain.data
-    const image_urls = b64images_chain.data
-    const mask_urls = b64masks_chain.data
+    const just_urls = (x) => x.value
+    const js_data = js_chain.data
+    const html_urls = html_chain.data.map(just_urls)
+    const css_urls = css_chain.data.map(just_urls)
+    const json_urls = json_chain.data.map(just_urls)
+    const yaml_urls = yaml_chain.data.map(just_urls)
+    const image_urls = b64images_chain.data.map(just_urls)
+    const mask_urls = b64masks_chain.data.map(just_urls)
     
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
     const yamls = await load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
     
+    js_data.forEach((x) => {
+      console.log("JS_DATA", x)
+    })
+
     const dandy_o = {
       images: [],
       masks: [],
@@ -354,11 +406,11 @@ export class DandyLand extends DandyNode {
     const dandy_o_url = URL.createObjectURL(dandy_o_blob)
     this.dandy_o_url = dandy_o_url
 
-    js_urls.unshift(dandy_o_url)
-    js_urls.push(load_images_url)
+    js_data.unshift({ value: dandy_o_url, mime: Mimes.JS })
+    js_data.push({ value: load_images_url, mime: Mimes.JS })
 
-    const script_map = (url) => `<script type="${Mimes.JS}" src=${url}></script>`
-    const script_tags = js_urls.map(script_map)
+    const script_map = (o) => `<script type="${o.mime}" src=${o.value}></script>`
+    const script_tags = js_data.map(script_map)
     const css_map = (url) => `<link rel="stylesheet" type="${Mimes.CSS}" href="${url}" />`
     const css_links = css_urls.map(css_map).join("") + dandy_css_link
 
@@ -414,10 +466,9 @@ export class DandyLand extends DandyNode {
     this.dandy_continue_event_listener = (event) => {
       const { iframe_id: from_iframe_id, dandy_continue } = event.data
       if (from_iframe_id === iframe_id && dandy_continue) {
-        console.log("WEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE")
         this.rendering = false
       } else {
-        console.warn('BOOOOOOOOOOOOOOOOOOOOOO', event.data)
+        //console.warn('unknown event', event.data)
       }
     }
     window.addEventListener('message', this.dandy_continue_event_listener)

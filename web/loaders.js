@@ -1,6 +1,6 @@
 import { DandyChain, DandyJsChain, DandyHtmlChain, DandyCssChain, DandyJsonChain, 
          DandyYamlChain, DandyWasmChain, IO } from "./chains.js"
-import { DandyNames, DandyNode, DandyTypes, Mimes } from "/extensions/dandy/dandymisc.js"
+import { DandyNames, DandyNode, DandyTypes, Mimes, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -25,6 +25,7 @@ class DandyFileLoader extends DandyNode {
       }
     }
     
+    this.init_widgets_above_files()
     this.make_file_input()
   }
 
@@ -62,6 +63,9 @@ class DandyFileLoader extends DandyNode {
     ul.classList.add('dandyUL')
     files_pre.appendChild(ul)
     this.ul_filelist = ul
+  }
+
+  init_widgets_above_files() {
   }
 
   on_configure(info) {
@@ -192,7 +196,6 @@ class DandyFileLoader extends DandyNode {
       s += `${url}\n`
     })
     chain.contributions = s
-    chain.update_chain()
   }
 
   async add_files(chosen_files) {
@@ -331,6 +334,10 @@ export class DandyJsLoader extends DandyFileLoader {
     super(node, app, Mimes.JS, DandyTypes.JS)
     new DandyJsChain(this, IO.IN_OUT)
   }
+
+  init_widgets_above_files() {
+    dandy_js_plain_module_toggle(this)
+  }
 }
 
 export class DandyHtmlLoader extends DandySingleFileLoader {
@@ -426,7 +433,6 @@ export class DandyP5JsLoader extends DandyNode {
 export class DandyUrlLoader extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.url = ''
     this.html_chain = new DandyHtmlChain(this, IO.OUT)
     this.css_chain = new DandyCssChain(this, IO.IN_OUT)
     this.js_chain = new DandyJsChain(this, IO.IN_OUT)
@@ -434,10 +440,15 @@ export class DandyUrlLoader extends DandyNode {
     this.yaml_chain = new DandyYamlChain(this, IO.IN_OUT)
     this.wasm_chain = new DandyWasmChain(this, IO.IN_OUT)
 
-    this.url_widget = this.find_widget(DandyNames.URL)
+    dandy_js_plain_module_toggle(this)
 
-    this.input_widget = ComfyWidgets.STRING(node, 'url', ['', {
-      default:'', multiline: false, serialize: true}], app)
+    const cw = ComfyWidgets.STRING(node, '', 
+      ['', { default:'', multiline: true, serialize: true }], app)
   
+    cw.widget.callback = (text) => {
+      this.for_each_chain((chain, type) => {
+        chain.contributions = text
+      })
+    }
   }
 }

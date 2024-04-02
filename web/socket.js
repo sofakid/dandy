@@ -4,9 +4,13 @@ export class DandySocket {
   constructor() {
     const socket = this.socket = new WebSocket(`ws://localhost:${DANDY_WS_PORT}`)
     this._service_id = null
-    this._responsePromises = {}
+
     this.on_request_captures = (py_client) => {
       console.warn("default on_request_captures()")
+    }
+
+    this.on_request_hash = (py_client) => {
+      console.warn("default on_request_hash()")
     }
 
     socket.addEventListener('open', (event) => {
@@ -24,6 +28,10 @@ export class DandySocket {
 
       if (command === 'request_captures') {
         this.on_request_captures(py_client)
+      }
+
+      if (command === 'request_hash') {
+        this.on_request_hash(py_client)
       }
     })
   }
@@ -53,6 +61,10 @@ export class DandySocket {
 
   deliver_captures(b64captures, py_client) {
     this.send({ 'command': 'delivering_captures', 'captures': b64captures, 'py_client': py_client })
+  }
+  
+  deliver_hash(hash, py_client) {
+    this.send({ 'command': 'delivering_hash', 'hash': hash, 'py_client': py_client })
   }
 
 }

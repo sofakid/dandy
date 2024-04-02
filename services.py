@@ -12,20 +12,17 @@ services = {}
 
 class DandyService:
   def __init__(self, ws):
-    print("DandyService :: new")
     self.id = next_service_id()
     self.ws = ws
     services[self.id] = self
-    print("DandyService :: constructed")
  
   async def send(self, o):
     msg = json.dumps(o)
     return await self.ws.send(msg)
 
   async def run_loop(self):
-    print("DandyService :: run_loop()")
     async for msg in self.ws:
-      print("DandyService :: msg recieved: " + str(msg)[:80])
+      print("DandyService :: msg recieved: " + str(msg)[:200])
       await self.run_command(msg)
 
   async def run_command(self, msg):
@@ -40,14 +37,25 @@ class DandyService:
     await self.send({ 'command': 'set_service_id', 'service_id': self.id })
 
   async def request_captures(self, o):
-    jsc = o['js_client']
-    jsc_service = services[jsc]
-    await jsc_service.send(o)
+    js_client = o['js_client']
+    js_client_service = services[js_client]
+    await js_client_service.send(o)
 
   async def delivering_captures(self, o):
-    pyc = o['py_client']
-    pyc_service = services[pyc]
-    await pyc_service.send(o)
+    py_client = o['py_client']
+    py_client_service = services[py_client]
+    await py_client_service.send(o)
+
+  async def request_hash(self, o):
+    js_client = o['js_client']
+    js_client_service = services[js_client]
+    await js_client_service.send(o)
+
+  async def delivering_hash(self, o):
+    py_client = o['py_client']
+    py_client_service = services[py_client]
+    await py_client_service.send(o)
+    
 
    
   

@@ -1,8 +1,9 @@
-import { DandyNames, DandyTypes } from "/extensions/dandy/dandymisc.js"
+import { DandyNames, DandyTypes, Mimes } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const N = DandyNames
 const T = DandyTypes
+const M = Mimes
 
 export const IO = {
   IN: 'in_only',
@@ -13,7 +14,7 @@ export const IO = {
 export class DandyChain {
   static debug_blobs = false
 
-  constructor(dandy, name, type, io_config) {
+  constructor(dandy, name, type, mime, io_config) {
     this.dandy = dandy
     this.node = dandy.node
     this.app = dandy.app
@@ -27,7 +28,8 @@ export class DandyChain {
     }
     dandy.chains[type] = this
 
-    this.contributions = ''
+    this._contributions = ''
+    this._mime = mime
 
     const widget = node.widgets.find((x) => x.name === name)
     this.widget = widget
@@ -117,14 +119,32 @@ export class DandyChain {
     }
   }
 
+  get is_start() {
+    const { node, in_slot } = this
+    if (in_slot === null) {
+      return true  
+    }
+    return !node.isInputConnected(in_slot)
+  }
+
+  set contributions(v) {
+    this._contributions = v
+    this.update_chain()
+  }
+
+  set mime(v) {
+    this._mime = v
+    this.update_chain()
+  }
+
   update_chain() {
     this.follow_chain((chain) => {
       chain.update_data()
     })
   }
-
+  
   update_data() {
-    const { in_slot, out_slot, node, contributions, dandy, type } = this
+    const { in_slot, out_slot, node, _contributions, _mime, dandy, type } = this
     let out_data = ''
     if (in_slot !== null && node.isInputConnected(in_slot)) {
       const force_update = false
@@ -135,7 +155,7 @@ export class DandyChain {
       }
     }
 
-    out_data += contributions
+    out_data += JSON.stringify({ value: _contributions, mime: _mime })
     if (out_slot !== null) {
       node.setOutputData(out_slot, out_data)
       node.triggerSlot(out_slot)
@@ -157,57 +177,60 @@ export class DandyChain {
   }
 
   get data() {
-    const no_fakes = (datum) => datum !== 'undefined' && datum.length > 0
+    const no_fakes = (x) => x !== 'undefined' && x.length > 0
     //console.log(`chain<${this.type}>: ${this.widget.value}`)
-    return this.widget.value.split('\n').filter(no_fakes)
+    const a = this.widget.value.split('\n').filter(no_fakes)
+    const z = a.map((x) => JSON.parse(x)).filter((x) => no_fakes(x.value))
+    console.warn(`DandyChain<${this.type}>.data:`, z)
+    return z
   }
 }
 
 // ==========================================================================================
 export class DandyJsChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.JS, T.JS, io_config)
+    super(dandy, N.JS, T.JS, M.JS, io_config)
   }
 }
 
 export class DandyHtmlChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.HTML, T.HTML, io_config)
+    super(dandy, N.HTML, T.HTML, M.HTML, io_config)
   }
 }
 
 export class DandyCssChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.CSS, T.CSS, io_config)
+    super(dandy, N.CSS, T.CSS, M.CSS, io_config)
   }
 }
 
 export class DandyJsonChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.JSON, T.JSON, io_config)
+    super(dandy, N.JSON, T.JSON, M.JSON, io_config)
   }
 }
 
 export class DandyYamlChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.YAML, T.YAML, io_config)
+    super(dandy, N.YAML, T.YAML, M.YAML, io_config)
   }
 }
 
 export class DandyWasmChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.WASM, T.WASM, io_config)
+    super(dandy, N.WASM, T.WASM, M.WASM, io_config)
   }
 }
 
 export class DandyB64ImagesChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.B64IMAGES, T.B64IMAGES, io_config)
+    super(dandy, N.B64IMAGES, T.B64IMAGES, M.PNG, io_config)
   }
 }
 
 export class DandyB64MasksChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.B64MASKS, T.B64MASKS, io_config)
+    super(dandy, N.B64MASKS, T.B64MASKS, M.PNG, io_config)
   }
 }

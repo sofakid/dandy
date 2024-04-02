@@ -151,7 +151,6 @@ class DandyUrlLoader:
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      URL_NAME: URL_TYPE_INPUT,
       HTML_NAME: HTML_TYPE_INPUT,
       CSS_NAME: CSS_TYPE_INPUT,
       JS_NAME: JS_TYPE_INPUT,
@@ -161,7 +160,7 @@ class DandyUrlLoader:
     })
 
   @classmethod
-  def IS_CHANGED(self, url, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
+  def IS_CHANGED(self, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
     return NEVER_CHANGE
 
   RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, JSON_TYPE, YAML_TYPE, WASM_TYPE)
@@ -170,6 +169,6 @@ class DandyUrlLoader:
   OUTPUT_NODE = False
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, url, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
+  def run(self, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
     return (html, css, js, json, yaml, wasm)
 

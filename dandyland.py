@@ -13,6 +13,7 @@ class DandyLand:
   def INPUT_TYPES(s):
     return DandyWidgets({
         #'seed': ('SEED',),
+        HASH_NAME: HASH_TYPE_INPUT,  
         SERVICE_ID_NAME: SERVICE_ID_TYPE_INPUT,
         HTML_NAME: HTML_TYPE_INPUT,
         CSS_NAME: CSS_TYPE_INPUT,
@@ -27,23 +28,19 @@ class DandyLand:
     })
 
   @classmethod
-  def IS_CHANGED(self, service_id, html=None, css=None, js=None, json=None, 
+  def IS_CHANGED(self, hash, service_id, html=None, css=None, js=None, json=None, 
                  yaml=None, wasm=None, width=None, height=None, b64images=None, 
                  b64masks=None):
-    m = hashlib.sha256()
-    # for capture in captures.split('\n'):
-    #   image_path = folder_paths.get_annotated_filepath(capture)
-    #   with open(image_path, 'rb') as f:
-    #     m.update(f.read())
-    return m.digest().hex()
-  
+    print(f'DandyLand :: IS_CHANGED {hash}')
+    return hash
+    
   RETURN_TYPES = ('IMAGE', 'MASK')
   RETURN_NAMES = ('images', 'masks')
   FUNCTION = 'run'
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, service_id, html=None, css=None, js=None, json=None, 
+  def run(self, hash, service_id, html=None, css=None, js=None, json=None, 
           yaml=None, wasm=None, width=None, height=None, b64images=None, 
           b64masks=None):
     

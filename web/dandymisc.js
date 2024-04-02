@@ -1,8 +1,8 @@
 
 
 export const DandyTypes = {
+  HASH: 'DANDY_HASH',
   SERVICE_ID: 'DANDY_SERVICE_ID',
-  URL: 'DANDY_URLS',
   JS: 'DANDY_JS_URLS',
   HTML: 'DANDY_HTML_URLS',
   CSS: 'DANDY_CSS_URLS',
@@ -15,8 +15,8 @@ export const DandyTypes = {
 }
 
 export const DandyNames = {
+  HASH: 'hash',
   SERVICE_ID: 'service_id',
-  URL: 'url',
   JS: 'js',
   HTML: 'html',
   CSS: 'css',
@@ -29,12 +29,14 @@ export const DandyNames = {
 }
 
 export const Mimes = {
+  JS_MODULE: 'module',
   JS: 'application/javascript',
   HTML: 'text/html',
   CSS: 'text/css',
   JSON: 'application/json',
   YAML: 'application/yaml',
   WASM: 'application/wasm',
+  PNG: 'image/png',
 }
 
 export class DandyNode {
@@ -46,18 +48,22 @@ export class DandyNode {
 
     // if you extend DandyNode, implement on_configure instead of setting it on the node
     node.onConfigure = (info) => {
-      const { chains } = this
       // LiteGraph will reconfigure the widgets even if options.serialize is false
       // the values it puts in the chains are invalid by now
-      if (chains) {
-        Object.entries(chains).forEach(([type, chain]) => {
-          // console.log(`setting chain ${chain.type}`, chain)
-          chain.widget.value = ''
-          if (chain.debug_blobs_widget) {
-            chain.debug_blobs_widget.widget.value = ''
-          }
-        })
-      }
+      this.for_each_chain((chain, type) => {
+        // console.log(`setting chain ${chain.type}`, chain)
+        chain.widget.value = ''
+        if (chain.debug_blobs_widget) {
+          chain.debug_blobs_widget.widget.value = ''
+        }
+  
+        if (chain.is_start) {
+          const one_sec = 1000
+          setTimeout(() => {
+            chain.update_chain()  
+          }, one_sec)
+        }
+      })
       this.on_configure(info)
     }
 
@@ -82,6 +88,10 @@ export class DandyNode {
     node.onExecuted = (output) => {
       this.on_executed(output)      
     }
+
+    node.onRemoved = () => {
+      this.on_removed()
+    }
   }
 
   on_configure(info) {
@@ -94,6 +104,19 @@ export class DandyNode {
   }
 
   on_executed(output) {
+  }
+
+  on_removed() {
+
+  }
+
+  for_each_chain(f_chain_type) {
+    const { chains } = this
+    if (chains) {
+      Object.entries(chains).forEach(([type, chain]) => {
+        f_chain_type(chain, type)
+      })
+    }
   }
 
   put_input_slot(name, type) {
@@ -152,8 +175,7 @@ export class DandyWidget {
     this.value_ = null
     this.size = [0, 0]
     node.addCustomWidget(this)
-    console.log(`DandyWidget<${this.name}, ${this.type}>`, this)
-
+    // console.log(`DandyWidget<${this.name}, ${this.type}>`, this)
   }
 
   get value() {
@@ -177,4 +199,31 @@ export class DandyWidget {
   }
 }
 
+export const dandy_js_plain_module_toggle = (dandy) => {
+  const { node } = dandy // don't put chains in this it's not there yet
+  const default_classic = false
+  const options = { on: 'module js', off: 'classic js' }
+  const callback = (x) => {
+    dandy.chains[DandyTypes.JS].mime = x ? Mimes.JS_MODULE : Mimes.JS
+  }
+  const name = ''
+  const widget = dandy.module_toggle_widget = node.addWidget(
+    'toggle', name, default_classic, callback, options)
+  return widget
+}
+
 export const DandyDelay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+export const dandyCash = (strings) => {
+  let x = 0xDEADBEEF & 0xFFFFFFFF
+  const n_strings = strings.length
+  for (let i = 0; i < n_strings; ++i) {
+    const s = strings[i]
+    const n = s.length
+    for (let j = 0; j < n; ++j) {
+      const c = s.charCodeAt(j) & 0xFF
+      x ^= ((x * x + c * c) & 0xFFFFFFFF)
+    }
+  }
+  return x
+}
