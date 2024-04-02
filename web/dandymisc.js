@@ -9,7 +9,6 @@ export const DandyTypes = {
   JSON: 'DANDY_JSON_URLS',
   YAML: 'DANDY_YAML_URLS',
   WASM: 'DANDY_WASM_URLS',
-  CAPTURES: 'DANDY_CAPTURE',
   B64IMAGES: 'DANDY_B64IMAGES',
   B64MASKS: 'DANDY_B64MASKS',
   DIRTY: 'DANDY_DIRTY',
@@ -24,7 +23,6 @@ export const DandyNames = {
   JSON: 'json',
   YAML: 'yaml',
   WASM: 'wasm',
-  CAPTURES: 'captures',
   B64IMAGES: 'b64images',
   B64MASKS: 'b64masks',
   DIRTY: 'dandy_dirty',
@@ -178,3 +176,5 @@ export class DandyWidget {
     return this.size
   }
 }
+
+export const DandyDelay = (ms) => new Promise(resolve => setTimeout(resolve, ms))

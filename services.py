@@ -25,7 +25,7 @@ class DandyService:
   async def run_loop(self):
     print("DandyService :: run_loop()")
     async for msg in self.ws:
-      print("DandyService :: msg recieved")
+      print("DandyService :: msg recieved: " + str(msg)[:80])
       await self.run_command(msg)
 
   async def run_command(self, msg):
@@ -40,8 +40,14 @@ class DandyService:
     await self.send({ 'command': 'set_service_id', 'service_id': self.id })
 
   async def request_captures(self, o):
-    dst = o['dst']
-    dst_service = services[dst]
-    await dst_service.send({ 'command': 'capture' })
+    jsc = o['js_client']
+    jsc_service = services[jsc]
+    await jsc_service.send(o)
+
+  async def delivering_captures(self, o):
+    pyc = o['py_client']
+    pyc_service = services[pyc]
+    await pyc_service.send(o)
+
    
   

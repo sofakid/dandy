@@ -5,6 +5,9 @@ export class DandySocket {
     const socket = this.socket = new WebSocket(`ws://localhost:${DANDY_WS_PORT}`)
     this._service_id = null
     this._responsePromises = {}
+    this.on_request_captures = (py_client) => {
+      console.warn("default on_request_captures()")
+    }
 
     socket.addEventListener('open', (event) => {
       this.send({ 'command': 'get_service_id' })
@@ -13,39 +16,43 @@ export class DandySocket {
     socket.addEventListener('message', (event) => {
       console.log('DandyServices ::', event.data)
       const response = JSON.parse(event.data)
-      const { command } = response
+      const { command, py_client } = response
       
       if (command === 'set_service_id') {
         this._service_id = response.service_id
+      }
+
+      if (command === 'request_captures') {
+        this.on_request_captures(py_client)
       }
     })
   }
 
   send(command) {
+    console.log('socket sending: ' + JSON.stringify(command).slice(0, 80))
     this.socket.send(JSON.stringify(command))
   }
 
   async wait_until_up() {
-    const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
-
     for (let i = 1; this._service_id === null; ++i) {
       const ms = 10 * i
-      const hundred_sec = 10000 
-      if (i === hundred_sec) {
+      const ten_sec = 1000
+      if (i === ten_sec) {
         console.error("DandySocket isn't getting its service_id...")
         --i
       }
-      await delay(ms)
+      await DandyDelay(ms)
     }
   }
 
+  // service_id widget will wait on this when the prompt is queued 
   async get_service_id() {
     await this.wait_until_up()
     return this._service_id
   }
 
-  async send_captures(b64captures) {
-    this.send({ 'command': 'delivering_captures', 'captures': b64captures })
+  deliver_captures(b64captures, py_client) {
+    this.send({ 'command': 'delivering_captures', 'captures': b64captures, 'py_client': py_client })
   }
 
 }

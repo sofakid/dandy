@@ -40,7 +40,29 @@ def make_b64image(image):
   img_base64 = base64.b64encode(buffered.getvalue())
   return f'data:image/png;base64,{img_base64.decode()}'
 
-def make_image(filename):
+def make_image_from_b64(b64_data_url):
+  _, base64_data = b64_data_url.split(',', 1)
+  binary_data = base64.b64decode(base64_data)
+  i = Image.open(BytesIO(binary_data))
+  i = ImageOps.exif_transpose(i)
+  i = i.convert('RGB')
+  i = np.array(i).astype(np.float32) / 255.0
+  i = torch.from_numpy(i)[None,]
+  return i
+
+def make_mask_from_b64(b64_data_url):
+  _, base64_data = b64_data_url.split(',', 1)
+  binary_data = base64.b64decode(base64_data)
+  m = Image.open(BytesIO(binary_data))
+  m = ImageOps.exif_transpose(m)
+    
+  if 'A' in m.getbands():
+    m = np.array(m.getchannel('A')).astype(np.float32) / 255.0
+    m = torch.from_numpy(m)
+  else:
+    m = torch.zeros((64,64), dtype=torch.float32, device='cpu')
+
+def make_image_from_file(filename):
   i = folder_paths.get_annotated_filepath(filename)
   i = Image.open(i)
   i = ImageOps.exif_transpose(i)
@@ -49,7 +71,7 @@ def make_image(filename):
   i = torch.from_numpy(i)[None,]
   return i
 
-def make_mask(filename):
+def make_mask_from_file(filename):
   m = folder_paths.get_annotated_filepath(filename)
   m = Image.open(m)
   m = ImageOps.exif_transpose(m)

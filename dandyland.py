@@ -14,7 +14,6 @@ class DandyLand:
     return DandyWidgets({
         #'seed': ('SEED',),
         SERVICE_ID_NAME: SERVICE_ID_TYPE_INPUT,
-        CAPTURE_NAME: CAPTURE_TYPE_INPUT,
         HTML_NAME: HTML_TYPE_INPUT,
         CSS_NAME: CSS_TYPE_INPUT,
         JS_NAME: JS_TYPE_INPUT,
@@ -28,14 +27,14 @@ class DandyLand:
     })
 
   @classmethod
-  def IS_CHANGED(self, service_id, captures, html=None, css=None, js=None, json=None, 
+  def IS_CHANGED(self, service_id, html=None, css=None, js=None, json=None, 
                  yaml=None, wasm=None, width=None, height=None, b64images=None, 
                  b64masks=None):
     m = hashlib.sha256()
-    for capture in captures.split('\n'):
-      image_path = folder_paths.get_annotated_filepath(capture)
-      with open(image_path, 'rb') as f:
-        m.update(f.read())
+    # for capture in captures.split('\n'):
+    #   image_path = folder_paths.get_annotated_filepath(capture)
+    #   with open(image_path, 'rb') as f:
+    #     m.update(f.read())
     return m.digest().hex()
   
   RETURN_TYPES = ('IMAGE', 'MASK')
@@ -44,22 +43,18 @@ class DandyLand:
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, service_id, captures, html=None, css=None, js=None, json=None, 
+  def run(self, service_id, html=None, css=None, js=None, json=None, 
           yaml=None, wasm=None, width=None, height=None, b64images=None, 
           b64masks=None):
     
-    o = self.client.request_captures(service_id)
-    print('Dandyland :: captures from services: ' + str(o))
-    print('DandyLand :: captures: ' + str(captures) + ' :: js: ' + str(js))
+    b64s = self.client.request_captures(service_id)
+    print('Dandyland :: captures from services: ' + str(b64s)[:80])
     
-    files = list(filter(lambda x: x.split(), captures.split('\n')))
     def f(g):
-      return list(map(lambda x: g(x), files))
+      return list(map(lambda x: g(x), b64s))
 
-    print('DandyLand :: files: <' + str(files) + '>')
-
-    output_images = f(make_image)
-    #output_masks = f(make_mask)
+    output_images = f(make_image_from_b64)
+    #output_masks = f(make_mask_from_b64)
 
     output_image = batch(output_images)
     #output_mask = batch(output_masks)
