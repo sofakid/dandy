@@ -58,9 +58,12 @@ def make_mask_from_b64(b64_data_url):
     
   if 'A' in m.getbands():
     m = np.array(m.getchannel('A')).astype(np.float32) / 255.0
+    print("Alpha bands: " + str(m))
     m = torch.from_numpy(m)
   else:
+    print("No alpha bands")
     m = torch.zeros((64,64), dtype=torch.float32, device='cpu')
+  return m
 
 def make_image_from_file(filename):
   i = folder_paths.get_annotated_filepath(filename)
@@ -96,36 +99,34 @@ class DandyB64Encoder:
       DIRTY_NAME: DIRTY_TYPE_INPUT,
       'images': ('IMAGE',),
       'masks': ('MASK',),
-      B64IMAGES_NAME: B64IMAGES_TYPE_INPUT,
-      B64MASKS_NAME: B64MASKS_TYPE_INPUT
+      IMAGE_URL_NAME: IMAGE_URL_TYPE_INPUT,
     })
   
   @classmethod
-  def IS_CHANGED(self, dandy_dirty, images=None, masks=None, b64images=None, b64masks=None):
+  def IS_CHANGED(self, dandy_dirty, images=None, masks=None, image_url=None):
     if (dandy_dirty == True):
       self.i += 1
     return str(self.i).encode().hex()
 
-  RETURN_TYPES = (B64IMAGES_TYPE, B64MASKS_TYPE)
-  RETURN_NAMES = (B64IMAGES_NAME, B64MASKS_NAME)
+  RETURN_TYPES = (IMAGE_URL_TYPE,)
+  RETURN_NAMES = (IMAGE_URL_NAME,)
   FUNCTION = 'run'
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, dandy_dirty, images=None, masks=None, b64images=None, b64masks=None):
-    b64images_out = list()
+  def run(self, dandy_dirty, images=None, masks=None, image_url=None):
+    image_url_out = list()
     b64masks_out = list()
 
     if images is not None:
       for image in images:
-        b64images_out.append(make_b64image(image))
+        image_url_out.append(make_b64image(image))
 
     if masks is not None:
       for mask in masks:
-        b64masks_out.append(make_b64image(mask))
+        image_url_out.append(make_b64image(mask))
 
-    print('HERE')
-    return { 'ui': { 'b64images': b64images_out, 'b64masks': b64masks_out }, 
-             'result': (b64images_out, b64images_out) }
+    return { 'ui': { 'image_url': image_url_out }, 
+             'result': (image_url_out, image_url_out) }
 
 

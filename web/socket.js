@@ -18,7 +18,7 @@ export class DandySocket {
     })
     
     socket.addEventListener('message', (event) => {
-      console.log('DandyServices ::', event.data)
+      console.log('DandyServices ::', event.data.slice(0, 200))
       const response = JSON.parse(event.data)
       const { command, py_client } = response
       
@@ -33,6 +33,17 @@ export class DandySocket {
       if (command === 'request_hash') {
         this.on_request_hash(py_client)
       }
+
+      if (command === 'delivering_images') {
+        const { images } = response 
+        this.on_delivering_images(py_client, images)
+      }
+
+      if (command === 'delivering_masks') {
+        const { masks } = response 
+        this.on_delivering_masks(py_client, masks)
+      }
+      
     })
   }
 
@@ -49,7 +60,7 @@ export class DandySocket {
         console.error("DandySocket isn't getting its service_id...")
         --i
       }
-      await DandyDelay(ms)
+      await dandy_delay(ms)
     }
   }
 
@@ -65,6 +76,10 @@ export class DandySocket {
   
   deliver_hash(hash, py_client) {
     this.send({ 'command': 'delivering_hash', 'hash': hash, 'py_client': py_client })
+  }
+
+  thanks(py_client) {
+    this.send({ 'command': 'thanks', 'py_client': py_client })
   }
 
 }

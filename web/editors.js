@@ -1,19 +1,71 @@
+// import { saveAs } from '/extensions/dandy/FileSaver/FileSaver.js'
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
          DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle, DandyNames } from "/extensions/dandy/dandymisc.js"
+import { ComfyWidgets } from "/scripts/widgets.js"
 
 const dandy_webroot = "/extensions/dandy/"
+
+const ace_themes = [
+  'ambiance', 
+  'chaos',
+  'chrome',
+  'cloud_editor',
+  'cloud_editor_dark',
+  'cloud9_day',
+  'cloud9_night',
+  'cloud9_night_low_color',
+  'clouds',
+  'clouds_midnight',
+  'cobalt',
+  'crimson_editor',
+  'dawn',
+  'dracula',
+  'dreamweaver',
+  'eclipse',
+  'github',
+  'github_dark',
+  'gob',
+  'gruvbox',
+  'gruvbox_light_hard',
+  'gruvbox_dark_hard',
+  'idle_fingers',
+  'iplastic',
+  'katzenmilch',
+  'kr_theme',
+  'kuroir',
+  'merbivore',
+  'merbivore_soft',
+  'mono_industrial',
+  'monokai',
+  'nord_dark',
+  'one_dark',
+  'pastel_on_dark',
+  'solarized_light',
+  'solarized_dark',
+  'sqlserver',
+  'terminal',
+  'textmate',
+  'tomorrow',
+  'tomorrow_night',
+  'tomorrow_night_blue',
+  'tomorrow_night_bright',
+  'tomorrow_night_eighties',
+  'twilight',
+  'vibrant_ink',
+  'xcode'
+]
+
+const ace_keybindings = [ 'emacs', 'sublime', 'vim', 'vscode' ] 
 
 export const initDandyEditors = async () => {
   // comfyui will try to load these if we leave them as .js files.
   // but ace wants to load them its own way,
   // so we rename them to .js_ and map the features here
   const features_and_codes = [
-    "theme/twilight", "theme-twilight.js_",
-    "theme/cloud9_day", "theme-cloud9_day.js_",
-    "theme/crimson_editor", "theme-crimson_editor.js_",
     "mode/javascript", "mode-javascript.js_",
     "mode/html", "mode-html.js_",
+    "mode/text", "mode-text.js_",
     "mode/css", "mode-css.js_",
     "mode/json", "mode-json.js_",
     "mode/yaml", "mode-yaml.js_",
@@ -23,6 +75,16 @@ export const initDandyEditors = async () => {
     "mode/json_worker", "worker-json.js_",
     "mode/yaml_worker", "worker-yaml.js_",
   ]
+
+  ace_keybindings.forEach((keyboard) => {
+    features_and_codes.push(`keyboard/${keyboard}`)
+    features_and_codes.push(`keybinding-${keyboard}.js_`)
+  })
+
+  ace_themes.forEach((theme) => {
+    features_and_codes.push(`theme/${theme}`)
+    features_and_codes.push(`theme-${theme}.js_`)
+  })
 
   for (let i = 0; i < features_and_codes.length; i += 2) {
     const feature = features_and_codes[i]
@@ -37,6 +99,35 @@ export const initDandyEditors = async () => {
 }
 
 // ========================================================================
+
+class Settings {
+  constructor() {
+    this.editors = []
+    this.options = {
+      theme: "ace/theme/twilight",
+      keyboardHandler: 'vscode',
+      useSoftTabs: true,
+      tabSize: 2
+    }
+  }
+
+  register_editor = (editor) => {
+    this.editors.push(editor)
+  }
+  
+  unregister_editor = (editor) => {
+    this.editors = this.editors.filter((x) => x !== editor)
+  }
+  
+  set_options = (options) => {
+    this.options = options
+    this.editors.forEach((editor) => {
+      editor.setOptions(options)
+    })
+  }
+}
+const settings = new Settings()
+
 export class DandyEditor extends DandyNode {
   static i_editor = 0
 
@@ -45,7 +136,7 @@ export class DandyEditor extends DandyNode {
     this.mimetype = mimetype
     
     this.editor = null
-    this.widget = null
+    this.div_widget = null
     this.chain = null
     
     const node_type = 'dandy_editor'
@@ -58,12 +149,49 @@ export class DandyEditor extends DandyNode {
       }
     }
 
+    this.filename = ''
+    const filename_widget = this.filename_widget = ComfyWidgets.STRING(node, 'filename', 
+      ['', { default:'', multiline: false, serialize: true }], app)
+  
+    filename_widget.widget.callback = (text) => {
+      this.filename = text
+    }
+
+    const save_widget = this.save_widget = node.addWidget("button", "save_button", "", () => {
+      const text = this.editor.getValue()
+      const blob = new Blob([text], { type: `${mimetype};charset=utf-8` })
+      saveAs(blob, this.filename)
+    })
+    save_widget.label = "save as..."
+
+    const file_input = this.file_input = document.createElement("input")
+    const on_files_selected = async () => {
+      if (file_input.files.length) {
+        await this.load_file(file_input.files[0])
+      }
+    }
+
+    Object.assign(file_input, {
+      type: "file",
+      multiple: false,
+      accept: mimetype,
+      style: "display: none",
+      onchange: on_files_selected,
+    })
+    document.body.appendChild(file_input)
+
+    const open_widget = this.open_widget = node.addWidget("button", "open_button", "", () => {
+      file_input.click()
+      file_input.value = null
+    })
+    open_widget.label = "load file..."
+
     this.init_widgets_above_editor()
 
     const dandy_div = document.createElement('div')
     dandy_div.classList.add('dandy_node')
     
-    const widget = node.addDOMWidget(dandy_div.id, "div", dandy_div)
+    const div_widget = node.addDOMWidget(dandy_div.id, "div", dandy_div)
     const editor_pre = document.createElement('pre')
     editor_pre.classList.add('dandy-editor')
     editor_pre.id = editor_id
@@ -74,17 +202,14 @@ export class DandyEditor extends DandyNode {
     
     dandy_div.appendChild(editor_pre)
     
-    widget.dandy_div = dandy_div
-    widget.editor_pre = editor_pre
-    this.widget = widget
+    div_widget.dandy_div = dandy_div
+    div_widget.editor_pre = editor_pre
+    this.div_widget = div_widget
 
     const editor = ace.edit(editor_id)
     this.editor = editor
-    editor.setTheme('ace/theme/twilight')
-    editor.setOptions({
-      useSoftTabs: true,
-      tabSize: 2
-    })
+    settings.register_editor(editor)
+    editor.setOptions(settings.options)
     
     // LiteGraph uses css transforms 
     // without this line, cursor postion and mouse clicks won't line up
@@ -110,6 +235,24 @@ export class DandyEditor extends DandyNode {
   }
 
   init_widgets_above_editor() {
+  }
+
+  on_removed() {
+    settings.unregister_editor(this.editor)
+  }
+  
+  async load_file(file) {
+    const { name } = file
+    this.filename = name
+    this.filename_widget.widget.value = name
+    
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const text = event.target.result
+      this.set_text(text)
+    }
+
+    reader.readAsText(file)
   }
 
   on_configure(info) {
@@ -206,7 +349,7 @@ export class DandyHtml extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.HTML)
     this.chain = new DandyHtmlChain(this, IO.OUT)
-    node.size = [700, 180]
+    node.size = [700, 280]
 
     const { editor } = this
     const editor_session = editor.getSession()
@@ -227,7 +370,7 @@ export class DandyCss extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.CSS)
     this.chain = new DandyCssChain(this, IO.IN_OUT)
-    node.size = [300, 180]
+    node.size = [300, 280]
 
     const { editor } = this
     const editor_session = editor.getSession()
@@ -244,7 +387,7 @@ export class DandyJson extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.JSON)
     this.chain = new DandyJsonChain(this, IO.IN_OUT)
-    node.size = [300, 180]
+    node.size = [300, 280]
     
     const { editor } = this
     const editor_session = editor.getSession()
@@ -259,11 +402,67 @@ export class DandyYaml extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.YAML)
     this.chain = new DandyYamlChain(this, IO.IN_OUT)
-    node.size = [300, 180]
+    node.size = [300, 280]
     
     const { editor } = this
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/yaml')
     this.set_text("")
+  }
+}
+
+export class DandyEditorSettings extends DandyYaml {
+  static defaults = `
+# Dandy Editor uses Ace editor. You can use any Ace editor options in here.
+# Ace options: https://github.com/ajaxorg/ace/wiki/Configuring-Ace
+
+useSoftTabs: true
+tabSize: 2
+`
+  constructor(node, app) {
+    super(node, app)
+    this.set_text(DandyEditorSettings.defaults)
+    this.remove_input_slot(DandyNames.YAML)
+    this.remove_output_slot(DandyNames.YAML)
+    this.node.size = [600, 280]
+  }
+
+  init_widgets_above_editor() {
+    const { node } = this
+    const default_keybindings = 'vscode'
+    this.keybindings = default_keybindings
+    this.keybindings_widget = node.addWidget(
+      'combo', 'keyboard', default_keybindings, (x) => {
+        this.keybindings = x
+        this.apply_settings()
+      }, { values: ace_keybindings })
+    
+    const default_theme = 'twilight'
+    this.theme = default_theme
+    this.theme_widget = node.addWidget(
+      'combo', 'theme', default_theme, (x) => {
+        this.theme = x
+        this.apply_settings()
+      }, { values: ace_themes })
+  }
+
+  apply_text() {
+    const { editor, node } = this
+    const { properties } = node
+    const text = editor.getValue()
+    properties.text = text
+    this.apply_settings()
+  }
+
+  apply_settings() {
+    const { editor } = this
+    const text = editor.getValue()
+    const options = jsyaml.load(text)
+
+    if (options) {
+      options.keyboardHandler = `ace/keyboard/${this.keybindings}`
+      options.theme = `ace/theme/${this.theme}`
+      settings.set_options(options)
+    }
   }
 }

@@ -119,3 +119,26 @@ class DandyYaml:
 
   def run(self, yaml):
     return (yaml,)
+
+class DandyEditorSettings:
+  def __init__(self):
+    pass
+
+  @classmethod
+  def INPUT_TYPES(self):
+    return DandyWidgets({
+      YAML_NAME: YAML_TYPE_INPUT
+    })
+  
+  @classmethod
+  def IS_CHANGED(self, yaml=None):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = ()
+  RETURN_NAMES = ()
+  FUNCTION = 'run'
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self, yaml=None):
+    return ()

@@ -181,7 +181,7 @@ export class DandyChain {
     //console.log(`chain<${this.type}>: ${this.widget.value}`)
     const a = this.widget.value.split('\n').filter(no_fakes)
     const z = a.map((x) => JSON.parse(x)).filter((x) => no_fakes(x.value))
-    console.warn(`DandyChain<${this.type}>.data:`, z)
+    //console.warn(`DandyChain<${this.type}>.data:`, z)
     return z
   }
 }
@@ -223,14 +223,8 @@ export class DandyWasmChain extends DandyChain {
   }
 }
 
-export class DandyB64ImagesChain extends DandyChain {
+export class DandyImageUrlChain extends DandyChain {
   constructor(dandy, io_config) {
-    super(dandy, N.B64IMAGES, T.B64IMAGES, M.PNG, io_config)
-  }
-}
-
-export class DandyB64MasksChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.B64MASKS, T.B64MASKS, M.PNG, io_config)
+    super(dandy, N.IMAGE_URL, T.IMAGE_URL, M.PNG, io_config)
   }
 }

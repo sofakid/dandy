@@ -1,6 +1,6 @@
-import { IO, DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain,
-         DandyYamlChain, DandyB64ImagesChain, DandyB64MasksChain } from '/extensions/dandy/chains.js'
-import { Mimes, DandyNames, dandyCash, DandyNode, DandyDelay } from '/extensions/dandy/dandymisc.js'
+import { IO, DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain,
+         DandyYamlChain, DandyImageUrlChain } from '/extensions/dandy/chains.js'
+import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { DandySocket } from '/extensions/dandy/socket.js'
 import { api } from '/scripts/api.js'
@@ -42,13 +42,13 @@ export class DandyLand extends DandyNode {
 
   constructor(node, app) {
     super(node, app)
-    this.js_chain = new DandyJsChain(this, IO.IN)
     this.html_chain = new DandyHtmlChain(this, IO.IN)
     this.css_chain = new DandyCssChain(this, IO.IN)
+    this.js_chain = new DandyJsChain(this, IO.IN)
+    this.wasm_chain = new DandyWasmChain(this, IO.IN)
     this.json_chain = new DandyJsonChain(this, IO.IN)
     this.yaml_chain = new DandyYamlChain(this, IO.IN)
-    this.b64images_chain = new DandyB64ImagesChain(this, IO.IN)
-    this.b64masks_chain = new DandyB64MasksChain(this, IO.IN)
+    this.image_url_chain = new DandyImageUrlChain(this, IO.IN)
 
     this.chain_cache = {}
     const socket = this.socket = new DandySocket()
@@ -61,18 +61,44 @@ export class DandyLand extends DandyNode {
       this.deliver_hash(py_client)
     }
 
+    this.input_images_urls = []
+    socket.on_delivering_images = (py_client, images) => {
+      const { input_images_urls } = this
+      input_images_urls.length = 0
+      images.forEach((image, i) => {
+        input_images_urls.push({
+          value: image,
+          id: `comfyui_image_${i}`
+        })
+      })
+      socket.thanks(py_client)
+    }
+
+    this.input_masks_urls = []
+    socket.on_delivering_masks = (py_client, masks) => {
+      const { input_masks_urls } = this
+      input_masks_urls.length = 0
+      masks.forEach((mask, i) => {
+        input_masks_urls.push({
+          value: mask,
+          id: `comfyui_mask_${i}`
+        })
+      })
+      socket.thanks(py_client)
+    }
+
     const service_widget = this.service_widget = this.find_widget(DandyNames.SERVICE_ID)
     service_widget.serializeValue = async () => {
       console.warn("Serializing serivce_id...")
       return await socket.get_service_id()
     }
 
-    this.canvas_hash = dandyCash([`${Date.now()}`])
+    this.canvas_hash = dandy_cash([`${Date.now()}`])
     const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
 
     const hash_f = async () => {
       const b64s = await this.get_canvases_b64s()
-      return dandyCash(b64s)
+      return dandy_cash(b64s)
     }
 
     hash_widget.serializeValue = hash_f
@@ -110,8 +136,7 @@ export class DandyLand extends DandyNode {
       this.reload_iframe()
     }
     
-    this.images_widget = this.find_widget(DandyNames.B64IMAGES)
-    this.masks_widget = this.find_widget(DandyNames.B64MASKS)
+    this.images_widget = this.find_widget(DandyNames.IMAGE_URL)
 
     this.frozen = false
     const freeze = () => {
@@ -145,9 +170,19 @@ export class DandyLand extends DandyNode {
     divvy.classList.add('dandyMax')
     divvy.id = this.id
     const div_widget = node.addDOMWidget(divvy.id, "divvy", divvy, { serialize: false })
-    //console.log("DandyLand constructed", this)
+    console.log("DandyLand constructed", this)
     this.constructed = true
     this.reload_iframe()
+  }
+
+  on_connections_change(i_or_o, index, connected, link_info, input) {
+    if (link_info) {
+      const is_input_slot_that_changed = i_or_o === LiteGraph.INPUT
+      const is_image_slot = link_info.type === 'IMAGE'
+      if (is_image_slot && is_input_slot_that_changed) {
+        this.input_images_urls.length = 0
+      }
+    }
   }
 
   on_removed() {
@@ -166,7 +201,7 @@ export class DandyLand extends DandyNode {
   async deliver_hash(py_client) {
     const { socket } = this
     const b64s = await this.get_canvases_b64s()
-    const hash = dandyCash(b64s)
+    const hash = dandy_cash(b64s)
     socket.deliver_hash(hash, py_client)
   }
 
@@ -174,7 +209,7 @@ export class DandyLand extends DandyNode {
     while (this.rendering) {
       const ms = 300
       console.log('delaying...')
-      await DandyDelay(ms)
+      await dandy_delay(ms)
     }
     await this.capture_and_deliver(py_client)
   }
@@ -182,7 +217,7 @@ export class DandyLand extends DandyNode {
   async capture_and_deliver(py_client) {
     const { socket } = this
     const b64s = await this.get_canvases_b64s()
-    this.canvas_hash = dandyCash(b64s)
+    this.canvas_hash = dandy_cash(b64s)
     socket.deliver_captures(b64s, py_client)
   }
 
@@ -256,11 +291,19 @@ export class DandyLand extends DandyNode {
     canvas.height = height > 0 ? height : 10
 
     const ctx = canvas.getContext("2d")
+    ctx.globalAlpha = 0.0
     ctx.fillStyle = "black"
     ctx.fillRect(0, 0, width, height)
 
-    ctx.font = "30px Arial"
+    const p = width / 8
+    const q = height / 8
+    ctx.globalAlpha = 0.8
     ctx.fillStyle = "white"
+    ctx.fillRect(p, q, width - 2 * p, height - 2 * q)
+
+    ctx.globalAlpha = 1.0
+    ctx.font = "30px Arial"
+    ctx.fillStyle = "black"
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
     ctx.fillText("No Canvas Found", width / 2, height / 2)
@@ -275,7 +318,7 @@ export class DandyLand extends DandyNode {
       return
     }
     const cached_value = chain_cache[type]
-    const new_value = chains[type].data.join()
+    const new_value = dandy_cash(JSON.stringify(chains[type].data))
 
     const v = new_value != cached_value ? '!==' : '==='
     const cv = `${cached_value}`.slice(0, 80)
@@ -325,7 +368,7 @@ export class DandyLand extends DandyNode {
   }
 
   async reload_iframe_job (when_done) {
-    const { divvy, node, b64images_chain, b64masks_chain,
+    const { divvy, node, image_url_chain,
       js_chain, html_chain, css_chain, json_chain, yaml_chain,
       width_widget, height_widget, images_widget, masks_widget 
     } = this
@@ -338,8 +381,7 @@ export class DandyLand extends DandyNode {
     const css_urls = css_chain.data.map(just_urls)
     const json_urls = json_chain.data.map(just_urls)
     const yaml_urls = yaml_chain.data.map(just_urls)
-    const image_urls = b64images_chain.data.map(just_urls)
-    const mask_urls = b64masks_chain.data.map(just_urls)
+    const image_urls = image_url_chain.data
     
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
@@ -350,8 +392,8 @@ export class DandyLand extends DandyNode {
     })
 
     const dandy_o = {
-      images: [],
-      masks: [],
+      image: [],
+      mask: [],
       json: jsons,
       yaml: yamls,
       width: width_widget.value,
@@ -359,30 +401,41 @@ export class DandyLand extends DandyNode {
     }
     const dandy_o_json = JSON.stringify(dandy_o)
     
-    const load_one_image = (dst, url) => `(() => {
+    const { input_images_urls, input_masks_urls } = this
+    const n_input_images = input_images_urls.length
+    const n_input_masks = input_masks_urls.length
+
+    const load_one_image = (image_or_mask, url, id) => `
+    (() => {
       const img = document.createElement('img')
+      ${id ? 'img.id ="' + id + '"' : ''}
       img.onload = image_loaded
       img.style.display = "none"
       img.src = "${url}"
-      dandy.${dst}.push(img)
+      dandy.${image_or_mask}.push(img)
       document.body.appendChild(img)
     })();
     `
-    const load_images_map = (url) => load_one_image('images', url)
-    const load_masks_map = (url) => load_one_image('images', url)
-    
+    const load_images_masks_map = (image_or_mask, o) => load_one_image(image_or_mask, o.value, o.id)
+    const load_images_map = (o) => load_images_masks_map('image', o)
+    const load_masks_map = (o) => load_images_masks_map('mask', o)
+
+    const load_input_images = input_images_urls.map(load_images_map).join('\n')
+    const load_input_masks = input_masks_urls.map(load_masks_map).join('\n')
     const load_all_images = image_urls.map(load_images_map).join('\n')
-    const load_all_masks = mask_urls.map(load_masks_map).join('\n')
+    const load_all_masks = image_urls.map(load_masks_map).join('\n')
 
     const load_images_js = `
     (()=>{
-      const n_images = ${image_urls.length + mask_urls.length}
+      const n_images = ${image_urls.length + image_urls.length + n_input_images + n_input_masks}
       let i_image = 0
       const image_loaded = () => {
         if (++i_image === n_images) {
           dandy.onload()
         }
       }
+      ${load_input_images}
+      ${load_input_masks}
       ${load_all_images}
       ${load_all_masks}
       if (n_images === 0) {
@@ -410,7 +463,8 @@ export class DandyLand extends DandyNode {
     js_data.push({ value: load_images_url, mime: Mimes.JS })
 
     const script_map = (o) => `<script type="${o.mime}" src=${o.value}></script>`
-    const script_tags = js_data.map(script_map)
+    const script_tags = js_data.map(script_map).join('')
+
     const css_map = (url) => `<link rel="stylesheet" type="${Mimes.CSS}" href="${url}" />`
     const css_links = css_urls.map(css_map).join("") + dandy_css_link
 
@@ -450,7 +504,6 @@ export class DandyLand extends DandyNode {
       iframe.onload = on_load
       iframe.srcdoc = html
       divvy.appendChild(iframe)
-      iframe_doc = iframe.contentDocument || iframe.contentWindow.document
       this.iframe = iframe
     }
 

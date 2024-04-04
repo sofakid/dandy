@@ -1,15 +1,13 @@
-import { DandyB64ImagesChain, DandyB64MasksChain, IO } from "/extensions/dandy/chains.js"
+import { DandyImageUrlChain, IO } from "/extensions/dandy/chains.js"
 import { DandyNames, DandyTypes, DandyNode } from "/extensions/dandy/dandymisc.js"
 
 export class DandyB64Encoder extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.images_chain = new DandyB64ImagesChain(this, IO.IN_OUT)
-    this.masks_chain = new DandyB64MasksChain(this, IO.IN_OUT)
+    this.images_chain = new DandyImageUrlChain(this, IO.IN_OUT)
     
     this.dirty_widget = this.find_widget(DandyNames.DIRTY)
-    this.images_widget = this.find_widget(DandyNames.B64IMAGES)
-    this.masks_widget = this.find_widget(DandyNames.B64MASKS)
+    this.images_widget = this.find_widget(DandyNames.IMAGE_URL)
     
     this.dirty_widget.value = true
     this.images_widget.value = []
@@ -21,26 +19,16 @@ export class DandyB64Encoder extends DandyNode {
   }
 
   on_executed(output) {
-    const { b64images, b64masks } = output 
-    //console.log("B64Encoder.on_executed:", b64images.slice(0, 50), b64masks.slice(0, 50))
+    const { b64images } = output 
     
-    const { images_chain, masks_chain } = this
-
-    const images_widget = this.find_widget(DandyNames.B64IMAGES)
-    const masks_widget = this.find_widget(DandyNames.B64MASKS)
-
+    const { images_chain } = this
+    const images_widget = this.find_widget(DandyNames.IMAGE_URL)
     const last_images = images_widget.value
-    const last_masks = masks_widget.value
 
     if (last_images !== b64images) {
       images_widget.value = b64images
       images_chain.contributions = b64images
       images_chain.update_chain()
-    }
-    if (last_masks !== b64masks) {
-      masks_widget.value = b64masks
-      masks_chain.contributions = b64masks
-      masks_chain.update_chain()
     }
   }
 }

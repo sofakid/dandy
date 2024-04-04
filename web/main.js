@@ -1,10 +1,12 @@
 import { app } from "../../scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
-import { DandyWidget, DandyTypes } from "/extensions/dandy/dandymisc.js"
+import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { DandyB64Encoder } from "/extensions/dandy/b64.js"
-import { initDandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
+import { initDandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
+         DandyP5JsDraw, DandyP5JsSetup, DandyEditorSettings } from "/extensions/dandy/editors.js"
 import { DandyLand } from "/extensions/dandy/dandyland.js"
-import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, DandyYamlLoader, DandyUrlLoader } from "./loaders.js"
+import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
+         DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "./loaders.js"
 
 const extension_name = "dandy"
 
@@ -16,6 +18,7 @@ const dandy_nodes = {
   "Dandy Html": DandyHtml,
   "Dandy Css": DandyCss,
   "Dandy Js Loader": DandyJsLoader,
+  "Dandy Wasm Loader": DandyWasmLoader,
   "Dandy Json Loader": DandyJsonLoader,
   "Dandy Yaml Loader": DandyYamlLoader,
   "Dandy Css Loader": DandyCssLoader,
@@ -25,11 +28,13 @@ const dandy_nodes = {
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw,
   "Dandy B64 Encoder": DandyB64Encoder,
+  "Dandy Editor Settings": DandyEditorSettings,
 }
 
 const initDandy = async () => {
   load_dandy_css(document)
   await initDandyEditors()
+  await dandy_delay(200)
 }
 
 // -----------------------------------------------------------------------------------
@@ -70,6 +75,7 @@ const ext = {
 		// This is the place to do this
 	},
 	nodeCreated: (node, app) => {
+
     const klass = dandy_nodes[node.getTitle()]
     // console.log("nodeCreated", node.getTitle(), klass)
     if (klass) {

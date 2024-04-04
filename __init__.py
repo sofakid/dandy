@@ -20,10 +20,12 @@ NODE_CLASS_MAPPINGS = {
   "DandyP5JsLoader": DandyP5JsLoader,
   "DandyJsonLoader": DandyJsonLoader,
   "DandyYamlLoader": DandyYamlLoader,
+  "DandyWasmLoader": DandyWasmLoader,
   "DandyCssLoader": DandyCssLoader,
   "DandyHtmlLoader": DandyHtmlLoader,
   "DandyUrlLoader": DandyUrlLoader,
   "DandyB64Encoder": DandyB64Encoder,
+  "DandyEditorSettings": DandyEditorSettings,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -37,12 +39,14 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyJsLoader": "Dandy Js Loader",
   "DandyJsonLoader": "Dandy Json Loader",
   "DandyYamlLoader": "Dandy Yaml Loader",
+  "DandyWasmLoader": "Dandy Wasm Loader",
   "DandyCssLoader": "Dandy Css Loader",
   "DandyHtmlLoader": "Dandy Html Loader",
   "DandyUrlLoader": "Dandy Url Loader",
   "DandyP5JsLoader": "Dandy p5.js Loader",
   "DandyP5JsSetup": "Dandy p5.js Setup",
   "DandyP5JsDraw": "Dandy p5.js Draw",
+  "DandyEditorSettings": "Dandy Editor Settings",
 }
 
 print("DANDY =====================")

@@ -1,16 +1,30 @@
 
+export const DandyColors = {
+  CODE: "slateblue",
+  DOC: "darkviolet",
+  DATA: "goldenrod"
+}
+
+const DandyColorTypeMap = {
+  JS: DandyColors.CODE,
+  WASM: DandyColors.CODE,
+  HTML: DandyColors.DOC,
+  CSS: DandyColors.DOC,
+  JSON: DandyColors.DATA,
+  YAML: DandyColors.DATA,
+  IMAGE_URL: DandyColors.DATA,
+}
 
 export const DandyTypes = {
   HASH: 'DANDY_HASH',
   SERVICE_ID: 'DANDY_SERVICE_ID',
   JS: 'DANDY_JS_URLS',
+  WASM: 'DANDY_WASM_URLS',
   HTML: 'DANDY_HTML_URLS',
   CSS: 'DANDY_CSS_URLS',
   JSON: 'DANDY_JSON_URLS',
   YAML: 'DANDY_YAML_URLS',
-  WASM: 'DANDY_WASM_URLS',
-  B64IMAGES: 'DANDY_B64IMAGES',
-  B64MASKS: 'DANDY_B64MASKS',
+  IMAGE_URL: 'DANDY_IMAGE_URL',
   DIRTY: 'DANDY_DIRTY',
 }
 
@@ -18,24 +32,23 @@ export const DandyNames = {
   HASH: 'hash',
   SERVICE_ID: 'service_id',
   JS: 'js',
+  WASM: 'wasm',
   HTML: 'html',
   CSS: 'css',
   JSON: 'json',
   YAML: 'yaml',
-  WASM: 'wasm',
-  B64IMAGES: 'b64images',
-  B64MASKS: 'b64masks',
+  IMAGE_URL: 'image_url',
   DIRTY: 'dandy_dirty',
 }
 
 export const Mimes = {
   JS_MODULE: 'module',
   JS: 'application/javascript',
+  WASM: 'application/wasm',
   HTML: 'text/html',
   CSS: 'text/css',
   JSON: 'application/json',
   YAML: 'application/yaml',
-  WASM: 'application/wasm',
   PNG: 'image/png',
 }
 
@@ -52,7 +65,11 @@ export class DandyNode {
       // the values it puts in the chains are invalid by now
       this.for_each_chain((chain, type) => {
         // console.log(`setting chain ${chain.type}`, chain)
-        chain.widget.value = ''
+        if (chain.widget) {
+          chain.widget.value = ''
+        } else {
+          console.warn(`there is a ${type} chain with no widget.`)
+        }
         if (chain.debug_blobs_widget) {
           chain.debug_blobs_widget.widget.value = ''
         }
@@ -67,7 +84,7 @@ export class DandyNode {
       this.on_configure(info)
     }
 
-    node.onConnectionsChange = (type, index, connected, link_info) => {
+    node.onConnectionsChange = (i_or_o, index, connected, link_info, input) => {
       // console.warn(`${this.id}.node.onConnectionsChange(type, index, connected, link_info)`, this, type, index, connected, link_info)
       if (link_info) {
         const { chains } = this
@@ -78,7 +95,7 @@ export class DandyNode {
           }
         }
       }
-      this.on_connections_change(type, index, connected, link_info)
+      this.on_connections_change(i_or_o, index, connected, link_info, input)
     }
 
     node.onExecutionStart = () => {
@@ -97,7 +114,7 @@ export class DandyNode {
   on_configure(info) {
   }
 
-  on_connections_change() {
+  on_connections_change(i_or_o, index, connected, link_info, input) {
   }
 
   on_execution_start() {
@@ -121,19 +138,17 @@ export class DandyNode {
 
   put_input_slot(name, type) {
     const { node } = this
-    const slot = node.findInputSlot(name)
-    if (slot === -1) {
-      node.addInput(name, type)
-    }
+    this.remove_input_slot(name)
+    const color = DandyColorTypeMap[type]
+    node.addInput(name, type, { color })
     return node.findInputSlot(name)
   }
 
   put_output_slot(name, type) {
     const { node } = this
-    const slot = node.findOutputSlot(name)
-    if (slot === -1) {
-      node.addOutput(name, type)
-    }
+    this.remove_output_slot(name)
+    const color = DandyColorTypeMap[type]
+    node.addOutput(name, type, { color })
     return node.findOutputSlot(name)
   }
 
@@ -147,7 +162,7 @@ export class DandyNode {
 
   remove_output_slot(name) {
     const { node } = this
-    const slot = node.findInputSlot(name)
+    const slot = node.findOutputSlot(name)
     if (slot !== -1) {
       node.removeOutput(name)
     }
@@ -157,6 +172,11 @@ export class DandyNode {
     return this.node.widgets.find((x) => x.name === name)
   }
 
+  get_colour_palette() {
+    const id = 'Comfy.ColorPalette'
+    const default_id = 'dark'
+    return this.app.ui.settings.getSettingValue(id, default_id)
+  }
 }
 
 let i_dandy_widget = 0
@@ -175,7 +195,7 @@ export class DandyWidget {
     this.value_ = null
     this.size = [0, 0]
     node.addCustomWidget(this)
-    // console.log(`DandyWidget<${this.name}, ${this.type}>`, this)
+    //console.log(`DandyWidget<${this.name}, ${this.type}>`, this)
   }
 
   get value() {
@@ -212,9 +232,9 @@ export const dandy_js_plain_module_toggle = (dandy) => {
   return widget
 }
 
-export const DandyDelay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+export const dandy_delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-export const dandyCash = (strings) => {
+export const dandy_cash = (strings) => {
   let x = 0xDEADBEEF & 0xFFFFFFFF
   const n_strings = strings.length
   for (let i = 0; i < n_strings; ++i) {
@@ -227,3 +247,4 @@ export const dandyCash = (strings) => {
   }
   return x
 }
+

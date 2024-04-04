@@ -1,5 +1,5 @@
 import { DandyChain, DandyJsChain, DandyHtmlChain, DandyCssChain, DandyJsonChain, 
-         DandyYamlChain, DandyWasmChain, IO } from "./chains.js"
+         DandyYamlChain, DandyWasmChain, IO, DandyImageUrlChain } from "/extensions/dandy/chains.js"
 import { DandyNames, DandyNode, DandyTypes, Mimes, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
@@ -347,6 +347,13 @@ export class DandyHtmlLoader extends DandySingleFileLoader {
   }
 }
 
+export class DandyWasmLoader extends DandySingleFileLoader {
+  constructor(node, app) {
+    super(node, app, Mimes.WASM, DandyTypes.WASM)
+    new DandyWasmChain(this, IO.OUT)
+  }
+}
+
 export class DandyCssLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.CSS, DandyTypes.CSS)
@@ -436,9 +443,10 @@ export class DandyUrlLoader extends DandyNode {
     this.html_chain = new DandyHtmlChain(this, IO.OUT)
     this.css_chain = new DandyCssChain(this, IO.IN_OUT)
     this.js_chain = new DandyJsChain(this, IO.IN_OUT)
+    this.wasm_chain = new DandyWasmChain(this, IO.IN_OUT)
     this.json_chain = new DandyJsonChain(this, IO.IN_OUT)
     this.yaml_chain = new DandyYamlChain(this, IO.IN_OUT)
-    this.wasm_chain = new DandyWasmChain(this, IO.IN_OUT)
+    this.image_url_chain = new DandyImageUrlChain(this, IO.IN_OUT)
 
     dandy_js_plain_module_toggle(this)
 

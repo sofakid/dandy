@@ -131,7 +131,7 @@ class DandyWasmLoader:
     })
    
   @classmethod
-  def IS_CHANGED(self, yaml):
+  def IS_CHANGED(self, wasm):
     return NEVER_CHANGE
 
   RETURN_TYPES = (WASM_TYPE,)
@@ -154,21 +154,22 @@ class DandyUrlLoader:
       HTML_NAME: HTML_TYPE_INPUT,
       CSS_NAME: CSS_TYPE_INPUT,
       JS_NAME: JS_TYPE_INPUT,
+      WASM_NAME: WASM_TYPE_INPUT,
       JSON_NAME: JSON_TYPE_INPUT,
       YAML_NAME: YAML_TYPE_INPUT,
-      WASM_NAME: WASM_TYPE_INPUT,
+      IMAGE_URL_NAME: IMAGE_URL_TYPE_INPUT,
     })
 
   @classmethod
-  def IS_CHANGED(self, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
+  def IS_CHANGED(self, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None):
     return NEVER_CHANGE
 
-  RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, JSON_TYPE, YAML_TYPE, WASM_TYPE)
-  RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, JSON_NAME, YAML_NAME, WASM_NAME)
+  RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE)
+  RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME)
   FUNCTION = 'run'
   OUTPUT_NODE = False
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, html=None, css=None, js=None, json=None, yaml=None, wasm=None):
-    return (html, css, js, json, yaml, wasm)
+  def run(self, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None):
+    return (html, css, js, wasm, json, yaml, image_url)
 
