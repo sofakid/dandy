@@ -1,7 +1,204 @@
-import { ace_keyboards, ace_themes, dandy_settings } from '/extensions/dandy/editors.js'
-import { DandyNames, DandyNode } from '/extensions/dandy/dandymisc.js'
+import { DandyNode, dandy_delay } from '/extensions/dandy/dandymisc.js'
+import { DandySocket } from "/extensions/dandy/socket.js"
 
-const settings = dandy_settings()
+export const ace_themes = [
+  'ambiance', 
+  'chaos',
+  'chrome',
+  'cloud_editor',
+  'cloud_editor_dark',
+  'cloud9_day',
+  'cloud9_night',
+  'cloud9_night_low_color',
+  'clouds',
+  'clouds_midnight',
+  'cobalt',
+  'crimson_editor',
+  'dawn',
+  'dracula',
+  'dreamweaver',
+  'eclipse',
+  'github',
+  'github_dark',
+  'gob',
+  'gruvbox',
+  'gruvbox_light_hard',
+  'gruvbox_dark_hard',
+  'idle_fingers',
+  'iplastic',
+  'katzenmilch',
+  'kr_theme',
+  'kuroir',
+  'merbivore',
+  'merbivore_soft',
+  'mono_industrial',
+  'monokai',
+  'nord_dark',
+  'one_dark',
+  'pastel_on_dark',
+  'solarized_light',
+  'solarized_dark',
+  'sqlserver',
+  'terminal',
+  'textmate',
+  'tomorrow',
+  'tomorrow_night',
+  'tomorrow_night_blue',
+  'tomorrow_night_bright',
+  'tomorrow_night_eighties',
+  'twilight',
+  'vibrant_ink',
+  'xcode'
+]
+
+export const ace_keyboards = [ 'ace', 'emacs', 'sublime', 'vim', 'vscode' ]
+
+// LiteGraph uses css transforms 
+// without hasCssTransforms, cursor postion and mouse clicks won't line up
+const default_options = {
+  hasCssTransforms: true,
+  theme: "ace/theme/twilight",
+  keyboardHandler: 'ace',
+  useSoftTabs: true,
+  tabSize: 2
+}
+
+let MONOSPACED_ANALYSED = false
+const collect_monospace_fonts = (system_fonts) => {
+  const monospaced = []
+
+  const text = "1ixXmMzZ_()lW.,|"
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  // remove duplicates
+  const fonts = [...new Set(system_fonts)]
+  fonts.forEach((font) => {
+    ctx.font = `16px ${font}`
+    const reference_width = ctx.measureText('i').width
+  
+    let is_monospaced = true
+    for (let i = 0, n = text.length; i < n; ++i) {
+      const char = text.charAt(i)
+      const char_width = ctx.measureText(char).width;
+      if (Math.abs(char_width - reference_width) > 1) {
+        is_monospaced = false
+        break
+      }
+    }
+    if (is_monospaced) {
+      monospaced.push(font)
+    }
+  })
+
+  MONOSPACED_ANALYSED = true
+  return monospaced.sort()
+}
+
+export class DandySettings {
+
+  constructor() {
+    this.dandies = []
+    this.options = default_options
+    this.key_o = 'DandyEditorSettings'
+    this.ace_keyboard = null
+    this.fonts = null
+    
+    const socket = this.socket = new DandySocket()
+    socket.on_delivering_fonts = (fonts) => {
+      this.fonts = collect_monospace_fonts(fonts)
+    }
+    const f = async () => {
+      await socket.get_service_id()
+      socket.request_fonts()
+    }
+    f()
+    
+    this.load_from_local_storage()
+  }
+
+  learn_default_ace_keyboard(o_handler) {
+    this.ace_keyboard = o_handler
+  }
+
+  load_from_local_storage() {
+    const { key_o } = this
+    const so = localStorage.getItem(key_o)
+    if (so !== null) {
+      const o = JSON.parse(so)
+      const dont_save = false
+      this.set_options(o, dont_save)
+    } else {
+      const save = true
+      this.set_options(default_options, save)
+    }
+  }
+
+  save_to_local_storage() {
+    const { key_o, options } = this
+    const o = {}
+    Object.entries(options).forEach(([name, value]) => {
+      // if (name === 'keyboardHandler') {
+      //   console.log('save_to_local_storage', value, typeof value)
+      // }
+      if (name === 'keyboardHandler' && typeof value === 'object') {
+        o[name] = 'ace'
+      } else {
+        o[name] = value
+      }
+    })
+    const so = JSON.stringify(options)
+    localStorage.setItem(key_o, so)
+  }
+
+  register_dandy(dandy) {
+    this.dandies.push(dandy)
+    this.apply_options(dandy)
+  }
+  
+  unregister_dandy(dandy) {
+    this.dandies = this.dandies.filter((x) => x !== dandy)
+  }
+  
+  set_options(options, save=true) {
+    this.options = options
+    if (save) {
+      this.save_to_local_storage()
+    }
+    this.dandies.forEach((dandy) => {
+      this.apply_options(dandy)
+    })
+  }
+
+  apply_options(dandy) {
+    const { editor } = dandy
+    //when_ace_initialized(() => {
+
+      const { options } = this
+      const { keyboardHandler, theme } = options  
+      
+      if (keyboardHandler === 'ace/keyboard/ace') {
+        options.keyboardHandler = settings.ace_keyboard
+      }
+
+      editor.setOptions(options)
+      dandy.apply_styles()
+    //})
+  }
+}
+
+const settings = new DandySettings()
+export const dandy_settings = () => {
+  return settings
+}
+
+export const wait_for_DandySettings = async () => {
+  while (MONOSPACED_ANALYSED === false) {
+    const ms = 50
+    await dandy_delay(ms)
+  }
+}
+
 
 const mandatories = {
   hasCssTransforms: true,
@@ -9,7 +206,7 @@ const mandatories = {
   scrollPastEnd: false,
 }
 
-const default_font = 'monospace'
+const default_font = 'Courier New'
 
 const setto_names = []
 const setto = {}
@@ -31,11 +228,22 @@ const setty_booly = (name, default_value) => {
 const setty_numby = (name, default_value, min_val, max_val) => {
   const x = setto[name] = {}
   x.default = default_value
+  x.min = min_val
+  x.max = max_val
   x.type = 'number'
   setto_names.push(name)
 }
 
-const setty_wordy = (name, default_value, min_val, max_val) => {
+const setty_intyy = (name, default_value, min_val, max_val) => {
+  const x = setto[name] = {}
+  x.default = default_value
+  x.min = min_val
+  x.max = max_val
+  x.type = 'int'
+  setto_names.push(name)
+}
+
+const setty_wordy = (name, default_value) => {
   const x = setto[name] = {}
   x.default = default_value
   x.type = 'string'
@@ -53,12 +261,14 @@ const default_keyboard = 'ace'
 const default_theme = 'twilight'
 setty_combo('keyboardHandler', default_keyboard, ace_keyboards)
 setty_combo('theme', default_theme, ace_themes)
+setty_fonty('fontFamily')
+setty_numby('fontSize', 12, 6, 32)
 setty_booly('highlightActiveLine', true)
 setty_booly('highlightSelectedWord', true)
 setty_combo('cursorStyle', 'ace', ['ace', 'slim', 'smooth', 'wide'])
 setty_booly('useSoftTabs', true)
 setty_booly('navigateWithinSoftTabs', true)
-setty_numby('tabSize', 2, 1, 10)
+setty_intyy('tabSize', 2, 1, 10)
 setty_booly('enableMultiselect', true)
 setty_booly('enableAutoIndent', true)
 setty_booly('enableKeyboardAccessibility', true)
@@ -72,8 +282,6 @@ setty_booly('showGutter', true)
 setty_booly('displayIndentGuides', true)
 setty_booly('highlightIndentGuides', true)
 
-setty_numby('fontSize', 12, 6, 32)
-setty_fonty('fontFamily')
 setty_booly('fixedWidthGutter', false)
 setty_booly('useSvgGutterIcons', true)
 setty_numby('scrollSpeed', 1, 0.1, 10)
@@ -87,7 +295,6 @@ setty_combo('foldStyle', 'markbegin', ['markbegin', 'markbeginend', 'manual'])
 export class DandyEditorSettings extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.node.size = [400, 500]
     this.options = {}
     Object.entries(setto).forEach(([name, x]) => {
       if (x.type === 'combo') {
@@ -99,6 +306,9 @@ export class DandyEditorSettings extends DandyNode {
       else if (x.type === 'number') {
         this.number_widget(name, x)
       }
+      else if (x.type === 'int') {
+        this.int_widget(name, x)
+      }
       else if (x.type === 'string') {
         this.string_widget(name, x)
       }
@@ -106,11 +316,13 @@ export class DandyEditorSettings extends DandyNode {
         this.font_widget(name, x)
       }
     })
+    this.load_from_settings()
+    this.node.size = [280, 755]
+
   }
 
   font_widget(name, o) {
     o.values = settings.fonts
-    console.warn("HERE")
     this.combo_widget(name, o)  
   }
 
@@ -142,7 +354,26 @@ export class DandyEditorSettings extends DandyNode {
       (x) => {
         options[name] = x
         this.apply_settings()
-      }, {})
+      }, {
+        min: o.min,
+        max: o.max,
+      })
+    this[`${name}_widget`] = widget
+    options[name] = o.default
+  }
+
+  int_widget(name, o) {
+    const { node, options } = this
+    const widget = node.addWidget('number', name, o.default, 
+      (x) => {
+        options[name] = x
+        this.apply_settings()
+      }, { 
+        min: o.min,
+        max: o.max,
+        step: 10,
+        precision: 0,
+      })
     this[`${name}_widget`] = widget
     options[name] = o.default
   }
@@ -158,32 +389,48 @@ export class DandyEditorSettings extends DandyNode {
     options[name] = o.default
   }
 
+  load_from_settings() {
+    const { options } = this
+    Object.entries(settings.options).forEach(([name, value]) => {
+      let v = null
+      if (name === 'keyboardHandler') {
+        // console.log("keyboard handler from settings", value, typeof value)
+        if (typeof value === 'object' || value === 'ace') {
+          v = 'ace'
+        } else {
+          v = value.slice('ace/keyboard/'.length)
+        }
+      } else if (name === 'theme') {
+        v = value.slice('ace/theme/'.length)
+        // console.log(`THEME: value: ${value}, v: ${v}`)
+      } else {
+        v = value
+      }
+      const widget = this[`${name}_widget`]
+      if (widget) {
+        widget.value = v
+        options[name] = v
+      }
+    })
+    this.apply_settings()
+  }
+
   on_configure() {
+    const { options } = this
     setto_names.forEach((name) => {
       const widget = this[`${name}_widget`]
       if (!widget) {
         console.warn(`DandyEditorSettings :: no widget for ${name}`)
         return  
       }
-      this.options[name] = widget.value
+      options[name] = widget.value
     })
     super.on_configure()
   }
 
-  apply_text() {
-    const { editor, node } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-    this.apply_settings()
-  }
-
   apply_settings() {
-    const { editor, options } = this
-    // const text = editor.getValue()
-    // const o = jsyaml.load(text)
+    const { options } = this
 
-    // if (o) {
     const o = {}
     
     setto_names.forEach((name) => {
@@ -192,12 +439,6 @@ export class DandyEditorSettings extends DandyNode {
         o[name] = `ace/keyboard/${s}`
       } else if (name === 'theme') {
         o[name] = `ace/theme/${s}`
-      // } else if (s === 'true') {
-      //   o[name] = true
-      // } else if (s === 'false') {
-      //   o[name] = false
-      // } else if (/^\d+$/.test(s)) {
-      //   o[name] = parseInt(s)
       } else {
         o[name] = s
       }

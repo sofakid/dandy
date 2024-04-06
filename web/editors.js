@@ -1,63 +1,10 @@
-// import { saveAs } from '/extensions/dandy/FileSaver/FileSaver.js'
-import { DandySocket } from "/extensions/dandy/socket.js"
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
          DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle, DandyNames, dandy_delay } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
+import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
-
-export const ace_themes = [
-  'ambiance', 
-  'chaos',
-  'chrome',
-  'cloud_editor',
-  'cloud_editor_dark',
-  'cloud9_day',
-  'cloud9_night',
-  'cloud9_night_low_color',
-  'clouds',
-  'clouds_midnight',
-  'cobalt',
-  'crimson_editor',
-  'dawn',
-  'dracula',
-  'dreamweaver',
-  'eclipse',
-  'github',
-  'github_dark',
-  'gob',
-  'gruvbox',
-  'gruvbox_light_hard',
-  'gruvbox_dark_hard',
-  'idle_fingers',
-  'iplastic',
-  'katzenmilch',
-  'kr_theme',
-  'kuroir',
-  'merbivore',
-  'merbivore_soft',
-  'mono_industrial',
-  'monokai',
-  'nord_dark',
-  'one_dark',
-  'pastel_on_dark',
-  'solarized_light',
-  'solarized_dark',
-  'sqlserver',
-  'terminal',
-  'textmate',
-  'tomorrow',
-  'tomorrow_night',
-  'tomorrow_night_blue',
-  'tomorrow_night_bright',
-  'tomorrow_night_eighties',
-  'twilight',
-  'vibrant_ink',
-  'xcode'
-]
-
-export const ace_keyboards = [ 'ace', 'emacs', 'sublime', 'vim', 'vscode' ]
 
 let ACE_INITITALIZED = false
 let ACE_INITITALIZED_AND_SETTLED = false
@@ -109,158 +56,23 @@ export const init_DandyEditors = async () => {
   }
 }
 
-function when_ace_initialized(f) {
-  if (ACE_INITITALIZED === false) {
-    window.requestAnimationFrame(when_ace_initialized)
-    return
-  }
+// function when_ace_initialized(f) {
+//   if (ACE_INITITALIZED === false) {
+//     window.requestAnimationFrame(when_ace_initialized)
+//     return
+//   }
 
-  if (ACE_INITITALIZED_AND_SETTLED == false) {
-    const let_it_settle = 200
-    setTimeout(() => {
-      ACE_INITITALIZED_AND_SETTLED = true
-      f()
-    }, let_it_settle)
-    return
-  } 
+//   if (ACE_INITITALIZED_AND_SETTLED == false) {
+//     const let_it_settle = 200
+//     setTimeout(() => {
+//       ACE_INITITALIZED_AND_SETTLED = true
+//       f()
+//     }, let_it_settle)
+//     return
+//   } 
   
-  f()
-}
-
-// LiteGraph uses css transforms 
-// without hasCssTransforms, cursor postion and mouse clicks won't line up
-const default_options = {
-  hasCssTransforms: true,
-  theme: "ace/theme/twilight",
-  keyboardHandler: 'ace',
-  useSoftTabs: true,
-  tabSize: 2
-}
-
-let MONOSPACED_ANALYSED = false
-const collect_monospace_fonts = (system_fonts) => {
-  const monospaced = []
-
-  const text = "1ixXmMzZ_()lW.,|"
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-
-  // remove duplicates
-  const fonts = [...new Set(system_fonts)]
-  fonts.forEach((font) => {
-    ctx.font = `16px ${font}`
-    const reference_width = ctx.measureText('i').width
-  
-    let is_monospaced = true
-    for (let i = 0, n = text.length; i < n; ++i) {
-      const char = text.charAt(i)
-      const char_width = ctx.measureText(char).width;
-      if (Math.abs(char_width - reference_width) > 1) {
-        is_monospaced = false
-        break
-      }
-    }
-    if (is_monospaced) {
-      monospaced.push(font)
-    }
-  })
-
-  MONOSPACED_ANALYSED = true
-  return monospaced.sort()
-}
-
-export class DandySettings {
-
-  constructor() {
-    this.dandies = []
-    this.options = default_options
-    this.key_o = 'DandyEditorSettings'
-    this.ace_keyboard = null
-    this.fonts = null
-    
-    const socket = this.socket = new DandySocket()
-    socket.on_delivering_fonts = (fonts) => {
-      this.fonts = collect_monospace_fonts(fonts)
-    }
-    const f = async () => {
-      await socket.get_service_id()
-      socket.request_fonts()
-    }
-    f()
-    
-    this.load_from_local_storage()
-  }
-
-  learn_default_ace_keyboard(o_handler) {
-    this.ace_keyboard = o_handler
-  }
-
-  load_from_local_storage() {
-    const { key_o } = this
-    const so = localStorage.getItem(key_o)
-    if (so !== null) {
-      const o = JSON.parse(so)
-      const dont_save = false
-      this.set_options(o, dont_save)
-    } else {
-      const save = true
-      this.set_options(default_options, save)
-    }
-  }
-
-  save_to_local_storage() {
-    const { key_o, options } = this
-    const so = JSON.stringify(options)
-    localStorage.setItem(key_o, so)
-  }
-
-  register_dandy(dandy) {
-    this.dandies.push(dandy)
-    this.apply_options(dandy)
-  }
-  
-  unregister_dandy(dandy) {
-    this.dandies = this.dandies.filter((x) => x !== dandy)
-  }
-  
-  set_options(options, save=true) {
-    this.options = options
-    if (save) {
-      this.save_to_local_storage()
-    }
-    this.dandies.forEach((dandy) => {
-      this.apply_options(dandy)
-    })
-  }
-
-  apply_options(dandy) {
-    const { editor } = dandy
-    when_ace_initialized(() => {
-
-      const { options } = this
-      const { keyboardHandler, theme } = options  
-      
-      if (keyboardHandler === 'ace/keyboard/ace') {
-        options.keyboardHandler = settings.ace_keyboard
-      }
-
-      editor.setOptions(options)
-      dandy.apply_styles()
-    })
-  }
-}
-
-const settings = new DandySettings()
-export const dandy_settings = () => {
-  return settings
-}
-
-export const wait_for_DandySettings = async () => {
-  while (MONOSPACED_ANALYSED === false) {
-    const ms = 50
-    await dandy_delay(ms)
-  }
-}
+//   f()
+// }
 
 class DandyEditorTopBar {
   constructor(dandy, parent) {
@@ -406,10 +218,9 @@ export class DandyEditor extends DandyNode {
 
     const editor = ace.edit(editor_id)
     this.editor = editor
-    console.log("original keyboard handler", editor.getKeyboardHandler())
 
+    const settings = dandy_settings()
     settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
-
     settings.register_dandy(this)
     
     editor_pre.addEventListener('resize', (event) => {
@@ -435,7 +246,7 @@ export class DandyEditor extends DandyNode {
   }
 
   on_removed() {
-    settings.unregister_dandy(this)
+    dandy_settings().unregister_dandy(this)
   }
 
   apply_styles() {

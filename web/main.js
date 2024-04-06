@@ -2,9 +2,9 @@ import { app } from "/scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { DandyB64Encoder } from "/extensions/dandy/b64.js"
-import { init_DandyEditors, wait_for_DandySettings, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
+import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
          DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
-import { DandyEditorSettings } from '/extensions/dandy/editor_settings.js'
+import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
 import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
          DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "/extensions/dandy/loaders.js"
