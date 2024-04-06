@@ -1,6 +1,17 @@
 
+from matplotlib import font_manager
 import json
 from .constants import *
+
+def get_system_fonts():
+  font_paths = font_manager.findSystemFonts()
+
+  out = []
+  for font_file in font_paths:
+      font = font_manager.get_font(font_file)
+      out.append(font.family_name)
+      # print("DandyServices :: font: " + font.family_name)
+  return out
 
 i_service = 0
 
@@ -69,4 +80,11 @@ class DandyService:
 
   async def thanks(self, o):
     await self.send_to_py(o)
+
+  async def request_fonts(self, o):
+    await self.send({
+      'command': 'delivering_fonts',
+      'fonts': get_system_fonts()
+    })
+
   

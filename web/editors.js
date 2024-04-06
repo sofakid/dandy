@@ -1,12 +1,13 @@
 // import { saveAs } from '/extensions/dandy/FileSaver/FileSaver.js'
+import { DandySocket } from "/extensions/dandy/socket.js"
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
          DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle, DandyNames } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle, DandyNames, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
-const ace_themes = [
+export const ace_themes = [
   'ambiance', 
   'chaos',
   'chrome',
@@ -56,9 +57,12 @@ const ace_themes = [
   'xcode'
 ]
 
-const ace_keybindings = [ 'emacs', 'sublime', 'vim', 'vscode' ] 
+export const ace_keyboards = [ 'ace', 'emacs', 'sublime', 'vim', 'vscode' ]
 
-export const initDandyEditors = async () => {
+let ACE_INITITALIZED = false
+let ACE_INITITALIZED_AND_SETTLED = false
+
+export const init_DandyEditors = async () => {
   // comfyui will try to load these if we leave them as .js files.
   // but ace wants to load them its own way,
   // so we rename them to .js_ and map the features here
@@ -76,9 +80,11 @@ export const initDandyEditors = async () => {
     "mode/yaml_worker", "worker-yaml.js_",
   ]
 
-  ace_keybindings.forEach((keyboard) => {
-    features_and_codes.push(`keyboard/${keyboard}`)
-    features_and_codes.push(`keybinding-${keyboard}.js_`)
+  ace_keyboards.forEach((keyboard) => {
+    if (keyboard !== 'ace') {
+      features_and_codes.push(`keyboard/${keyboard}`)
+      features_and_codes.push(`keybinding-${keyboard}.js_`)
+    }
   })
 
   ace_themes.forEach((theme) => {
@@ -86,6 +92,8 @@ export const initDandyEditors = async () => {
     features_and_codes.push(`theme-${theme}.js_`)
   })
 
+  const n_features = features_and_codes.length / 2
+  let i_features = 0
   for (let i = 0; i < features_and_codes.length; i += 2) {
     const feature = features_and_codes[i]
     const js_ = features_and_codes[i + 1]
@@ -95,38 +103,255 @@ export const initDandyEditors = async () => {
     const url = URL.createObjectURL(blob)
     ace.config.setModuleUrl(`ace/${feature}`, url)
     //console.log(`ace.config.setModuleUrl("ace/${feature}", ${url})`)
+    if (++i_features === n_features) {
+      ACE_INITITALIZED = true
+    }
   }
 }
 
-// ========================================================================
+function when_ace_initialized(f) {
+  if (ACE_INITITALIZED === false) {
+    window.requestAnimationFrame(when_ace_initialized)
+    return
+  }
 
-class Settings {
+  if (ACE_INITITALIZED_AND_SETTLED == false) {
+    const let_it_settle = 200
+    setTimeout(() => {
+      ACE_INITITALIZED_AND_SETTLED = true
+      f()
+    }, let_it_settle)
+    return
+  } 
+  
+  f()
+}
+
+// LiteGraph uses css transforms 
+// without hasCssTransforms, cursor postion and mouse clicks won't line up
+const default_options = {
+  hasCssTransforms: true,
+  theme: "ace/theme/twilight",
+  keyboardHandler: 'ace',
+  useSoftTabs: true,
+  tabSize: 2
+}
+
+let MONOSPACED_ANALYSED = false
+const collect_monospace_fonts = (system_fonts) => {
+  const monospaced = []
+
+  const text = "1ixXmMzZ_()lW.,|"
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  // remove duplicates
+  const fonts = [...new Set(system_fonts)]
+  fonts.forEach((font) => {
+    ctx.font = `16px ${font}`
+    const reference_width = ctx.measureText('i').width
+  
+    let is_monospaced = true
+    for (let i = 0, n = text.length; i < n; ++i) {
+      const char = text.charAt(i)
+      const char_width = ctx.measureText(char).width;
+      if (Math.abs(char_width - reference_width) > 1) {
+        is_monospaced = false
+        break
+      }
+    }
+    if (is_monospaced) {
+      monospaced.push(font)
+    }
+  })
+
+  MONOSPACED_ANALYSED = true
+  return monospaced.sort()
+}
+
+export class DandySettings {
+
   constructor() {
-    this.editors = []
-    this.options = {
-      theme: "ace/theme/twilight",
-      keyboardHandler: 'vscode',
-      useSoftTabs: true,
-      tabSize: 2
+    this.dandies = []
+    this.options = default_options
+    this.key_o = 'DandyEditorSettings'
+    this.ace_keyboard = null
+    this.fonts = null
+    
+    const socket = this.socket = new DandySocket()
+    socket.on_delivering_fonts = (fonts) => {
+      this.fonts = collect_monospace_fonts(fonts)
+    }
+    const f = async () => {
+      await socket.get_service_id()
+      socket.request_fonts()
+    }
+    f()
+    
+    this.load_from_local_storage()
+  }
+
+  learn_default_ace_keyboard(o_handler) {
+    this.ace_keyboard = o_handler
+  }
+
+  load_from_local_storage() {
+    const { key_o } = this
+    const so = localStorage.getItem(key_o)
+    if (so !== null) {
+      const o = JSON.parse(so)
+      const dont_save = false
+      this.set_options(o, dont_save)
+    } else {
+      const save = true
+      this.set_options(default_options, save)
     }
   }
 
-  register_editor = (editor) => {
-    this.editors.push(editor)
+  save_to_local_storage() {
+    const { key_o, options } = this
+    const so = JSON.stringify(options)
+    localStorage.setItem(key_o, so)
+  }
+
+  register_dandy(dandy) {
+    this.dandies.push(dandy)
+    this.apply_options(dandy)
   }
   
-  unregister_editor = (editor) => {
-    this.editors = this.editors.filter((x) => x !== editor)
+  unregister_dandy(dandy) {
+    this.dandies = this.dandies.filter((x) => x !== dandy)
   }
   
-  set_options = (options) => {
+  set_options(options, save=true) {
     this.options = options
-    this.editors.forEach((editor) => {
+    if (save) {
+      this.save_to_local_storage()
+    }
+    this.dandies.forEach((dandy) => {
+      this.apply_options(dandy)
+    })
+  }
+
+  apply_options(dandy) {
+    const { editor } = dandy
+    when_ace_initialized(() => {
+
+      const { options } = this
+      const { keyboardHandler, theme } = options  
+      
+      if (keyboardHandler === 'ace/keyboard/ace') {
+        options.keyboardHandler = settings.ace_keyboard
+      }
+
       editor.setOptions(options)
+      dandy.apply_styles()
     })
   }
 }
-const settings = new Settings()
+
+const settings = new DandySettings()
+export const dandy_settings = () => {
+  return settings
+}
+
+export const wait_for_DandySettings = async () => {
+  while (MONOSPACED_ANALYSED === false) {
+    const ms = 50
+    await dandy_delay(ms)
+  }
+}
+
+class DandyEditorTopBar {
+  constructor(dandy, parent) {
+    this.dandy = dandy
+    const bar_class = this.button_class = 'dandyEditorButtonBar'
+    const button_class = this.button_class = 'dandyEditorButton'
+    
+    const div = this.div = document.createElement('div')
+    div.classList.add(bar_class)
+
+    const save_button = document.createElement('button')
+    save_button.classList.add(button_class)
+    save_button.onclick = () => {
+      const { editor, mimetype, filename } = dandy
+      const text = editor.getValue()
+      const blob = new Blob([text], { type: `${mimetype};charset=utf-8` })
+      saveAs(blob, filename)
+    }
+    save_button.innerHTML = "save as..."
+
+    const file_input = this.file_input = document.createElement("input")
+    const on_files_selected = async () => {
+      if (file_input.files.length) {
+        await dandy.load_file(file_input.files[0])
+      }
+    }
+
+    Object.assign(file_input, {
+      type: "file",
+      multiple: false,
+      accept: dandy.mimetype,
+      style: "display: none",
+      onchange: on_files_selected,
+    })
+    div.appendChild(file_input)
+
+    const open_button = document.createElement('button')
+    open_button.classList.add(button_class)
+    open_button.onclick = () => {
+      file_input.click()
+      file_input.value = null
+    }
+    open_button.innerHTML = "load file..."
+
+    div.appendChild(open_button)
+    div.appendChild(save_button)
+    parent.appendChild(div)
+  }
+
+  apply_styles() {
+    const { dandy, button_class } = this
+
+    const update_css = (klass, pairs) => {
+      for (let i = 0; i < document.styleSheets.length; i++) {
+        const ss = document.styleSheets[i]
+        for (var j = 0; j < ss.cssRules.length; j++) {
+          const rule = ss.cssRules[j]
+          if (rule.selectorText === klass) {
+            for (let i = 0; i < pairs.length; i += 2) {
+              const property = pairs[i]
+              const value = pairs[i + 1]
+              rule.style[property] = value
+            }
+          }
+        }
+      }
+    }
+
+    //const editor_styles = window.getComputedStyle(editor_pre)
+    // const bg_color = editor_styles.backgroundColor
+    // const fg_color = editor_styles.color
+    
+    // i can't find the current color palette :/ 
+    const bg_color = LiteGraph.WIDGET_BGCOLOR
+    const fg_color = LiteGraph.WIDGET_TEXT_COLOR
+    const fg_color2 = LiteGraph.WIDGET_SECONDARY_TEXT_COLOR
+    const outline_color = LiteGraph.WIDGET_OUTLINE_COLOR
+
+    update_css(`.${button_class}`, [
+      'background-color', bg_color,
+      'color', fg_color2,
+      'border', `none`
+    ])
+
+    update_css(`.${button_class}:hover`, [
+      'background-color', bg_color,
+      'color', fg_color,
+      'border', `1px solid ${outline_color}`
+    ])
+  }
+}
 
 export class DandyEditor extends DandyNode {
   static i_editor = 0
@@ -135,6 +360,7 @@ export class DandyEditor extends DandyNode {
     super(node, app)
     this.mimetype = mimetype
     
+    this.editor_class = 'dandy-editor'
     this.editor = null
     this.div_widget = null
     this.chain = null
@@ -148,6 +374,8 @@ export class DandyEditor extends DandyNode {
         text: ''
       }
     }
+    
+    this.init_widgets_above_editor()
 
     this.filename = ''
     const filename_widget = this.filename_widget = ComfyWidgets.STRING(node, 'filename', 
@@ -156,49 +384,19 @@ export class DandyEditor extends DandyNode {
     filename_widget.widget.callback = (text) => {
       this.filename = text
     }
-
-    const save_widget = this.save_widget = node.addWidget("button", "save_button", "", () => {
-      const text = this.editor.getValue()
-      const blob = new Blob([text], { type: `${mimetype};charset=utf-8` })
-      saveAs(blob, this.filename)
-    })
-    save_widget.label = "save as..."
-
-    const file_input = this.file_input = document.createElement("input")
-    const on_files_selected = async () => {
-      if (file_input.files.length) {
-        await this.load_file(file_input.files[0])
-      }
-    }
-
-    Object.assign(file_input, {
-      type: "file",
-      multiple: false,
-      accept: mimetype,
-      style: "display: none",
-      onchange: on_files_selected,
-    })
-    document.body.appendChild(file_input)
-
-    const open_widget = this.open_widget = node.addWidget("button", "open_button", "", () => {
-      file_input.click()
-      file_input.value = null
-    })
-    open_widget.label = "load file..."
-
-    this.init_widgets_above_editor()
+    filename_widget.widget.computeSize = () => [0, 10]
 
     const dandy_div = document.createElement('div')
-    dandy_div.classList.add('dandy_node')
+    dandy_div.classList.add('dandyEditorContainer')
     
+    this.button_bar = new DandyEditorTopBar(this, dandy_div)
+
     const div_widget = node.addDOMWidget(dandy_div.id, "div", dandy_div)
-    const editor_pre = document.createElement('pre')
-    editor_pre.classList.add('dandy-editor')
+
+    const editor_pre = this.editor_pre = document.createElement('pre')
+    editor_pre.classList.add(this.editor_class)
     editor_pre.id = editor_id
-    editor_pre.style.width = '100%'
-    editor_pre.style.height = '100%'
-    editor_pre.style.marginTop = '0px'
-    editor_pre.style.marginBottom = '0px'
+    editor_pre.classList.add('dandyEditorPre')
     
     dandy_div.appendChild(editor_pre)
     
@@ -208,13 +406,12 @@ export class DandyEditor extends DandyNode {
 
     const editor = ace.edit(editor_id)
     this.editor = editor
-    settings.register_editor(editor)
-    editor.setOptions(settings.options)
-    
-    // LiteGraph uses css transforms 
-    // without this line, cursor postion and mouse clicks won't line up
-    editor.setOption('hasCssTransforms', true)
+    console.log("original keyboard handler", editor.getKeyboardHandler())
 
+    settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
+
+    settings.register_dandy(this)
+    
     editor_pre.addEventListener('resize', (event) => {
       editor.resize()
     })
@@ -238,7 +435,11 @@ export class DandyEditor extends DandyNode {
   }
 
   on_removed() {
-    settings.unregister_editor(this.editor)
+    settings.unregister_dandy(this)
+  }
+
+  apply_styles() {
+    this.button_bar.apply_styles()
   }
   
   async load_file(file) {
@@ -408,61 +609,5 @@ export class DandyYaml extends DandyEditor {
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/yaml')
     this.set_text("")
-  }
-}
-
-export class DandyEditorSettings extends DandyYaml {
-  static defaults = `
-# Dandy Editor uses Ace editor. You can use any Ace editor options in here.
-# Ace options: https://github.com/ajaxorg/ace/wiki/Configuring-Ace
-
-useSoftTabs: true
-tabSize: 2
-`
-  constructor(node, app) {
-    super(node, app)
-    this.set_text(DandyEditorSettings.defaults)
-    this.remove_input_slot(DandyNames.YAML)
-    this.remove_output_slot(DandyNames.YAML)
-    this.node.size = [600, 280]
-  }
-
-  init_widgets_above_editor() {
-    const { node } = this
-    const default_keybindings = 'vscode'
-    this.keybindings = default_keybindings
-    this.keybindings_widget = node.addWidget(
-      'combo', 'keyboard', default_keybindings, (x) => {
-        this.keybindings = x
-        this.apply_settings()
-      }, { values: ace_keybindings })
-    
-    const default_theme = 'twilight'
-    this.theme = default_theme
-    this.theme_widget = node.addWidget(
-      'combo', 'theme', default_theme, (x) => {
-        this.theme = x
-        this.apply_settings()
-      }, { values: ace_themes })
-  }
-
-  apply_text() {
-    const { editor, node } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-    this.apply_settings()
-  }
-
-  apply_settings() {
-    const { editor } = this
-    const text = editor.getValue()
-    const options = jsyaml.load(text)
-
-    if (options) {
-      options.keyboardHandler = `ace/keyboard/${this.keybindings}`
-      options.theme = `ace/theme/${this.theme}`
-      settings.set_options(options)
-    }
   }
 }

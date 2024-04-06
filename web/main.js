@@ -1,12 +1,14 @@
-import { app } from "../../scripts/app.js"
+import { app } from "/scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { DandyB64Encoder } from "/extensions/dandy/b64.js"
-import { initDandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
-         DandyP5JsDraw, DandyP5JsSetup, DandyEditorSettings } from "/extensions/dandy/editors.js"
+import { init_DandyEditors, wait_for_DandySettings, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
+         DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
+import { DandyEditorSettings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
 import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
-         DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "./loaders.js"
+         DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "/extensions/dandy/loaders.js"
+import { DandySocket } from "/extensions/dandy/socket.js"
 
 const extension_name = "dandy"
 
@@ -33,7 +35,10 @@ const dandy_nodes = {
 
 const initDandy = async () => {
   load_dandy_css(document)
-  await initDandyEditors()
+  const socket = new DandySocket()
+  await socket.get_service_id()
+  await wait_for_DandySettings()
+  await init_DandyEditors()
   await dandy_delay(200)
 }
 

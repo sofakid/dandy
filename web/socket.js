@@ -1,9 +1,81 @@
+import { dandy_delay } from "/extensions/dandy/dandymisc.js"
 const DANDY_WS_PORT = 7872
+
+const connectWebSocket = () => {
+  return new Promise((resolve, reject) => {
+    let retries = 0
+    const max_retries = 20
+    const retry_delay = 500
+
+    function attemptConnection() {
+      const socket = new WebSocket(`ws://localhost:${DANDY_WS_PORT}`);
+
+      socket.onopen = () => {
+        resolve(socket)
+      }
+
+      socket.onerror = () => {
+        console.log("WebSocket connection error")
+        ++retries
+        if (retries < max_retries) {
+          console.warn(`DandySocket :: Retrying connection (Attempt ${retries} of ${max_retries})...`)
+          setTimeout(attemptConnection, retry_delay)
+        } else {
+          reject(new Error("DandySocket :: Exceeded maximum number of retries"))
+        }
+      }
+    }
+
+    attemptConnection()
+  })
+}
 
 export class DandySocket {
   constructor() {
-    const socket = this.socket = new WebSocket(`ws://localhost:${DANDY_WS_PORT}`)
+    this.socket = null
     this._service_id = null
+
+    connectWebSocket()
+      .then((socket) => {
+        this.socket = socket
+        socket.addEventListener('message', (event) => {
+          console.log('DandyServices ::', event.data.slice(0, 200))
+          const response = JSON.parse(event.data)
+          const { command, py_client } = response
+          
+          if (command === 'set_service_id') {
+            this._service_id = response.service_id
+          }
+    
+          if (command === 'request_captures') {
+            this.on_request_captures(py_client)
+          }
+    
+          if (command === 'request_hash') {
+            this.on_request_hash(py_client)
+          }
+    
+          if (command === 'delivering_images') {
+            const { images } = response 
+            this.on_delivering_images(py_client, images)
+          }
+    
+          if (command === 'delivering_masks') {
+            const { masks } = response 
+            this.on_delivering_masks(py_client, masks)
+          }
+    
+          if (command === 'delivering_fonts') {
+            const { fonts } = response 
+            this.on_delivering_fonts(fonts)
+          }
+          
+        })
+        this.send({ 'command': 'get_service_id' })
+      })
+      .catch((error) => {
+          console.error("Failed to establish WebSocket connection:", error)
+      })
 
     this.on_request_captures = (py_client) => {
       console.warn("default on_request_captures()")
@@ -13,38 +85,17 @@ export class DandySocket {
       console.warn("default on_request_hash()")
     }
 
-    socket.addEventListener('open', (event) => {
-      this.send({ 'command': 'get_service_id' })
-    })
-    
-    socket.addEventListener('message', (event) => {
-      console.log('DandyServices ::', event.data.slice(0, 200))
-      const response = JSON.parse(event.data)
-      const { command, py_client } = response
-      
-      if (command === 'set_service_id') {
-        this._service_id = response.service_id
-      }
+    this.on_delivering_fonts = (fonts) => {
+      console.warn("default on_delivering_fonts()")
+    }
 
-      if (command === 'request_captures') {
-        this.on_request_captures(py_client)
-      }
+    this.on_delivering_images = () => {
+      console.warn("default on_delivering_images()")
+    }
 
-      if (command === 'request_hash') {
-        this.on_request_hash(py_client)
-      }
-
-      if (command === 'delivering_images') {
-        const { images } = response 
-        this.on_delivering_images(py_client, images)
-      }
-
-      if (command === 'delivering_masks') {
-        const { masks } = response 
-        this.on_delivering_masks(py_client, masks)
-      }
-      
-    })
+    this.on_delivering_masks = () => {
+      console.warn("default on_delivering_masks()")
+    }
   }
 
   send(command) {
@@ -80,6 +131,10 @@ export class DandySocket {
 
   thanks(py_client) {
     this.send({ 'command': 'thanks', 'py_client': py_client })
+  }
+
+  request_fonts() {
+    this.send({ 'command': 'request_fonts' })
   }
 
 }
