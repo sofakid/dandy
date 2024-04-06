@@ -198,7 +198,7 @@ export class DandyEditor extends DandyNode {
     }
     filename_widget.widget.computeSize = () => [0, 10]
 
-    const dandy_div = document.createElement('div')
+    const dandy_div = this.dandy_div = document.createElement('div')
     dandy_div.classList.add('dandyEditorContainer')
     
     this.button_bar = new DandyEditorTopBar(this, dandy_div)
@@ -218,6 +218,12 @@ export class DandyEditor extends DandyNode {
 
     const editor = ace.edit(editor_id)
     this.editor = editor
+
+    dandy_div.addEventListener("keyup", (event) => {
+      if (event.key === "F11" && editor.isFocused()) {
+        this.toggleFullscreen()
+      }
+    })
 
     const settings = dandy_settings()
     settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
@@ -247,6 +253,18 @@ export class DandyEditor extends DandyNode {
 
   on_removed() {
     dandy_settings().unregister_dandy(this)
+  }
+
+  toggleFullscreen() {
+    const { editor, dandy_div } = this
+    const fs = 'dandyEditorFullscreen'
+    if (!document.fullscreenElement) {
+      dandy_div.classList.add(fs)
+      dandy_div.requestFullscreen()
+    } else {
+      dandy_div.classList.remove(fs)
+      document.exitFullscreen()
+    }
   }
 
   apply_styles() {
