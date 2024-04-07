@@ -48,21 +48,15 @@ export class DandySocket {
           }
     
           if (command === 'request_captures') {
-            this.on_request_captures(py_client)
+            this.on_request_captures(response)
+          }
+
+          if (command === 'request_string') {
+            this.on_request_string(response)
           }
     
           if (command === 'request_hash') {
             this.on_request_hash(py_client)
-          }
-    
-          if (command === 'delivering_images') {
-            const { images } = response 
-            this.on_delivering_images(py_client, images)
-          }
-    
-          if (command === 'delivering_masks') {
-            const { masks } = response 
-            this.on_delivering_masks(py_client, masks)
           }
     
           if (command === 'delivering_fonts') {
@@ -79,6 +73,10 @@ export class DandySocket {
 
     this.on_request_captures = (py_client) => {
       console.warn("default on_request_captures()")
+    }
+
+    this.on_request_string = (py_client) => {
+      console.warn("default on_request_string()")
     }
 
     this.on_request_hash = (py_client) => {
@@ -121,8 +119,9 @@ export class DandySocket {
     return this._service_id
   }
 
-  deliver_captures(b64captures, py_client) {
-    this.send({ 'command': 'delivering_captures', 'captures': b64captures, 'py_client': py_client })
+  deliver_captures(o) {
+    o.command = 'delivering_captures'
+    this.send(o)
   }
   
   deliver_hash(hash, py_client) {
@@ -135,6 +134,11 @@ export class DandySocket {
 
   request_fonts() {
     this.send({ 'command': 'request_fonts' })
+  }
+
+  deliver_string(o) {
+    o.command = 'delivering_string'
+    this.send(o)
   }
 
 }

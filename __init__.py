@@ -3,6 +3,7 @@ from .editors import *
 from .loaders import *
 from .dandyland import *
 from .p5 import *
+from .prompt import *
 from .socket import launch_server
 
 WEB_DIRECTORY = "web"
@@ -26,6 +27,7 @@ NODE_CLASS_MAPPINGS = {
   "DandyUrlLoader": DandyUrlLoader,
   "DandyB64Encoder": DandyB64Encoder,
   "DandyEditorSettings": DandyEditorSettings,
+  "DandyPrompt": DandyPrompt,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -47,6 +49,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyP5JsSetup": "Dandy p5.js Setup",
   "DandyP5JsDraw": "Dandy p5.js Draw",
   "DandyEditorSettings": "Dandy Editor Settings",
+  "DandyPrompt": "Dandy Prompt",
 }
 
 print("DANDY =====================")

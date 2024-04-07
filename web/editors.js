@@ -1,13 +1,11 @@
+import { DandySocket } from "/extensions/dandy/socket.js"
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
-         DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
+         DandyJsonChain, DandyYamlChain, DandyStringChain } from "/extensions/dandy/chains.js"
 import { Mimes, DandyNode, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
-import { ComfyWidgets } from "/scripts/widgets.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
+import { ComfyWidgets } from "/scripts/widgets.js"
 
 const dandy_webroot = "/extensions/dandy/"
-
-let ACE_INITITALIZED = false
-let ACE_INITITALIZED_AND_SETTLED = false
 
 export const init_DandyEditors = async () => {
   // comfyui will try to load these if we leave them as .js files.
@@ -39,8 +37,7 @@ export const init_DandyEditors = async () => {
     features_and_codes.push(`theme-${theme}.js_`)
   })
 
-  const n_features = features_and_codes.length / 2
-  let i_features = 0
+  
   for (let i = 0; i < features_and_codes.length; i += 2) {
     const feature = features_and_codes[i]
     const js_ = features_and_codes[i + 1]
@@ -50,29 +47,8 @@ export const init_DandyEditors = async () => {
     const url = URL.createObjectURL(blob)
     ace.config.setModuleUrl(`ace/${feature}`, url)
     //console.log(`ace.config.setModuleUrl("ace/${feature}", ${url})`)
-    if (++i_features === n_features) {
-      ACE_INITITALIZED = true
-    }
   }
 }
-
-// function when_ace_initialized(f) {
-//   if (ACE_INITITALIZED === false) {
-//     window.requestAnimationFrame(when_ace_initialized)
-//     return
-//   }
-
-//   if (ACE_INITITALIZED_AND_SETTLED == false) {
-//     const let_it_settle = 200
-//     setTimeout(() => {
-//       ACE_INITITALIZED_AND_SETTLED = true
-//       f()
-//     }, let_it_settle)
-//     return
-//   } 
-  
-//   f()
-// }
 
 class DandyEditorTopBar {
   constructor(dandy, parent) {
@@ -171,7 +147,6 @@ export class DandyEditor extends DandyNode {
   constructor(node, app, mimetype) {
     super(node, app)
     this.mimetype = mimetype
-    
     this.editor_class = 'dandy-editor'
     this.editor = null
     this.div_widget = null
@@ -438,5 +413,35 @@ export class DandyYaml extends DandyEditor {
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/yaml')
     this.set_text("")
+  }
+}
+
+export class DandyPrompt extends DandyEditor {
+  constructor(node, app) {
+    super(node, app, Mimes.CLIP)
+    const string_chain = this.string_chain = new DandyStringChain(this, IO.IN_OUT)
+    node.size = [300, 280]
+    
+    const { editor } = this
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/text')
+    this.set_text("")
+
+    const socket = this.socket = new DandySocket(this)
+    socket.on_request_string = (o) => {
+      o.string = string_chain.data.map((x) => x.value).join('\n')
+      socket.deliver_string(o)
+    }
+  }
+
+  apply_text() {
+    const { editor, node, string_chain } = this
+    const { properties } = node
+    const text = editor.getValue()
+    properties.text = text
+    console.log("WORPY", string_chain)
+    if (string_chain) {
+      string_chain.contributions = text
+    }
   }
 }

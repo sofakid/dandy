@@ -1,5 +1,5 @@
 import { IO, DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain,
-         DandyYamlChain, DandyImageUrlChain } from '/extensions/dandy/chains.js'
+         DandyYamlChain, DandyImageUrlChain, DandyStringChain } from '/extensions/dandy/chains.js'
 import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { DandySocket } from '/extensions/dandy/socket.js'
@@ -49,42 +49,61 @@ export class DandyLand extends DandyNode {
     this.json_chain = new DandyJsonChain(this, IO.IN)
     this.yaml_chain = new DandyYamlChain(this, IO.IN)
     this.image_url_chain = new DandyImageUrlChain(this, IO.IN)
+    this.string_chain = new DandyStringChain(this, IO.IN_OUT)
 
     this.chain_cache = {}
     const socket = this.socket = new DandySocket()
-    socket.on_request_captures = (py_client) => {
-      console.log("socket.on_request_captures()")
+    
+    this.dandy_output = {
+      seed: 0,
+      int: 0,
+      float: 0,
+      boolean: false,
+      string: '',
+      positive: null,
+      negative: null,
+    }
+
+    this.input_int = 0
+    this.input_float = 0.0
+    this.input_boolean = false
+    this.input_positive = ''
+    this.input_images_urls = []
+    this.input_masks_urls = []
+
+    socket.on_request_captures = (o) => {
+      console.log("socket.on_request_captures()", o)
+      const { py_client, seed, int, float, boolean, positive, negative, image, mask } = o
+      const { input_images_urls, input_masks_urls } = this
+
+      this.input_seed = seed
+      this.input_int = int
+      this.input_float = float
+      this.input_boolean = boolean
+      this.input_positive = positive
+      this.input_negative = negative
+      
+      input_images_urls.length = 0
+      image.forEach((x, i) => {
+        input_images_urls.push({
+          value: x,
+          id: `comfyui_image_${i}`
+        })
+      })
+
+      input_masks_urls.length = 0
+      mask.forEach((x, i) => {
+        input_masks_urls.push({
+          value: x,
+          id: `comfyui_mask_${i}`
+        })
+      })
+
       this.render(py_client)
     }
 
     socket.on_request_hash = (py_client) => {
       this.deliver_hash(py_client)
-    }
-
-    this.input_images_urls = []
-    socket.on_delivering_images = (py_client, images) => {
-      const { input_images_urls } = this
-      input_images_urls.length = 0
-      images.forEach((image, i) => {
-        input_images_urls.push({
-          value: image,
-          id: `comfyui_image_${i}`
-        })
-      })
-      socket.thanks(py_client)
-    }
-
-    this.input_masks_urls = []
-    socket.on_delivering_masks = (py_client, masks) => {
-      const { input_masks_urls } = this
-      input_masks_urls.length = 0
-      masks.forEach((mask, i) => {
-        input_masks_urls.push({
-          value: mask,
-          id: `comfyui_mask_${i}`
-        })
-      })
-      socket.thanks(py_client)
     }
 
     const service_widget = this.service_widget = this.find_widget(DandyNames.SERVICE_ID)
@@ -208,7 +227,7 @@ export class DandyLand extends DandyNode {
   async done_rendering(py_client) {
     while (this.rendering) {
       const ms = 300
-      console.log('delaying...')
+      //console.log('delaying...')
       await dandy_delay(ms)
     }
     await this.capture_and_deliver(py_client)
@@ -218,7 +237,34 @@ export class DandyLand extends DandyNode {
     const { socket } = this
     const b64s = await this.get_canvases_b64s()
     this.canvas_hash = dandy_cash(b64s)
-    socket.deliver_captures(b64s, py_client)
+
+    const { output } = this
+
+    const {
+      seed,
+      int, 
+      float,
+      string,
+      boolean,
+      positive, 
+      negative, 
+    } = output
+    
+    this.string_chain.split_chain_output_update(string)
+
+    const o = {
+      py_client,
+      captures: b64s,
+      seed: seed,
+      int: int,
+      float: float,
+      boolean: boolean,
+      string: string,
+      positive: positive,
+      negative: negative,
+    }
+
+    socket.deliver_captures(o)
   }
 
   async get_canvases() {
@@ -368,36 +414,61 @@ export class DandyLand extends DandyNode {
   }
 
   async reload_iframe_job (when_done) {
-    const { divvy, node, image_url_chain,
-      js_chain, html_chain, css_chain, json_chain, yaml_chain,
-      width_widget, height_widget, images_widget, masks_widget 
+    const { divvy, image_url_chain,
+      js_chain, html_chain, css_chain, json_chain, yaml_chain, string_chain,
+      width_widget, height_widget, 
     } = this
 
     this.clear_iframe()
     
-    const just_urls = (x) => x.value
+    const just_value = (x) => x.value
     const js_data = js_chain.data
-    const html_urls = html_chain.data.map(just_urls)
-    const css_urls = css_chain.data.map(just_urls)
-    const json_urls = json_chain.data.map(just_urls)
-    const yaml_urls = yaml_chain.data.map(just_urls)
+    const html_urls = html_chain.data.map(just_value)
+    const css_urls = css_chain.data.map(just_value)
+    const json_urls = json_chain.data.map(just_value)
+    const yaml_urls = yaml_chain.data.map(just_value)
     const image_urls = image_url_chain.data
     
+    this.input_string = string_chain.data.map(just_value).join('\n')
+
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
     const yamls = await load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
-    
-    js_data.forEach((x) => {
-      console.log("JS_DATA", x)
-    })
+
+
+    const { 
+      input_seed,
+      input_int, 
+      input_float, 
+      input_boolean,
+      input_string, 
+      input_positive,
+      input_negative,
+    } = this
 
     const dandy_o = {
+      seed: input_seed,
+      int: input_int,
+      float: input_float,
+      boolean: input_boolean,
+      string: input_string,
+      positive: input_positive,
+      negative: input_negative,
       image: [],
       mask: [],
       json: jsons,
       yaml: yamls,
       width: width_widget.value,
-      height: height_widget.value 
+      height: height_widget.value,
+      output: {
+        seed: input_seed,
+        int: input_int,
+        float: input_float,
+        boolean: input_boolean,
+        string: input_string,
+        positive: input_positive,
+        negative: input_negative,
+      }
     }
     const dandy_o_json = JSON.stringify(dandy_o)
     
@@ -452,7 +523,7 @@ export class DandyLand extends DandyNode {
     dandy.onload = () => {};
     dandy.continue = () => {
       console.warn('posting')
-      window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}' })
+      window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })
     }
     `
     const dandy_o_blob = new Blob([dandy_o_js], { type: Mimes.JS })
@@ -517,9 +588,10 @@ export class DandyLand extends DandyNode {
       window.removeEventListener('message', this.dandy_continue_event_listener)
     }
     this.dandy_continue_event_listener = (event) => {
-      const { iframe_id: from_iframe_id, dandy_continue } = event.data
+      const { iframe_id: from_iframe_id, dandy_continue, output } = event.data
       if (from_iframe_id === iframe_id && dandy_continue) {
         this.rendering = false
+        this.dandy_output = output
       } else {
         //console.warn('unknown event', event.data)
       }

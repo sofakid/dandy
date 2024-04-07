@@ -1,3 +1,4 @@
+from .client import DandyServicesClient
 from .constants import *
 
 class DandyJsLoader:
@@ -146,11 +147,14 @@ class DandyWasmLoader:
 
 class DandyUrlLoader:
   def __init__(self):
+    self.client = DandyServicesClient()
     pass
 
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
+      HASH_NAME: HASH_TYPE_INPUT,
+      SERVICE_ID_NAME: SERVICE_ID_TYPE_INPUT,
       HTML_NAME: HTML_TYPE_INPUT,
       CSS_NAME: CSS_TYPE_INPUT,
       JS_NAME: JS_TYPE_INPUT,
@@ -158,18 +162,20 @@ class DandyUrlLoader:
       JSON_NAME: JSON_TYPE_INPUT,
       YAML_NAME: YAML_TYPE_INPUT,
       IMAGE_URL_NAME: IMAGE_URL_TYPE_INPUT,
+      STRING_NAME: STRING_TYPE_INPUT,
     })
 
   @classmethod
-  def IS_CHANGED(self, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None):
-    return NEVER_CHANGE
+  def IS_CHANGED(self, hash, service_id, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None, string=None):
+    return f'{hash}'.encode().hex()
 
-  RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE)
-  RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME)
+  RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE, STRING_TYPE)
+  RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME, STRING_NAME)
   FUNCTION = 'run'
   OUTPUT_NODE = False
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None):
-    return (html, css, js, wasm, json, yaml, image_url)
+  def run(self, hash, service_id, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None, string=None):
+    out_string = self.client.request_string(service_id)
+    return (html, css, js, wasm, json, yaml, image_url, out_string)
 

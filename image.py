@@ -9,28 +9,72 @@ import comfy.utils
 
 from .constants import *
 
+# def batch(images):
+#   n = len(images)
+
+#   if n == 0:
+#     return None
+  
+#   if n == 1:
+#     return images[0]
+  
+#   max_height = max(image.shape[1] for image in images)
+#   max_width = max(image.shape[2] for image in images)
+
+#   resized_images = []
+#   for image in images:
+#     if image.shape[1:] != (max_height, max_width):
+#       resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+#     else:
+#       resized_image = image
+#     resized_images.append(resized_image)
+
+#   batched_image = torch.cat(resized_images, dim=0)
+#   return batched_image
+
 def batch(images):
   n = len(images)
 
   if n == 0:
-    return None
+    return None, 0, 0
+
+  is_image = False
+  if len(images[0].shape) == 4: # shape [1, 512, 512, 3]
+    is_image = True
+    h = 1
+    w = 2
+  
+  elif len(images[0].shape) == 2: # shape [512, 512]
+    is_image = False
+    h = 0
+    w = 1
+
+  else:
+    print("DandyBatch :: Unrecognised image shape: " + str(images[0].shape))
+    return None, None, None
+
+  max_height = max(image.shape[h] for image in images)
+  max_width = max(image.shape[w] for image in images)
   
   if n == 1:
-    return images[0]
+    return images[0], max_width, max_height
   
-  max_height = max(image.shape[1] for image in images)
-  max_width = max(image.shape[2] for image in images)
-
   resized_images = []
   for image in images:
-    if image.shape[1:] != (max_height, max_width):
-      resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+    if is_image:
+      if image.shape[1:3] != (max_height, max_width):
+        resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+      else:
+        resized_image = image
     else:
-      resized_image = image
+      if image.shape != (max_height, max_width):
+        resized_image = comfy.utils.common_upscale(image, max_width, max_height, 'bilinear', 'center')
+      else:
+        resized_image = image
     resized_images.append(resized_image)
 
   batched_image = torch.cat(resized_images, dim=0)
-  return batched_image
+  return batched_image, max_width, max_height
 
 def make_b64image(image):
   p = 255. * image.cpu().numpy()

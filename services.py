@@ -71,6 +71,12 @@ class DandyService:
 
   async def delivering_hash(self, o):
     await self.send_to_py(o)
+
+  async def request_string(self, o):
+    await self.send_to_js(o)
+
+  async def delivering_string(self, o):
+    await self.send_to_py(o)
   
   async def delivering_images(self, o):
     await self.send_to_js(o)

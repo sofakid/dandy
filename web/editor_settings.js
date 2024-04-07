@@ -53,16 +53,6 @@ export const ace_themes = [
 
 export const ace_keyboards = [ 'ace', 'emacs', 'sublime', 'vim', 'vscode' ]
 
-// LiteGraph uses css transforms 
-// without hasCssTransforms, cursor postion and mouse clicks won't line up
-const default_options = {
-  hasCssTransforms: true,
-  theme: "ace/theme/twilight",
-  keyboardHandler: 'ace',
-  useSoftTabs: true,
-  tabSize: 2
-}
-
 let MONOSPACED_ANALYSED = false
 const collect_monospace_fonts = (system_fonts) => {
   const monospaced = []
@@ -95,30 +85,66 @@ const collect_monospace_fonts = (system_fonts) => {
   return monospaced.sort()
 }
 
+// --------------------------------------------------------------------------------------
 export class DandySettings {
 
   constructor() {
     this.dandies = []
-    this.options = default_options
+    this.options = {}
     this.key_o = 'DandyEditorSettings'
+    this.key_fonts = 'DandyFonts'
     this.ace_keyboard = null
     this.fonts = null
     
     const socket = this.socket = new DandySocket()
     socket.on_delivering_fonts = (fonts) => {
       this.fonts = collect_monospace_fonts(fonts)
+      this.save_fonts_to_local_storage()
     }
     const f = async () => {
       await socket.get_service_id()
-      socket.request_fonts()
+      this.load_fonts_from_local_storage()
+      if (this.fonts === null) {
+        this.reload_fonts()
+      }
     }
     f()
     
     this.load_from_local_storage()
   }
 
+  async wait_until_ready() {
+    while (this.fonts === null) {
+      const ms = 50
+      await dandy_delay(ms)
+    }
+  }
+
+  reload_fonts() {
+    this.socket.request_fonts()
+  }
+
   learn_default_ace_keyboard(o_handler) {
     this.ace_keyboard = o_handler
+  }
+
+  load_fonts_from_local_storage() {
+    const { key_fonts } = this
+    const so = localStorage.getItem(key_fonts)
+    if (so !== null) {
+      const o = JSON.parse(so)
+      this.fonts = o
+    } else {
+      this.fonts = null
+    }
+  }
+
+  save_fonts_to_local_storage() {
+    const { key_fonts, fonts } = this
+    if (fonts) {
+      const so = JSON.stringify(fonts)
+      localStorage.setItem(key_fonts, so)
+    }
   }
 
   load_from_local_storage() {
@@ -172,18 +198,15 @@ export class DandySettings {
 
   apply_options(dandy) {
     const { editor } = dandy
-    //when_ace_initialized(() => {
+    const { options } = this
+    const { keyboardHandler } = options  
+    
+    if (keyboardHandler === 'ace/keyboard/ace') {
+      options.keyboardHandler = settings.ace_keyboard
+    }
 
-      const { options } = this
-      const { keyboardHandler, theme } = options  
-      
-      if (keyboardHandler === 'ace/keyboard/ace') {
-        options.keyboardHandler = settings.ace_keyboard
-      }
-
-      editor.setOptions(options)
-      dandy.apply_styles()
-    //})
+    editor.setOptions(options)
+    dandy.apply_styles()
   }
 }
 
@@ -193,12 +216,8 @@ export const dandy_settings = () => {
 }
 
 export const wait_for_DandySettings = async () => {
-  while (MONOSPACED_ANALYSED === false) {
-    const ms = 50
-    await dandy_delay(ms)
-  }
+  await settings.wait_until_ready()
 }
-
 
 const mandatories = {
   hasCssTransforms: true,
@@ -206,7 +225,12 @@ const mandatories = {
   scrollPastEnd: false,
 }
 
+const default_keyboard = 'ace'
+const default_theme = 'twilight'
 const default_font = 'Courier New'
+const default_options = {}
+
+Object.assign(default_options, mandatories)
 
 const setto_names = []
 const setto = {}
@@ -216,6 +240,7 @@ const setty_combo = (name, default_value, values) => {
   x.values = values
   x.type = 'combo'  
   setto_names.push(name)
+  default_options[name] = default_value
 }
 
 const setty_booly = (name, default_value) => {
@@ -223,6 +248,7 @@ const setty_booly = (name, default_value) => {
   x.default = default_value
   x.type = 'boolean'
   setto_names.push(name)
+  default_options[name] = default_value
 }
 
 const setty_numby = (name, default_value, min_val, max_val) => {
@@ -232,6 +258,7 @@ const setty_numby = (name, default_value, min_val, max_val) => {
   x.max = max_val
   x.type = 'number'
   setto_names.push(name)
+  default_options[name] = default_value
 }
 
 const setty_intyy = (name, default_value, min_val, max_val) => {
@@ -241,6 +268,7 @@ const setty_intyy = (name, default_value, min_val, max_val) => {
   x.max = max_val
   x.type = 'int'
   setto_names.push(name)
+  default_options[name] = default_value
 }
 
 const setty_wordy = (name, default_value) => {
@@ -248,6 +276,7 @@ const setty_wordy = (name, default_value) => {
   x.default = default_value
   x.type = 'string'
   setto_names.push(name)
+  default_options[name] = default_value
 }
 
 const setty_fonty = (name) => {
@@ -255,10 +284,9 @@ const setty_fonty = (name) => {
   x.default = default_font
   x.type = 'font'
   setto_names.push(name)
+  default_options[name] = default_font
 }
 
-const default_keyboard = 'ace'
-const default_theme = 'twilight'
 setty_combo('keyboardHandler', default_keyboard, ace_keyboards)
 setty_combo('theme', default_theme, ace_themes)
 setty_fonty('fontFamily')
@@ -295,7 +323,7 @@ setty_combo('foldStyle', 'markbegin', ['markbegin', 'markbeginend', 'manual'])
 export class DandyEditorSettings extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.options = {}
+    this.options = default_options
     Object.entries(setto).forEach(([name, x]) => {
       if (x.type === 'combo') {
         this.combo_widget(name, x)
@@ -316,6 +344,16 @@ export class DandyEditorSettings extends DandyNode {
         this.font_widget(name, x)
       }
     })
+    this.reload_fonts_widget = node.addWidget(
+      'button', 'reload_fonts', 'Reload Fonts', () => {
+        (async () => {
+          const settings = dandy_settings()
+          settings.reload_fonts()
+          await settings.wait_until_ready()
+          this.fontFamily_widget.options.values = settings.fonts
+        })();
+      })
+
     this.load_from_settings()
     this.node.size = [280, 755]
 
@@ -335,6 +373,9 @@ export class DandyEditorSettings extends DandyNode {
       }, { values: o.values })
     this[`${name}_widget`] = widget
     options[name] = o.default
+    if (name === 'fontFamily') {
+      console.log('font widget', widget)
+    }
   }
 
   boolean_widget(name, o) {

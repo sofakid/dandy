@@ -50,5 +50,13 @@ IMAGE_URL_NAME = 'image_url'
 IMAGE_URL_TYPE = 'DANDY_IMAGE_URL'
 IMAGE_URL_TYPE_INPUT = (IMAGE_URL_TYPE,)
 
+DANDY_PROMPT_NAME = 'dandy_prompt'
+DANDY_PROMPT_TYPE = 'DANDY_PROMPT'
+DANDY_PROMPT_TYPE_INPUT = (DANDY_PROMPT_TYPE,)
+
+STRING_NAME = 'string'
+STRING_TYPE = 'STRING'
+STRING_TYPE_INPUT = (STRING_TYPE, { 'default': '' })
+
 def DandyWidgets(o):
   return { 'required': {}, 'hidden': {}, 'optional': o }

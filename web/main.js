@@ -3,12 +3,13 @@ import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { DandyB64Encoder } from "/extensions/dandy/b64.js"
 import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
-         DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
+         DandyP5JsDraw, DandyP5JsSetup, DandyPrompt } from "/extensions/dandy/editors.js"
 import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
 import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
          DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "/extensions/dandy/loaders.js"
 import { DandySocket } from "/extensions/dandy/socket.js"
+
 
 const extension_name = "dandy"
 
@@ -31,6 +32,7 @@ const dandy_nodes = {
   "Dandy p5.js Draw": DandyP5JsDraw,
   "Dandy B64 Encoder": DandyB64Encoder,
   "Dandy Editor Settings": DandyEditorSettings,
+  "Dandy Prompt": DandyPrompt,
 }
 
 const initDandy = async () => {

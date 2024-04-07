@@ -29,57 +29,50 @@ class DandyServicesClient:
   def send_data(self, data):
     return asyncio.run(send_data_async(data))
 
-  def request_captures(self, js_client):
+  def request_captures(self, js_client, seed,
+                       int, float, boolean, string, 
+                       positive, negative, b64images, b64masks):
     o = self.send_data({ 
       'command': 'request_captures',
-      'js_client': js_client
+      'js_client': js_client,
+      'seed': seed,
+      'int': int,
+      'float': float,
+      'boolean': boolean,
+      'string': string,
+      'positive': positive,
+      'negative': negative,
+      'image': b64images,
+      'mask': b64masks
     })
     if (o['command'] == 'delivering_captures'):
-      return o['captures']
+      return o
     return None
   
-  def deliver_images(self, js_client, b64):
-    print("DandyServicesClient :: deliver_image")
-    o = self.send_data({
-      'command': 'delivering_images',
-      'js_client': js_client,
-      'images': b64
-    })
-    
-    if (o['command'] == 'thanks'):
-      print("DandyServicesClient :: thanks")
-      return True
-    
-    print("DandyServicesClient :: NO THANKS")
-    return None
-    
-  def deliver_masks(self, js_client, b64):
-    print("DandyServicesClient :: deliver_mask")
-    o = self.send_data({
-      'command': 'delivering_masks',
-      'js_client': js_client,
-      'masks': b64
-    })
-    
-    if (o['command'] == 'thanks'):
-      print("DandyServicesClient :: thanks")
-      return True
-    
-    print("DandyServicesClient :: NO THANKS")
-    return None
-    
-
   def request_hash(self, js_client):
-    print("DandyServicesClient :: request_hash")
+    # print("DandyServicesClient :: request_hash")
     o = self.send_data({ 
       'command': 'request_hash',
       'js_client': js_client
     })
     
     if (o['command'] == 'delivering_hash'):
-      print("DandyServicesClient :: delivering_hash")
+      # print("DandyServicesClient :: delivering_hash")
       return o['hash']
     
     print("DandyServicesClient :: NO HASH")
     return None
   
+  def request_string(self, js_client):
+    # print("DandyServicesClient :: request_prompt")
+    o = self.send_data({ 
+      'command': 'request_string',
+      'js_client': js_client
+    })
+    
+    if (o['command'] == 'delivering_string'):
+      # print("DandyServicesClient :: delivering_prompt")
+      return o['string']
+    
+    print("DandyServicesClient :: NO PROMPT")
+    return None

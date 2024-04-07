@@ -16,6 +16,7 @@ const DandyColorTypeMap = {
 }
 
 export const DandyTypes = {
+  PROMPT: 'DANDY_PROMPT',
   HASH: 'DANDY_HASH',
   SERVICE_ID: 'DANDY_SERVICE_ID',
   JS: 'DANDY_JS_URLS',
@@ -29,6 +30,7 @@ export const DandyTypes = {
 }
 
 export const DandyNames = {
+  PROMPT: 'dandy_prompt',
   HASH: 'hash',
   SERVICE_ID: 'service_id',
   JS: 'js',
@@ -50,6 +52,8 @@ export const Mimes = {
   JSON: 'application/json',
   YAML: 'application/yaml',
   PNG: 'image/png',
+  CLIP: 'text/clip',
+  STRING: 'text/text',
 }
 
 export class DandyNode {
@@ -166,6 +170,13 @@ export class DandyNode {
     if (slot !== -1) {
       node.removeOutput(name)
     }
+  }
+
+  remove_io_and_widgets(name) {
+    const { node } = this
+    node.widgets = node.widgets.filter((w) => w.name !== name)
+    this.remove_input_slot(name)
+    this.remove_output_slot(name)
   }
 
   find_widget(name) {

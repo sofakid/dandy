@@ -34,11 +34,8 @@ def launch_server():
   sys.path.append(custom_nodes_path)
   ctx = mp.get_context('spawn')
   q = ctx.Queue()
-  print("DandySocket :: spawning process")
   server_process = ctx.Process(target=run_server)
-  print("DandySocket :: starting process")
   server_process.start()
-  print("DandySocket :: started process")
 
   def shutdown():
     server_process.join()
