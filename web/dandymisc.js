@@ -56,6 +56,9 @@ export const Mimes = {
   STRING: 'text/text',
 }
 
+export const dandy_stable_diffusion_mode = 'ace/mode/dandy_stable_diffusion'
+
+
 export class DandyNode {
   constructor(node, app) {
     this.node = node
@@ -160,7 +163,7 @@ export class DandyNode {
     const { node } = this
     const slot = node.findInputSlot(name)
     if (slot !== -1) {
-      node.removeInput(name)
+      node.removeInput(slot)
     }
   }
 
@@ -168,7 +171,7 @@ export class DandyNode {
     const { node } = this
     const slot = node.findOutputSlot(name)
     if (slot !== -1) {
-      node.removeOutput(name)
+      node.removeOutput(slot)
     }
   }
 

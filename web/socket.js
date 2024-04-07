@@ -1,4 +1,4 @@
-import { dandy_delay } from "/extensions/dandy/dandymisc.js"
+import { dandy_delay, DandyNames } from "/extensions/dandy/dandymisc.js"
 const DANDY_WS_PORT = 7872
 
 const connectWebSocket = () => {
@@ -31,9 +31,17 @@ const connectWebSocket = () => {
 }
 
 export class DandySocket {
-  constructor() {
+  constructor(dandy=null) {
     this.socket = null
     this._service_id = null
+
+    if (dandy !== null) {
+      const service_widget = dandy.service_widget = dandy.find_widget(DandyNames.SERVICE_ID)
+      service_widget.serializeValue = async () => {
+        console.warn(`${dandy.constructor.name} :: Serializing service_id...`)
+        return await this.get_service_id()
+      }
+    }
 
     connectWebSocket()
       .then((socket) => {
@@ -65,6 +73,7 @@ export class DandySocket {
           }
           
         })
+        
         this.send({ 'command': 'get_service_id' })
       })
       .catch((error) => {

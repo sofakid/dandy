@@ -21,18 +21,18 @@ class DandyPrompt:
       }
 
   @classmethod
-  def IS_CHANGED(self, hash, dandy_prompt, clip, string):
+  def IS_CHANGED(self, clip, hash, service_id, dandy_prompt, string):
     return f'{hash}'.encode().hex()
 
-  RETURN_TYPES = ('CONDITIONING','STRING')
-  RETURN_NAMES = ('conditioning','string')
+  RETURN_TYPES = ('CONDITIONING', 'STRING')
+  RETURN_NAMES = ('conditioning', 'string')
 
   FUNCTION = 'run'
-  OUTPUT_NODE = False
+  OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
   def run(self, clip, hash=None, service_id=None, dandy_prompt=None, string=None):
     prompt = self.client.request_string(service_id)
     tokens = clip.tokenize(prompt)
     cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
-    return ([[cond, {"pooled_output": pooled}]], string)
+    return ([[cond, {"pooled_output": pooled}]], prompt)

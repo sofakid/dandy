@@ -52,7 +52,7 @@ export class DandyLand extends DandyNode {
     this.string_chain = new DandyStringChain(this, IO.IN_OUT)
 
     this.chain_cache = {}
-    const socket = this.socket = new DandySocket()
+    const socket = this.socket = new DandySocket(this)
     
     this.dandy_output = {
       seed: 0,
@@ -104,12 +104,6 @@ export class DandyLand extends DandyNode {
 
     socket.on_request_hash = (py_client) => {
       this.deliver_hash(py_client)
-    }
-
-    const service_widget = this.service_widget = this.find_widget(DandyNames.SERVICE_ID)
-    service_widget.serializeValue = async () => {
-      console.warn("Serializing serivce_id...")
-      return await socket.get_service_id()
     }
 
     this.canvas_hash = dandy_cash([`${Date.now()}`])

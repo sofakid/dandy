@@ -1,7 +1,7 @@
 import { DandySocket } from "/extensions/dandy/socket.js"
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
          DandyJsonChain, DandyYamlChain, DandyStringChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
@@ -48,6 +48,48 @@ export const init_DandyEditors = async () => {
     ace.config.setModuleUrl(`ace/${feature}`, url)
     //console.log(`ace.config.setModuleUrl("ace/${feature}", ${url})`)
   }
+
+  const dsd_mode_js = `
+    ace.define("${dandy_stable_diffusion_mode}", function (require, exports, module) {
+      console.warn("BOOP")
+      const oop = require("ace/lib/oop")
+      console.warn("DOOP")
+      const TextMode = require("ace/mode/text").Mode
+      console.warn("SOOP")
+      const TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules
+      console.warn("ROOP")
+
+      const DandyStableDiffusionHighlightRules = function() {
+        this.$rules = {
+          "start": [
+            { token: "string",           regex: '".*?"' },
+            { token: "string",           regex: "'.*?'" }, 
+            { token: "constant.numeric", regex: /[\\d.]+/ },
+            { token: "keyword",          regex: /[\\.,\\[\\]()<>:]/ }
+          ]
+        }
+      }
+      console.warn("FOOP")
+
+      oop.inherits(DandyStableDiffusionHighlightRules, TextHighlightRules)
+      console.warn("GROOP")
+      exports.DandyStableDiffusionHighlightRules = DandyStableDiffusionHighlightRules
+      console.warn("MOOP")
+
+      const Mode = function() {
+        this.HighlightRules = DandyStableDiffusionHighlightRules
+      }
+      console.warn("TOOP", TextMode)
+
+      oop.inherits(Mode, TextMode)
+      console.warn("VOOP")
+
+      exports.Mode = Mode
+    })
+  `
+  const dsd_mode_blob = new Blob([dsd_mode_js], { type: Mimes.JS })
+  const dsd_mode_url = URL.createObjectURL(dsd_mode_blob)
+  ace.config.setModuleUrl(dandy_stable_diffusion_mode, dsd_mode_url)
 }
 
 class DandyEditorTopBar {
@@ -413,35 +455,5 @@ export class DandyYaml extends DandyEditor {
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/yaml')
     this.set_text("")
-  }
-}
-
-export class DandyPrompt extends DandyEditor {
-  constructor(node, app) {
-    super(node, app, Mimes.CLIP)
-    const string_chain = this.string_chain = new DandyStringChain(this, IO.IN_OUT)
-    node.size = [300, 280]
-    
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/text')
-    this.set_text("")
-
-    const socket = this.socket = new DandySocket(this)
-    socket.on_request_string = (o) => {
-      o.string = string_chain.data.map((x) => x.value).join('\n')
-      socket.deliver_string(o)
-    }
-  }
-
-  apply_text() {
-    const { editor, node, string_chain } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-    console.log("WORPY", string_chain)
-    if (string_chain) {
-      string_chain.contributions = text
-    }
   }
 }

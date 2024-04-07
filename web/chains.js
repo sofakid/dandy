@@ -13,7 +13,7 @@ export const IO = {
 }
 
 export class DandyChain {
-  static debug_blobs = true
+  static debug_blobs = false
 
   constructor(dandy, name, type, mime, io_config) {
     this.dandy = dandy
