@@ -1,9 +1,7 @@
-import { DandySocket } from "/extensions/dandy/socket.js"
 import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
-         DandyJsonChain, DandyYamlChain, DandyStringChain } from "/extensions/dandy/chains.js"
+         DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
 import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
-import { ComfyWidgets } from "/scripts/widgets.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
@@ -36,7 +34,6 @@ export const init_DandyEditors = async () => {
     features_and_codes.push(`theme/${theme}`)
     features_and_codes.push(`theme-${theme}.js_`)
   })
-
   
   for (let i = 0; i < features_and_codes.length; i += 2) {
     const feature = features_and_codes[i]
@@ -51,38 +48,32 @@ export const init_DandyEditors = async () => {
 
   const dsd_mode_js = `
     ace.define("${dandy_stable_diffusion_mode}", function (require, exports, module) {
-      console.warn("BOOP")
       const oop = require("ace/lib/oop")
-      console.warn("DOOP")
       const TextMode = require("ace/mode/text").Mode
-      console.warn("SOOP")
       const TextHighlightRules = require("ace/mode/text_highlight_rules").TextHighlightRules
-      console.warn("ROOP")
 
       const DandyStableDiffusionHighlightRules = function() {
         this.$rules = {
           "start": [
-            { token: "string",           regex: '".*?"' },
-            { token: "string",           regex: "'.*?'" }, 
-            { token: "constant.numeric", regex: /[\\d.]+/ },
-            { token: "keyword",          regex: /[\\.,\\[\\]()<>:]/ }
+            { token: "string",                regex: '".*?"' },
+            { token: "string",                regex: "'.*?'" }, 
+            { token: "constant.numeric",      regex: /[\\d.]+/ },
+            { token: "constant.otherkeyword", regex: /[\\.,:]/ },
+            { token: "keyword.other.unit",    regex: /[\\[\\]]/ },
+            { token: "keyword.operator",      regex: /[()]/ },
+            { token: "keyword",               regex: /[<>]/ }
           ]
         }
       }
-      console.warn("FOOP")
 
       oop.inherits(DandyStableDiffusionHighlightRules, TextHighlightRules)
-      console.warn("GROOP")
       exports.DandyStableDiffusionHighlightRules = DandyStableDiffusionHighlightRules
-      console.warn("MOOP")
 
       const Mode = function() {
         this.HighlightRules = DandyStableDiffusionHighlightRules
       }
-      console.warn("TOOP", TextMode)
 
       oop.inherits(Mode, TextMode)
-      console.warn("VOOP")
 
       exports.Mode = Mode
     })
@@ -92,14 +83,85 @@ export const init_DandyEditors = async () => {
   ace.config.setModuleUrl(dandy_stable_diffusion_mode, dsd_mode_url)
 }
 
+const text_input_class = 'dandyTextInput'
+const button_class = 'dandyEditorButton'
+const button_row_class = 'dandyButtonRow'
+const tray_closed_class = 'dandyTrayClosed'
+const tray_class = 'dandyTray'
+const tray_header_class = 'dandyTrayHeader'
+const tray_content_class = 'dandyTrayContent'
+const caret_class = 'dandyCaret'
+const hidden_class = 'dandyHidden'
+
 class DandyEditorTopBar {
   constructor(dandy, parent) {
     this.dandy = dandy
-    const bar_class = this.button_class = 'dandyEditorButtonBar'
-    const button_class = this.button_class = 'dandyEditorButton'
-    
+
     const div = this.div = document.createElement('div')
-    div.classList.add(bar_class)
+    div.classList.add(tray_class)
+
+    const tray_header = document.createElement('div')
+    const tray_content = document.createElement('div')
+    tray_header.classList.add(tray_header_class)
+    tray_content.classList.add(tray_content_class)
+    tray_content.classList.add(tray_closed_class)
+
+    div.appendChild(tray_header)
+    div.appendChild(tray_content)
+    
+    dandy.filename = ''
+
+    const filename_input = this.filename_input = document.createElement('input')
+    filename_input.type = 'text'
+    filename_input.placeholder = "untitled"
+    filename_input.spellcheck = false
+    filename_input.autocapitalize = false
+    filename_input.autocomplete = false
+    filename_input.classList.add(text_input_class)
+
+    tray_content.appendChild(filename_input)
+
+    filename_input.addEventListener("input", () => {
+      this.set_filename(filename_input.value)
+    })
+    
+    const button_div = document.createElement('div')
+    const open_button = document.createElement('span')
+    const close_button = document.createElement('span')
+    tray_content.appendChild(button_div)
+    tray_header.appendChild(open_button)
+    tray_header.appendChild(close_button)
+    
+    button_div.classList.add(button_row_class)
+
+    open_button.classList.add(caret_class)
+    open_button.innerHTML = '▼'
+
+    close_button.classList.add(caret_class)
+    close_button.classList.add(hidden_class)
+    close_button.innerHTML = '▲'
+
+    const show_tray = () => {
+      tray_content.classList.remove(tray_closed_class)
+      tray_content.classList.add(tray_content_class)
+      open_button.classList.add(hidden_class)
+      close_button.classList.remove(hidden_class)
+      button_div.classList.add(button_row_class)
+      button_div.classList.remove(hidden_class)
+    }
+
+    const hide_tray = () => {
+      tray_content.classList.remove(tray_content_class)
+      tray_content.classList.add(tray_closed_class)
+      open_button.classList.remove(hidden_class)
+      close_button.classList.add(hidden_class)
+      button_div.classList.remove(button_row_class)
+      button_div.classList.add(hidden_class)
+    }
+    
+    open_button.addEventListener("click", show_tray)
+    close_button.addEventListener("click", hide_tray)
+    hide_tray()
 
     const save_button = document.createElement('button')
     save_button.classList.add(button_class)
@@ -127,22 +189,22 @@ class DandyEditorTopBar {
     })
     div.appendChild(file_input)
 
-    const open_button = document.createElement('button')
-    open_button.classList.add(button_class)
-    open_button.onclick = () => {
+    const load_file_button = document.createElement('button')
+    load_file_button.classList.add(button_class)
+    load_file_button.onclick = () => {
       file_input.click()
       file_input.value = null
     }
-    open_button.innerHTML = "load file..."
+    load_file_button.innerHTML = "load file..."
 
-    div.appendChild(open_button)
-    div.appendChild(save_button)
+    button_div.appendChild(load_file_button)
+    button_div.appendChild(save_button)
+
     parent.appendChild(div)
+    this.apply_styles()
   }
 
   apply_styles() {
-    const { dandy, button_class } = this
-
     const update_css = (klass, pairs) => {
       for (let i = 0; i < document.styleSheets.length; i++) {
         const ss = document.styleSheets[i]
@@ -159,27 +221,33 @@ class DandyEditorTopBar {
       }
     }
 
-    //const editor_styles = window.getComputedStyle(editor_pre)
-    // const bg_color = editor_styles.backgroundColor
-    // const fg_color = editor_styles.color
-    
     // i can't find the current color palette :/ 
     const bg_color = LiteGraph.WIDGET_BGCOLOR
     const fg_color = LiteGraph.WIDGET_TEXT_COLOR
     const fg_color2 = LiteGraph.WIDGET_SECONDARY_TEXT_COLOR
     const outline_color = LiteGraph.WIDGET_OUTLINE_COLOR
 
-    update_css(`.${button_class}`, [
-      'background-color', bg_color,
-      'color', fg_color2,
-      'border', `none`
-    ])
+    const a = [ button_class, text_input_class ]
+    a.forEach((klass) => {
+      update_css(`.${klass}`, [
+        'background-color', bg_color,
+        'color', fg_color2,
+        'border', `none`
+      ])
+  
+      update_css(`.${klass}:hover`, [
+        'background-color', bg_color,
+        'color', fg_color,
+        'border', `1px solid ${outline_color}`
+      ])
+    })
+  }
 
-    update_css(`.${button_class}:hover`, [
-      'background-color', bg_color,
-      'color', fg_color,
-      'border', `1px solid ${outline_color}`
-    ])
+  set_filename(filename) {
+    const { dandy } = this
+    this.filename_input.value = filename
+    dandy.filename = filename
+    dandy.node.properties.filename = filename
   }
 }
 
@@ -200,20 +268,12 @@ export class DandyEditor extends DandyNode {
     if (node.properties === undefined) {
       node.properties = {
         brand_new_node: true,
-        text: ''
+        text: '',
+        filename: ''
       }
     }
     
     this.init_widgets_above_editor()
-
-    this.filename = ''
-    const filename_widget = this.filename_widget = ComfyWidgets.STRING(node, 'filename', 
-      ['', { default:'', multiline: false, serialize: true }], app)
-  
-    filename_widget.widget.callback = (text) => {
-      this.filename = text
-    }
-    filename_widget.widget.computeSize = () => [0, 10]
 
     const dandy_div = this.dandy_div = document.createElement('div')
     dandy_div.classList.add('dandyEditorContainer')
@@ -304,15 +364,17 @@ export class DandyEditor extends DandyNode {
 
   on_configure(info) {
     // restore saved text if it exists
-    const { node } = this
+    const { button_bar, node } = this
     const { properties } = node
-    const { text } = properties
+    const { text, filename } = properties
     properties.brand_new_node = false
     if (text !== undefined) {
       this.set_text(text)
     } else {
       this.set_text("")
-    } 
+    }
+    //console.log(`${this.constructor.name} :: Editor configured`, node)
+    button_bar.set_filename(filename)
   }
 
   apply_text() {

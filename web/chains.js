@@ -74,7 +74,7 @@ export class DandyChain {
     const { node, out_slot, type, split_chain } = this
     const { graph, outputs } = node
 
-    console.log(`chain<${type}>:f_each_node(this)`)
+    //console.log(`chain<${type}>:f_each_node(this)`)
     f_each_node(this)
 
     if (split_chain && !go_passed_split) {
@@ -93,7 +93,7 @@ export class DandyChain {
     const { links } = output
     if (links === null || links.length === 0) {
       // we've reached the end
-      console.log(`chain<${type}>:reached end with no links, maybe reload your nodes`, links, output)
+      // console.log(`chain<${type}>:reached end with no links, maybe reload your nodes`, links, output)
 
       return
     }

@@ -86,6 +86,9 @@ const collect_monospace_fonts = (system_fonts) => {
 }
 
 // --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+
 export class DandySettings {
 
   constructor() {
@@ -98,9 +101,11 @@ export class DandySettings {
     
     const socket = this.socket = new DandySocket()
     socket.on_delivering_fonts = (fonts) => {
+      console.log("Fonts delivered.")
       this.fonts = collect_monospace_fonts(fonts)
       this.save_fonts_to_local_storage()
     }
+
     const f = async () => {
       await socket.get_service_id()
       this.load_fonts_from_local_storage()
@@ -206,9 +211,13 @@ export class DandySettings {
     }
 
     editor.setOptions(options)
-    dandy.apply_styles()
+    dandy.on_settings_applied(options)
   }
 }
+
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
 
 const settings = new DandySettings()
 export const dandy_settings = () => {
@@ -320,6 +329,10 @@ setty_combo('wrap', 'off', ['off', 'free'])
 setty_booly('indentedSoftWrap', true)
 setty_combo('foldStyle', 'markbegin', ['markbegin', 'markbeginend', 'manual'])
 
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+
 export class DandyEditorSettings extends DandyNode {
   constructor(node, app) {
     super(node, app)
@@ -373,9 +386,6 @@ export class DandyEditorSettings extends DandyNode {
       }, { values: o.values })
     this[`${name}_widget`] = widget
     options[name] = o.default
-    if (name === 'fontFamily') {
-      console.log('font widget', widget)
-    }
   }
 
   boolean_widget(name, o) {

@@ -58,7 +58,6 @@ export const Mimes = {
 
 export const dandy_stable_diffusion_mode = 'ace/mode/dandy_stable_diffusion'
 
-
 export class DandyNode {
   constructor(node, app) {
     this.node = node
@@ -119,6 +118,7 @@ export class DandyNode {
   }
 
   on_configure(info) {
+    console.warn(`${this.constructor.name} default on_configure running`)
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {

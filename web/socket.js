@@ -47,7 +47,7 @@ export class DandySocket {
       .then((socket) => {
         this.socket = socket
         socket.addEventListener('message', (event) => {
-          console.log('DandyServices ::', event.data.slice(0, 200))
+          console.log('DandyServices :: recv: ', event.data.slice(0, 200))
           const response = JSON.parse(event.data)
           const { command, py_client } = response
           
@@ -106,7 +106,7 @@ export class DandySocket {
   }
 
   send(command) {
-    console.log('socket sending: ' + JSON.stringify(command).slice(0, 80))
+    console.log('DandyServices :: send: ' + JSON.stringify(command).slice(0, 80))
     this.socket.send(JSON.stringify(command))
   }
 

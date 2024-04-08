@@ -7,8 +7,6 @@ export class DandyPrompt extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.CLIP)
     const string_chain = this.string_chain = new DandyStringChain(this, IO.IN_OUT)
-
-    node.size = [300, 280]
     
     const { editor } = this
     const editor_session = editor.getSession()
@@ -22,11 +20,25 @@ export class DandyPrompt extends DandyEditor {
     }
 
     const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
-
+    hash_widget.computeSize = () => [0, -20]
     hash_widget.serializeValue = async () => {
       const s = JSON.stringify(string_chain.data)
       return dandy_cash(s)
     }
+
+    node.size = [500, 180]
+  }
+
+  on_settings_applied(options) {
+    const { editor } = this
+    const overrides = {
+      highlightActiveLine: false,
+      highlightSelectedWord: false,
+      enableAutoIndent: false,
+      showGutter: false,
+      wrap: 'free',
+    }
+    editor.setOptions(overrides)
   }
 
   apply_text() {
@@ -39,23 +51,3 @@ export class DandyPrompt extends DandyEditor {
     }
   }
 }
-
-// // Define your custom syntax highlighting rules
-// ace.define('dandy_stable_diffusion_mode', function(require, exports, module) {
-
-//   const oop = require("ace/lib/oop")
-//   const TextMode = require("ace/mode/text").Mode
-//   //const Tokenizer = require("ace/tokenizer").Tokenizer
-//   const DandyStableDiffusionHighlightRules = require(dandy_stable_diffusion_highlight_rules).DandyStableDiffusionHighlightRules
-
-//   const Mode = () => {
-//       this.HighlightRules = DandyStableDiffusionHighlightRules
-//   }
-//   oop.inherits(Mode, TextMode)
-
-//   // (() => {
-//   //     // Define any additional methods or properties for your custom mode here
-//   // }).call(Mode.prototype)
-
-//   exports.Mode = Mode
-// })
