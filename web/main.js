@@ -1,7 +1,8 @@
 import { app } from "/scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
-import { DandyB64Encoder } from "/extensions/dandy/b64.js"
+import { DandyImageCollector, DandyIntCollector, DandyBooleanCollector, 
+         DandyFloatCollector, DandyStringCollector } from "/extensions/dandy/collectors.js"
 import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
          DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
 import { DandyPrompt } from "/extensions/dandy/prompt.js"
@@ -31,7 +32,11 @@ const dandy_nodes = {
   "Dandy p5.js Loader": DandyP5JsLoader,
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw,
-  "Dandy B64 Encoder": DandyB64Encoder,
+  "Dandy Image Collector": DandyImageCollector,
+  "Dandy Int Collector": DandyIntCollector,
+  "Dandy Float Collector": DandyFloatCollector,
+  "Dandy Boolean Collector": DandyBooleanCollector,
+  "Dandy String Collector": DandyStringCollector,
   "Dandy Editor Settings": DandyEditorSettings,
   "Dandy Prompt": DandyPrompt,
 }

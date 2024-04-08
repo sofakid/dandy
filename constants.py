@@ -46,17 +46,39 @@ WASM_NAME = 'wasm'
 WASM_TYPE = 'DANDY_WASM_URLS'
 WASM_TYPE_INPUT = (WASM_TYPE,)
 
-IMAGE_URL_NAME = 'image_url'
-IMAGE_URL_TYPE = 'DANDY_IMAGE_URL'
-IMAGE_URL_TYPE_INPUT = (IMAGE_URL_TYPE,)
-
 DANDY_PROMPT_NAME = 'dandy_prompt'
 DANDY_PROMPT_TYPE = 'DANDY_PROMPT'
 DANDY_PROMPT_TYPE_INPUT = (DANDY_PROMPT_TYPE,)
 
+IMAGE_URL_NAME = 'image_url'
+IMAGE_URL_TYPE = 'DANDY_IMAGE_URL'
+IMAGE_URL_TYPE_INPUT = (IMAGE_URL_TYPE,)
+
+INT_NAME = 'int'
+INT_NAME_1 = 'int1'
+INT_NAME_2 = 'int2'
+INT_TYPE = 'INT'
+INT_TYPE_INPUT = (INT_TYPE, { 'default': 0 })
+
+FLOAT_NAME = 'float'
+FLOAT_NAME_1 = 'float1'
+FLOAT_NAME_2 = 'float2'
+FLOAT_TYPE = 'FLOAT'
+FLOAT_TYPE_INPUT = (FLOAT_TYPE, { 'default': '' })
+
+BOOLEAN_NAME = 'boolean'
+BOOLEAN_NAME_1 = 'boolean1'
+BOOLEAN_NAME_2 = 'boolean2'
+BOOLEAN_TYPE = 'BOOLEAN'
+BOOLEAN_TYPE_INPUT = (BOOLEAN_TYPE, { 'default': '' })
+
 STRING_NAME = 'string'
+STRING_NAME_1 = 'string1'
+STRING_NAME_2 = 'string2'
 STRING_TYPE = 'STRING'
 STRING_TYPE_INPUT = (STRING_TYPE, { 'default': '' })
+
+
 
 def DandyWidgets(o):
   return { 'required': {}, 'hidden': {}, 'optional': o }

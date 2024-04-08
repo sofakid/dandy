@@ -4,6 +4,7 @@ from .loaders import *
 from .dandyland import *
 from .p5 import *
 from .prompt import *
+from .collectors import *
 from .socket import launch_server
 
 WEB_DIRECTORY = "web"
@@ -25,14 +26,16 @@ NODE_CLASS_MAPPINGS = {
   "DandyCssLoader": DandyCssLoader,
   "DandyHtmlLoader": DandyHtmlLoader,
   "DandyUrlLoader": DandyUrlLoader,
-  "DandyB64Encoder": DandyB64Encoder,
-  "DandyEditorSettings": DandyEditorSettings,
+  "DandyImageCollector": DandyImageCollector,
+  "DandyIntCollector": DandyIntCollector,
+  "DandyFloatCollector": DandyFloatCollector,
+  "DandyBooleanCollector": DandyBooleanCollector,
+  "DandyStringCollector": DandyStringCollector,
   "DandyPrompt": DandyPrompt,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyLand": "Dandy Land",
-  "DandyB64Encoder": "Dandy B64 Encoder",
   "DandyJs": "Dandy Js",
   "DandyHtml": "Dandy Html",
   "DandyCss": "Dandy Css",
@@ -48,7 +51,11 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyP5JsLoader": "Dandy p5.js Loader",
   "DandyP5JsSetup": "Dandy p5.js Setup",
   "DandyP5JsDraw": "Dandy p5.js Draw",
-  "DandyEditorSettings": "Dandy Editor Settings",
+  "DandyImageCollector": "Dandy Image Collector",
+  "DandyIntCollector": "Dandy Int Collector",
+  "DandyFloatCollector": "Dandy Float Collector",
+  "DandyBooleanCollector": "Dandy Boolean Collector",
+  "DandyStringCollector": "Dandy String Collector",
   "DandyPrompt": "Dandy Prompt",
 }
 

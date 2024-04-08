@@ -10,6 +10,7 @@ export const IO = {
   OUT: 'out_only',
   IN_OUT: 'in_out',
   IN_SPLIT_OUT: 'in_split_out',
+  DOUBLE_IN_OUT: 'double_in_out',
 }
 
 export class DandyChain {
@@ -20,6 +21,8 @@ export class DandyChain {
     this.node = dandy.node
     this.app = dandy.app
     this.name = name
+    const name1 = this.name1 = `${name}1`
+    const name2 = this.name2 = `${name}2`
     this.type = type
     this.io_config = io_config
     const { node, app } = this
@@ -32,8 +35,7 @@ export class DandyChain {
     this._contributions = ''
     this._mime = mime
 
-    const widget = node.widgets.find((x) => x.name === name)
-    this.widget = widget
+    const widget = this.widget = node.widgets.find((x) => x.name === name)
     widget.value = ''
     widget.size = [0, -4] // litegraph will pad it by 4
     widget.callback = () => {}
@@ -53,6 +55,12 @@ export class DandyChain {
     
     else if (io_config === IO.IN_OUT) {
       this.in_slot = dandy.put_input_slot(name, type)
+      this.out_slot = dandy.put_output_slot(name, type)
+    }
+
+    else if (io_config === IO.DOUBLE_IN_OUT) {
+      this.in_slot1 = dandy.put_input_slot(name1, type)
+      this.in_slot2 = dandy.put_input_slot(name2, type)
       this.out_slot = dandy.put_output_slot(name, type)
     }
 
@@ -176,17 +184,26 @@ export class DandyChain {
   }
 
   update_data(outputting_from_split_chain = false) {
-    const { in_slot, out_slot, node, _contributions, _mime, dandy, type } = this
+    const { out_slot, node, _contributions, _mime, dandy, type, io_config, widget } = this
     let out_data = ''
     if (outputting_from_split_chain === false) {
-      if (in_slot !== null && node.isInputConnected(in_slot)) {
-        const force_update = false
-        const in_data = node.getInputData(in_slot, force_update)
-  
-        if (in_data) {
-          out_data += `${in_data}\n`
-        }
+      const in_slots = []
+      if (io_config === IO.DOUBLE_IN_OUT) {
+        in_slots.push(this.in_slot1)
+        in_slots.push(this.in_slot2)
+      } else {
+        in_slots.push(this.in_slot)
       }
+      in_slots.forEach((in_slot) => {
+        if (in_slot !== null && node.isInputConnected(in_slot)) {
+          const force_update = false
+          const in_data = node.getInputData(in_slot, force_update)
+    
+          if (in_data) {
+            out_data += `${in_data}\n`
+          }
+        }
+      })
     }
 
     const contributions = outputting_from_split_chain ? outputting_from_split_chain : _contributions
@@ -196,8 +213,8 @@ export class DandyChain {
       node.triggerSlot(out_slot)
     }
 
-    this.widget.value = out_data
-
+    widget.value = out_data
+    
     if (DandyChain.debug_blobs) {
       this.debug_blobs_widget.widget.element.value = out_data.split('\n').map((x) => {
         const p = x.length - 100
@@ -265,13 +282,44 @@ export class DandyImageUrlChain extends DandyChain {
     super(dandy, N.IMAGE_URL, T.IMAGE_URL, M.PNG, io_config)
   }
 }
-
-export class DandyStringChain extends DandyChain {
-  constructor(dandy, io_config) {
+// --------------------------------------------------------------------------
+export class DandyPrimativeChain extends DandyChain {
+  constructor(dandy, name, type, mime, io_config) {
     const { node, app } = dandy
-    const name = 'string'
-    dandy.remove_io_and_widgets(name)
+    if (io_config === IO.DOUBLE_IN_OUT) {
+      const name1 = `${name}1`
+      const name2 = `${name}2`
+      dandy.remove_io_and_widgets(name)
+      dandy.remove_io_and_widgets(name1)
+      dandy.remove_io_and_widgets(name2)
+    } else {
+      dandy.remove_io_and_widgets(name)
+    }
     new DandyWidget(node, name, '', app)
+    super(dandy, name, type, mime, io_config)
+  }
+}
+
+export class DandyStringChain extends DandyPrimativeChain {
+  constructor(dandy, io_config) {
     super(dandy, 'string', 'STRING', M.STRING, io_config)
+  }
+}
+
+export class DandyIntChain extends DandyPrimativeChain {
+  constructor(dandy, io_config) {
+    super(dandy, 'int', 'INT', M.VALUE, io_config)
+  }
+}
+
+export class DandyFloatChain extends DandyPrimativeChain {
+  constructor(dandy, io_config) {
+    super(dandy, 'float', 'FLOAT', M.VALUE, io_config)
+  }
+}
+
+export class DandyBooleanChain extends DandyPrimativeChain {
+  constructor(dandy, io_config) {
+    super(dandy, 'boolean', 'BOOLEAN', M.VALUE, io_config)
   }
 }

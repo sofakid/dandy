@@ -54,6 +54,7 @@ export const Mimes = {
   PNG: 'image/png',
   CLIP: 'text/clip',
   STRING: 'text/text',
+  VALUE: 'value/javascript',
 }
 
 export const dandy_stable_diffusion_mode = 'ace/mode/dandy_stable_diffusion'
