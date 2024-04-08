@@ -332,6 +332,10 @@ export class DandyEditor extends DandyNode {
     dandy_settings().unregister_dandy(this)
   }
 
+  on_settings_applied() {
+
+  }
+  
   toggleFullscreen() {
     const { editor, dandy_div } = this
     const fs = 'dandyEditorFullscreen'
