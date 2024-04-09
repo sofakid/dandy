@@ -17,7 +17,6 @@ class DandyHashNode:
     })
     dandy_inputs = cls.DANDY_INPUTS()
     mixed = mixo(our_inputs, dandy_inputs)
-    print("MIXED INPUTS: " + str(mixed))
     return mixed
   
   @classmethod

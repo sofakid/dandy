@@ -1,12 +1,12 @@
 import { DandyEditor } from "/extensions/dandy/editors.js"
-import { IO, DandyStringChain } from "/extensions/dandy/chains.js"
+import { DandyStringChain } from "/extensions/dandy/chains.js"
 import { DandySocket } from "/extensions/dandy/socket.js"
 import { Mimes, DandyNames, dandy_cash, dandy_stable_diffusion_mode } from "/extensions/dandy/dandymisc.js"
 
 export class DandyPrompt extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.CLIP)
-    const string_chain = this.string_chain = new DandyStringChain(this, IO.IN_OUT)
+    const string_chain = this.string_chain = new DandyStringChain(this, 1, 1)
     
     const { editor } = this
     const editor_session = editor.getSession()

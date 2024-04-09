@@ -1,4 +1,4 @@
-import { IO, DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain,
+import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain,
          DandyYamlChain, DandyImageUrlChain, DandyStringChain } from '/extensions/dandy/chains.js'
 import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
@@ -44,14 +44,16 @@ export class DandyLand extends DandyNode {
     super(node, app)
     this.debug_verbose = true
 
-    this.html_chain = new DandyHtmlChain(this, IO.IN)
-    this.css_chain = new DandyCssChain(this, IO.IN)
-    this.js_chain = new DandyJsChain(this, IO.IN)
-    this.wasm_chain = new DandyWasmChain(this, IO.IN)
-    this.json_chain = new DandyJsonChain(this, IO.IN)
-    this.yaml_chain = new DandyYamlChain(this, IO.IN)
-    this.image_url_chain = new DandyImageUrlChain(this, IO.IN)
-    this.string_chain = new DandyStringChain(this, IO.IN_OUT)
+    this.html_chain = new DandyHtmlChain(this, 1, 0)
+    this.css_chain = new DandyCssChain(this, 1, 0)
+    this.js_chain = new DandyJsChain(this, 1, 0)
+    this.wasm_chain = new DandyWasmChain(this, 1, 0)
+    this.json_chain = new DandyJsonChain(this, 1, 0)
+    this.yaml_chain = new DandyYamlChain(this, 1, 0)
+    this.image_url_chain = new DandyImageUrlChain(this, 1, 0)
+    this.string_chain = new DandyStringChain(this, 1, 1)
+    this.string_chain.split_chain = true
+
 
     this.chain_cache = {}
     const socket = this.socket = new DandySocket(this)

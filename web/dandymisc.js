@@ -243,9 +243,28 @@ export class DandyNode {
   }
 
   remove_io_and_widgets(name) {
+    this.remove_inputs_and_widgets(name)
+    this.remove_outputs(name)
+  }
+
+  remove_inputs_and_widgets(name) {
     const { node } = this
-    node.widgets = node.widgets.filter((w) => w.name !== name)
+    node.widgets = node.widgets.filter((w) => !w.name.startsWith(name))
+    for (let x = 1, i = 0; x >= 0; ++i) {
+      const nom = `${name}${i}`
+      x = node.findInputSlot(nom)
+      this.remove_input_slot(nom)
+    }
     this.remove_input_slot(name)
+  }
+
+  remove_outputs(name) {
+    const { node } = this
+    for (let x = 1, i = 0; x >= 0; ++i) {
+      const nom = `${name}${i}`
+      x = node.findOutputSlot(nom)
+      this.remove_output_slot(nom)
+    }
     this.remove_output_slot(name)
   }
 

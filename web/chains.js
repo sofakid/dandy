@@ -5,14 +5,6 @@ const N = DandyNames
 const T = DandyTypes
 const M = Mimes
 
-export const IO = {
-  IN: '1:in_only:0',
-  OUT: '0:out_only:1',
-  IN_OUT: '1:in_out:1',
-  IN_SPLIT_OUT: '1:in_split_out:1',
-  N_IN_OUT: (n_inputs) => `${n_inputs}:n_in_out:1`,
-}
-
 export class DandyChain {
   static debug_blobs = false
   static debug_verbose = true
@@ -31,18 +23,17 @@ export class DandyChain {
     console.error(`${this.dandy.constructor.name}.chain<${this.type}> :: ${s}`, ...more)
   }
   
-  constructor(dandy, name, type, mime, io_config) {
+  constructor(dandy, name, type, mime, n_inputs, n_outputs) {
     this.dandy = dandy
     this.node = dandy.node
     this.app = dandy.app
     this.name = name
     this.type = type
-    this.io_config = io_config
     this.in_slots = []
     this.out_slots = []
     this.input_widgets = []
-    
-    const { node, app, n_inputs, in_slots, out_slots, input_widgets } = this
+
+    const { node, app } = this
 
     this.debug_log(`constructng chain`)
     if (dandy.chains === undefined) {
@@ -53,39 +44,11 @@ export class DandyChain {
     this._contributions = ''
     this._mime = mime
 
-    if (!type_is_dandy(type)) {
-      dandy.remove_io_and_widgets(name)
-    }
-    
-    if (n_inputs >= 1) {
-      new DandyInvisibleWidget(node, name, [type], app) // cat_widget
-    }
-
-    this.each_input((nom, i) => {
-      this.debug_log('each input', nom)
-      dandy.remove_io_and_widgets(nom)
-      new DandyInvisibleWidget(node, nom, [type], app)
-    })
-
-    const find_widget = (nom) => node.widgets.find((x) => x.name === nom)
-    const cat_widget = this.cat_widget = find_widget(name)
-    cat_widget.value = ''
-
-    this.each_input((nom, i) => {
-      const widget = find_widget(nom)
-      widget.value = ''
-      input_widgets.push(widget)
-      in_slots.push(dandy.put_input_slot(nom, type))
-    })
-    
-    this.each_output((nom, i) => {
-      out_slots.push(dandy.put_output_slot(nom, type))
-    })
+    // these are setters
+    this.n_inputs = n_inputs
+    this.n_outputs = n_outputs
     
     this.split_chain = false
-    if (io_config === IO.IN_SPLIT_OUT) {
-      this.split_chain = true
-    }
     
     if (DandyChain.debug_blobs) {
       this.debug_blobs_widget = ComfyWidgets.STRING(node, 'debug_blobs', ['', {
@@ -99,13 +62,52 @@ export class DandyChain {
   }
 
   get n_inputs() {
-    const { io_config } = this
-    return Number(io_config.split(':')[0])
+    return this._n_inputs
   }
 
   get n_outputs() {
-    const { io_config } = this
-    return Number(io_config.split(':')[2])
+    return this._n_outputs
+  }
+  
+  set n_inputs(n_inputs) {
+    this._n_inputs = n_inputs
+    const { dandy, node, app, name, type, in_slots, input_widgets } = this
+
+    if (!type_is_dandy(type)) {
+      dandy.remove_inputs_and_widgets(name)
+    }
+    
+    if (n_inputs >= 1) {
+      new DandyInvisibleWidget(node, name, [type], app) // cat_widget
+    }
+
+    this.each_input((nom, i) => {
+      this.debug_log('each input', nom)
+      new DandyInvisibleWidget(node, nom, [type], app)
+    })
+
+    const cat_widget = this.cat_widget = dandy.find_widget(name)
+    cat_widget.value = ''
+
+    this.each_input((nom, i) => {
+      const widget = dandy.find_widget(nom)
+      widget.value = ''
+      input_widgets.push(widget)
+      in_slots.push(dandy.put_input_slot(nom, type))
+    })
+  }
+
+  set n_outputs(n_outputs) {
+    const { out_slots, dandy, name, type } = this
+    this._n_outputs = n_outputs
+    
+    if (!type_is_dandy(type)) {
+      dandy.remove_outputs(name)
+    }
+
+    this.each_output((nom, i) => {
+      out_slots.push(dandy.put_output_slot(nom, type))
+    })
   }
 
   each_input(f) {
@@ -254,7 +256,9 @@ export class DandyChain {
           input_widget.value = s
         }
         else {
-          input_widget.value = ''
+          if (input_widget) {
+            input_widget.value = ''
+          }
         }
       })
     }
@@ -303,50 +307,50 @@ export class DandyChain {
 
 // ==========================================================================================
 export class DandyJsChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.JS, T.JS, M.JS, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.JS, T.JS, M.JS, n_inputs, n_outputs)
   }
 }
 
 export class DandyHtmlChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.HTML, T.HTML, M.HTML, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.HTML, T.HTML, M.HTML, n_inputs, n_outputs)
   }
 }
 
 export class DandyCssChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.CSS, T.CSS, M.CSS, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.CSS, T.CSS, M.CSS, n_inputs, n_outputs)
   }
 }
 
 export class DandyJsonChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.JSON, T.JSON, M.JSON, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.JSON, T.JSON, M.JSON, n_inputs, n_outputs)
   }
 }
 
 export class DandyYamlChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.YAML, T.YAML, M.YAML, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.YAML, T.YAML, M.YAML, n_inputs, n_outputs)
   }
 }
 
 export class DandyWasmChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.WASM, T.WASM, M.WASM, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.WASM, T.WASM, M.WASM, n_inputs, n_outputs)
   }
 }
 
 export class DandyImageUrlChain extends DandyChain {
-  constructor(dandy, io_config) {
-    super(dandy, N.IMAGE_URL, T.IMAGE_URL, M.PNG, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, N.IMAGE_URL, T.IMAGE_URL, M.PNG, n_inputs, n_outputs)
   }
 }
 // --------------------------------------------------------------------------
 export class DandyPrimativeChain extends DandyChain {
-  constructor(dandy, name, type, mime, io_config) {
-    super(dandy, name, type, mime, io_config)
+  constructor(dandy, name, type, mime, n_inputs, n_outputs) {
+    super(dandy, name, type, mime, n_inputs, n_outputs)
   }
 
   get data() {
@@ -361,25 +365,25 @@ export class DandyPrimativeChain extends DandyChain {
 }
 
 export class DandyStringChain extends DandyPrimativeChain {
-  constructor(dandy, io_config) {
-    super(dandy, 'string', 'STRING', M.STRING, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, 'string', 'STRING', M.STRING, n_inputs, n_outputs)
   }
 }
 
 export class DandyIntChain extends DandyPrimativeChain {
-  constructor(dandy, io_config) {
-    super(dandy, 'int', 'INT', M.VALUE, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, 'int', 'INT', M.VALUE, n_inputs, n_outputs)
   }
 }
 
 export class DandyFloatChain extends DandyPrimativeChain {
-  constructor(dandy, io_config) {
-    super(dandy, 'float', 'FLOAT', M.VALUE, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, 'float', 'FLOAT', M.VALUE, n_inputs, n_outputs)
   }
 }
 
 export class DandyBooleanChain extends DandyPrimativeChain {
-  constructor(dandy, io_config) {
-    super(dandy, 'boolean', 'BOOLEAN', M.VALUE, io_config)
+  constructor(dandy, n_inputs, n_outputs) {
+    super(dandy, 'boolean', 'BOOLEAN', M.VALUE, n_inputs, n_outputs)
   }
 }

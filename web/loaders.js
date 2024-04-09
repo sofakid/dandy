@@ -1,5 +1,5 @@
 import { DandyChain, DandyJsChain, DandyHtmlChain, DandyCssChain, DandyJsonChain, 
-         DandyYamlChain, DandyWasmChain, IO, DandyImageUrlChain } from "/extensions/dandy/chains.js"
+         DandyYamlChain, DandyWasmChain, DandyImageUrlChain } from "/extensions/dandy/chains.js"
 import { DandyNames, DandyNode, DandyTypes, Mimes, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
@@ -332,7 +332,7 @@ class DandySingleFileLoader extends DandyFileLoader {
 export class DandyJsLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.JS, DandyTypes.JS)
-    new DandyJsChain(this, IO.IN_OUT)
+    new DandyJsChain(this, 1, 1)
   }
 
   init_widgets_above_files() {
@@ -343,35 +343,35 @@ export class DandyJsLoader extends DandyFileLoader {
 export class DandyHtmlLoader extends DandySingleFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.HTML, DandyTypes.HTML)
-    new DandyHtmlChain(this, IO.OUT)
+    new DandyHtmlChain(this, 0, 1)
   }
 }
 
 export class DandyWasmLoader extends DandySingleFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.WASM, DandyTypes.WASM)
-    new DandyWasmChain(this, IO.OUT)
+    new DandyWasmChain(this, 0, 1)
   }
 }
 
 export class DandyCssLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.CSS, DandyTypes.CSS)
-    new DandyCssChain(this, IO.IN_OUT)
+    new DandyCssChain(this, 1, 1)
   }
 }
 
 export class DandyJsonLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.JSON, DandyTypes.JSON)
-    new DandyJsonChain(this, IO.IN_OUT)
+    new DandyJsonChain(this, 1, 1)
   }
 }
 
 export class DandyYamlLoader extends DandyFileLoader {
   constructor(node, app) {
     super(node, app, Mimes.YAML, DandyTypes.YAML)
-    new DandyYamlChain(this, IO.IN_OUT)
+    new DandyYamlChain(this, 1, 1)
   }
 }
 
@@ -379,7 +379,7 @@ export class DandyYamlLoader extends DandyFileLoader {
 export class DandyP5JsLoader extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.chain = new DandyJsChain(this, IO.IN_OUT)
+    this.chain = new DandyJsChain(this, 1, 1)
     this.type = DandyTypes.JS
 
     if (DandyChain.debug_blobs) {
@@ -440,13 +440,13 @@ export class DandyP5JsLoader extends DandyNode {
 export class DandyUrlLoader extends DandyNode {
   constructor(node, app) {
     super(node, app)
-    this.html_chain = new DandyHtmlChain(this, IO.OUT)
-    this.css_chain = new DandyCssChain(this, IO.IN_OUT)
-    this.js_chain = new DandyJsChain(this, IO.IN_OUT)
-    this.wasm_chain = new DandyWasmChain(this, IO.IN_OUT)
-    this.json_chain = new DandyJsonChain(this, IO.IN_OUT)
-    this.yaml_chain = new DandyYamlChain(this, IO.IN_OUT)
-    this.image_url_chain = new DandyImageUrlChain(this, IO.IN_OUT)
+    this.html_chain = new DandyHtmlChain(this, 0, 1)
+    this.css_chain = new DandyCssChain(this, 1, 1)
+    this.js_chain = new DandyJsChain(this, 1, 1)
+    this.wasm_chain = new DandyWasmChain(this, 1, 1)
+    this.json_chain = new DandyJsonChain(this, 1, 1)
+    this.yaml_chain = new DandyYamlChain(this, 1, 1)
+    this.image_url_chain = new DandyImageUrlChain(this, 1, 1)
 
     dandy_js_plain_module_toggle(this)
 

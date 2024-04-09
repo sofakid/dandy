@@ -12,6 +12,7 @@ class DandyImageCollector(DandyCollector):
     return DandyWidgets({
       'image': ('IMAGE',),
       'mask': ('MASK',),
+      'n_inputs': N_INPUTS_INPUT,
     })
 
   RETURN_TYPES = (IMAGE_URL_TYPE,)
@@ -32,6 +33,10 @@ class DandyImageCollector(DandyCollector):
 
 
 class DandyIntCollector(DandyCollector):
+  @classmethod
+  def DANDY_INPUTS(self):
+    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
+  
   RETURN_TYPES = (INT_TYPE,)
   RETURN_NAMES = (INT_NAME,)
 
@@ -45,6 +50,10 @@ class DandyIntCollector(DandyCollector):
 
 
 class DandyFloatCollector(DandyCollector):
+  @classmethod
+  def DANDY_INPUTS(self):
+    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
+  
   RETURN_TYPES = (FLOAT_TYPE,)
   RETURN_NAMES = (FLOAT_NAME,)
 
@@ -58,6 +67,10 @@ class DandyFloatCollector(DandyCollector):
 
 
 class DandyBooleanCollector(DandyCollector):
+  @classmethod
+  def DANDY_INPUTS(self):
+    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
+  
   RETURN_TYPES = (BOOLEAN_TYPE,)
   RETURN_NAMES = (BOOLEAN_NAME,)
 
@@ -72,14 +85,18 @@ class DandyBooleanCollector(DandyCollector):
 
 
 class DandyStringCollector(DandyCollector):
+  @classmethod
+  def DANDY_INPUTS(self):
+    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
+  
   RETURN_TYPES = (STRING_TYPE,)
   RETURN_NAMES = (STRING_NAME,)
 
   def run(self, **kwargs):
     x = ""
-
     for key, value in kwargs.items():
       if key.startswith('string'):
+        print("catting: " + str(value))
         x += value + "\n"
 
     print("DandyStringCollector :: string_out: " + x)
