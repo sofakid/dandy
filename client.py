@@ -29,13 +29,12 @@ class DandyServicesClient:
   def send_data(self, data):
     return asyncio.run(send_data_async(data))
 
-  def request_captures(self, js_client, seed,
+  def request_captures(self, js_client,
                        int, float, boolean, string, 
                        positive, negative, b64images, b64masks):
-    o = self.send_data({ 
+    x = { 
       'command': 'request_captures',
       'js_client': js_client,
-      'seed': seed,
       'int': int,
       'float': float,
       'boolean': boolean,
@@ -44,7 +43,9 @@ class DandyServicesClient:
       'negative': negative,
       'image': b64images,
       'mask': b64masks
-    })
+    }
+    #print('DandyClient, sending: ' + str(x))
+    o = self.send_data(x)
     if (o['command'] == 'delivering_captures'):
       return o
     return None

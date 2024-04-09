@@ -9,13 +9,13 @@ const load_url = async (url) => {
   try {
     const response = await fetch(url)
     if (!response.ok) {
-      console.error('Failed to fetch url', url)
+      this.error_log('Failed to fetch url', url)
       return ""
     }
     return await response.text()
 
   } catch (error) {
-    console.error('Failed to fetch url', url, error)
+    this.error_log('Failed to fetch url', url, error)
     return ""
   }
 }
@@ -42,6 +42,8 @@ export class DandyLand extends DandyNode {
 
   constructor(node, app) {
     super(node, app)
+    this.debug_verbose = true
+
     this.html_chain = new DandyHtmlChain(this, IO.IN)
     this.css_chain = new DandyCssChain(this, IO.IN)
     this.js_chain = new DandyJsChain(this, IO.IN)
@@ -55,7 +57,6 @@ export class DandyLand extends DandyNode {
     const socket = this.socket = new DandySocket(this)
     
     this.dandy_output = {
-      seed: 0,
       int: 0,
       float: 0,
       boolean: false,
@@ -68,15 +69,15 @@ export class DandyLand extends DandyNode {
     this.input_float = 0.0
     this.input_boolean = false
     this.input_positive = ''
+    this.input_negative = ''
     this.input_images_urls = []
     this.input_masks_urls = []
 
     socket.on_request_captures = (o) => {
-      console.log("socket.on_request_captures()", o)
-      const { py_client, seed, int, float, boolean, positive, negative, image, mask } = o
+      this.debug_log("socket.on_request_captures()", o)
+      const { py_client, int, float, boolean, positive, negative, image, mask } = o
       const { input_images_urls, input_masks_urls } = this
 
-      this.input_seed = seed
       this.input_int = int
       this.input_float = float
       this.input_boolean = boolean
@@ -139,9 +140,7 @@ export class DandyLand extends DandyNode {
     
     const width_widget = this.width_widget = this.find_widget("width")
     const height_widget = this.height_widget = this.find_widget("height")
-    this.images_widget = this.find_widget("images")
-    this.masks_widget = this.find_widget("masks")
-
+    
     width_widget.callback = () => {
       this.reload_iframe()
     }
@@ -183,7 +182,7 @@ export class DandyLand extends DandyNode {
     divvy.classList.add('dandyMax')
     divvy.id = this.id
     const div_widget = node.addDOMWidget(divvy.id, "divvy", divvy, { serialize: false })
-    console.log("DandyLand constructed", this)
+    this.debug_log("DandyLand constructed", this)
     this.constructed = true
     this.reload_iframe()
   }
@@ -221,7 +220,7 @@ export class DandyLand extends DandyNode {
   async done_rendering(py_client) {
     while (this.rendering) {
       const ms = 300
-      //console.log('delaying...')
+      this.debug_log('delaying...')
       await dandy_delay(ms)
     }
     await this.capture_and_deliver(py_client)
@@ -232,32 +231,32 @@ export class DandyLand extends DandyNode {
     const b64s = await this.get_canvases_b64s()
     this.canvas_hash = dandy_cash(b64s)
 
-    const { output } = this
+    const { dandy_output } = this
 
     const {
-      seed,
       int, 
       float,
       string,
       boolean,
       positive, 
       negative, 
-    } = output
+    } = dandy_output
     
-    this.string_chain.split_chain_output_update(string)
+    this.string_chain.output_update_ignoring_input(string)
 
+    const default_value = (v, d) => v !== undefined ? v : d
     const o = {
       py_client,
       captures: b64s,
-      seed: seed,
-      int: int,
-      float: float,
-      boolean: boolean,
-      string: string,
-      positive: positive,
-      negative: negative,
+      int: default_value(int, 0),
+      float: default_value(float, 0),
+      boolean: default_value(boolean, false),
+      string: default_value(string, ''),
+      positive: default_value(positive, []),
+      negative: default_value(negative, []),
     }
 
+    this.debug_log("sending o: ", o)
     socket.deliver_captures(o)
   }
 
@@ -270,7 +269,7 @@ export class DandyLand extends DandyNode {
       const dandydoc = iframe.contentDocument || iframe.contentWindow.document
       
       if (dandydoc.readyState !== 'complete') {
-        console.error("dandyland content not fully loaded")
+        this.error_log("get_canvases() :: dandyland content not fully loaded")
         return canvases_out
       }
       
@@ -354,7 +353,7 @@ export class DandyLand extends DandyNode {
   on_chain_updated(type) {
     const { chain_cache, chains, constructed } = this
     if (!constructed) {
-      console.warn(`DandyLand.on_chain_updated(${type}) :: dandyland not constructed yet`)
+      this.warn_log(`on_chain_updated(${type}) :: dandyland not constructed yet`)
       return
     }
     const cached_value = chain_cache[type]
@@ -363,7 +362,7 @@ export class DandyLand extends DandyNode {
     const v = new_value != cached_value ? '!==' : '==='
     const cv = `${cached_value}`.slice(0, 80)
     const nv = `${new_value}`.slice(0, 80)
-    console.warn(`on_chain_updated(${type}) <${cv}> ${v} <${nv}>`)
+    this.debug_log(`on_chain_updated(${type}) :: <${cv}> ${v} <${nv}>`)
     if (new_value !== cached_value) {
       chain_cache[type] = new_value
       this.reload_iframe()
@@ -431,7 +430,6 @@ export class DandyLand extends DandyNode {
 
 
     const { 
-      input_seed,
       input_int, 
       input_float, 
       input_boolean,
@@ -441,7 +439,6 @@ export class DandyLand extends DandyNode {
     } = this
 
     const dandy_o = {
-      seed: input_seed,
       int: input_int,
       float: input_float,
       boolean: input_boolean,
@@ -455,7 +452,6 @@ export class DandyLand extends DandyNode {
       width: width_widget.value,
       height: height_widget.value,
       output: {
-        seed: input_seed,
         int: input_int,
         float: input_float,
         boolean: input_boolean,
@@ -465,6 +461,7 @@ export class DandyLand extends DandyNode {
       }
     }
     const dandy_o_json = JSON.stringify(dandy_o)
+    this.debug_log("dandy_o", dandy_o_json, dandy_o)
     
     const { input_images_urls, input_masks_urls } = this
     const n_input_images = input_images_urls.length
@@ -564,7 +561,7 @@ export class DandyLand extends DandyNode {
     const make_iframe = (html, on_load) => {
       iframe = document.createElement("iframe")
       iframe.id = iframe_id
-      console.log(`making iframe<${iframe.id}>...`)
+      this.debug_log(`making iframe<${iframe.id}>...`)
       iframe.classList.add('dandyMax')
       iframe.onload = on_load
       iframe.srcdoc = html
@@ -585,6 +582,7 @@ export class DandyLand extends DandyNode {
       const { iframe_id: from_iframe_id, dandy_continue, output } = event.data
       if (from_iframe_id === iframe_id && dandy_continue) {
         this.rendering = false
+        this.debug_log("continue listener :: output: ", output)
         this.dandy_output = output
       } else {
         //console.warn('unknown event', event.data)

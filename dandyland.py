@@ -34,7 +34,6 @@ class DandyLand:
       'mask': ('MASK',),
       'positive':('CONDITIONING',),
       'negative':('CONDITIONING',),
-      'seed': ('INT:seed', { 'display': 'number', "default": 0, "min": 0, "max": 0xffffffffffffffff }),
       'int': ('INT', { 'display': 'number', "default": 0 }),
       'float': ('FLOAT', { 'display': 'number', "default": 0.0 }),
       'boolean': ('BOOLEAN', { 'default': False }),
@@ -51,23 +50,22 @@ class DandyLand:
     })
 
   @classmethod
-  def IS_CHANGED(self, hash, service_id, seed=None, int=None, float=None, boolean=None,  
-                 string=None, positive=None, negative=None, image=None, mask=None, 
-                 html=None, css=None, js=None, wasm=None, json=None, 
-                 yaml=None, image_url=None, width=None, height=None):
+  def IS_CHANGED(self, hash, **kwargs):
     # print(f'DandyLand :: IS_CHANGED {hash}')
     return hash
     
-  RETURN_TYPES = ('IMAGE', 'MASK', 'CONDITIONING', 'CONDITIONING','INT:seed', 'INT', 'FLOAT', 'BOOLEAN', 'STRING', 'INT',   'INT')
-  RETURN_NAMES = ('image', 'mask', 'positive',     'negative',    'seed',     'int', 'float', 'boolean', 'string', 'width', 'height')
+  RETURN_TYPES = ('IMAGE', 'MASK', 'CONDITIONING', 'CONDITIONING', 'INT', 'FLOAT', 'BOOLEAN', 'STRING', 'INT',   'INT')
+  RETURN_NAMES = ('image', 'mask', 'positive',     'negative',     'int', 'float', 'boolean', 'string', 'width', 'height')
   FUNCTION = 'run'
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, hash, service_id, seed=None, int=None, float=None, boolean=False,  
-          string=None, positive=None, negative=None, image=None, mask=None, 
-          html=None, css=None, js=None, wasm=None, json=None, 
-          yaml=None, image_url=None, width=None, height=None):
+  def run(self, hash, service_id, 
+          image=None, mask=None, 
+          positive=None, negative=None, 
+          int=None, float=None, boolean=False, string=None, 
+          html=None, css=None, js=None, wasm=None, json=None, yaml=None, 
+          image_url=None, width=None, height=None):
 
     b64images = []    
     if image != None:
@@ -89,7 +87,7 @@ class DandyLand:
     if negative != None:
       ser_negative = serialize_with_tensors(negative)
     
-    o = self.client.request_captures(service_id, seed,
+    o = self.client.request_captures(service_id,
                                      int, float, boolean, string, 
                                      ser_positive, ser_negative, b64images, b64masks)
 
@@ -103,7 +101,7 @@ class DandyLand:
     out_images_batch, out_width, out_height = batch(out_images)
     out_masks_batch, mask_width, mask_height = batch(out_masks)
     
-    out_seed = o['seed']
+    #print("DandyLand :: run :: o: " + str(o))
     out_int = o['int']
     out_float = o['float']
     out_boolean = o['boolean']
@@ -115,6 +113,6 @@ class DandyLand:
     ser_negative = o['negative']
     out_negative = deserialize_with_tensors(ser_negative)
     
-    print(f'DandyLand :: width: {out_width}, height: {height}')
-    return (out_images_batch, out_masks_batch, out_positive, out_negative, out_seed,
+    print(f'DandyLand :: width: {out_width}, height: {out_height}, string: <{out_string}>')
+    return (out_images_batch, out_masks_batch, out_positive, out_negative,
             out_int, out_float, out_boolean, out_string, out_width, out_height)

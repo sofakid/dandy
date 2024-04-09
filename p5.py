@@ -18,7 +18,7 @@ class DandyP5JsLoader:
   RETURN_NAMES = (JS_NAME,)
   FUNCTION = 'run'
   OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
+  CATEGORY = DANDY_EXAMPLES_CATEGORY
 
   def run(self, js):
     return (js,)
@@ -42,7 +42,7 @@ class DandyP5JsSetup:
   RETURN_NAMES = (JS_NAME,)
   FUNCTION = 'run'
   OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
+  CATEGORY = DANDY_EXAMPLES_CATEGORY
 
   def run(self, js):
     return (js,)
@@ -66,7 +66,7 @@ class DandyP5JsDraw:
   RETURN_NAMES = (JS_NAME,)
   FUNCTION = 'run'
   OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
+  CATEGORY = DANDY_EXAMPLES_CATEGORY
 
   def run(self, js):
     return (js, )

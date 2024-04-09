@@ -57,13 +57,38 @@ export const Mimes = {
   VALUE: 'value/javascript',
 }
 
+export const type_is_dandy = (type) => {
+  let found = false
+  Object.entries(DandyTypes).forEach(([key, value]) => {
+    if (type === value) {
+      found = true
+    }
+  })
+  return found
+}
 export const dandy_stable_diffusion_mode = 'ace/mode/dandy_stable_diffusion'
 
 export class DandyNode {
+
+  debug_log(s, ...more) {
+    if (this.debug_verbose) {
+      console.log(`${this.constructor.name} :: ${s}`, ...more)
+    }
+  }
+
+  warn_log(s, ...more) {
+    console.warn(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
+  error_log(s, ...more) {
+    console.error(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
   constructor(node, app) {
     this.node = node
     this.app = app
 
+    this.debug_verbose = false
     node.serialize_widgets = true
 
     // if you extend DandyNode, implement on_configure instead of setting it on the node
@@ -71,11 +96,11 @@ export class DandyNode {
       // LiteGraph will reconfigure the widgets even if options.serialize is false
       // the values it puts in the chains are invalid by now
       this.for_each_chain((chain, type) => {
-        // console.log(`setting chain ${chain.type}`, chain)
+        this.debug_log(`setting chain ${chain.type}`, chain)
         if (chain.widget) {
           chain.widget.value = ''
         } else {
-          console.warn(`there is a ${type} chain with no widget.`)
+          this.warn_log(`there is a ${type} chain with no widget.`)
         }
         if (chain.debug_blobs_widget) {
           chain.debug_blobs_widget.widget.value = ''
@@ -88,6 +113,8 @@ export class DandyNode {
           }, one_sec)
         }
       })
+
+      this.fix_widget_values()
       this.on_configure(info)
     }
 
@@ -116,6 +143,45 @@ export class DandyNode {
     node.onRemoved = () => {
       this.on_removed()
     }
+
+    this.fix_widget_values()
+  }
+
+  fix_widget_values() {
+    const { node } = this
+    const { widgets } = node
+    if (!widgets) {
+      this.warn_log('No widgets to fix')
+      return
+    }
+    widgets.forEach((widget) => {
+      const { name, type, value, options } = widget
+
+      const default_value = (x) => {
+        if (options && options.default) {
+          return options.default
+        }
+        return x
+      }
+      console.warn(`fixing values <${name},${type},${value}>`)
+      if (type === 'number') {
+        if (typeof value !== 'number') {
+          widget.value = default_value(0)
+        }
+        if (widget.value === 0 && (name === 'width' || name === 'height')) {
+          widget.value = 1
+        }
+      }
+      
+      if (type === 'toggle' && typeof value !== 'boolean') {
+        widget.value = default_value(false)
+      }
+
+      if (type === 'STRING' && typeof value !== 'string') {
+        widget.value = {"value":"","mime":"text/text"}
+      }
+      
+    })
   }
 
   on_configure(info) {
@@ -184,7 +250,11 @@ export class DandyNode {
   }
 
   find_widget(name) {
-    return this.node.widgets.find((x) => x.name === name)
+    const widget = this.node.widgets.find((x) => x.name === name)
+    if (!widget) {
+      this.error_log(`find_widget(${name}) :: no widget`)
+    }
+    return widget
   }
 
   get_colour_palette() {
@@ -194,9 +264,25 @@ export class DandyNode {
   }
 }
 
+// -----------------------------------------------------------------------------------------------
 let i_dandy_widget = 0
 export class DandyWidget {
+  debug_log(s, ...more) {
+    if (this.debug_verbose) {
+      console.log(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
+    }
+  }
+
+  warn_log(s, ...more) {
+    console.warn(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
+  }
+
+  error_log(s, ...more) {
+    console.error(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
+  }
+
   constructor(node, inputName, inputData, app) {
+    this.debug_verbose = false
     this.type = inputData[0]
     this.name = inputName
     if (++i_dandy_widget === Number.MAX_SAFE_INTEGER) {
@@ -204,33 +290,40 @@ export class DandyWidget {
     }
     this.id = `${inputName}_${i_dandy_widget}`
     this.callback = (value) => {
-      // console.log(`${this.id} callback`, value)
+      this.debug_log(`callback`, value)
     }
     this.options = { serialize: true } // i'm not convinced this does anything
     this.value_ = null
     this.size = [0, 0]
     node.addCustomWidget(this)
-    //console.log(`DandyWidget<${this.name}, ${this.type}>`, this)
+    this.debug_log(`constructed`, this)
   }
 
   get value() {
-    // console.log("DandyWidget.get value", this.value_)
+    this.debug_log("get value", this.value_)
     return this.value_
   }
 
   set value(v) {
-    // console.error("DandyWidget.set value", v)
+    this.debug_log("set value", v)
     this.value_ = v
     this.callback(v)
   }
 
   async serializeValue() {
-    // console.log("DandyWidget.serializeValue", this.value_)
+    this.debug_log("serializeValue", this.value_)
     return this.value_
   }
 
   computeSize(width) {
     return this.size
+  }
+}
+
+export class DandyInvisibleWidget extends DandyWidget {
+  constructor(node, inputName, inputData, app) {
+    super(node, inputName, inputData, app)
+    this.size = [0, -4] // LiteGraph will pad it by 4
   }
 }
 

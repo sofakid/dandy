@@ -20,6 +20,8 @@ async def start_server():
       await asyncio.Future()
     except asyncio.CancelledError:
       pass
+    except Exception:
+      pass
   print("DandySocket :: ending")
 
 def run_server():

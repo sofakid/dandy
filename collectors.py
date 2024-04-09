@@ -1,158 +1,87 @@
+import json
+from .dandynodes import DandyHashNode
 from .image import make_b64image
 from .constants import *
 
-class DandyCollector:
-  FUNCTION = 'run'
-  OUTPUT_NODE = True
-  CATEGORY = DANDY_CATEGORY
-
-  def __init__(self):
-    self.i = 0
-    pass
-
-  @classmethod
-  def IS_CHANGED(self, dandy_dirty, **kwargs):
-    if (dandy_dirty == True):
-      self.i += 1
-    return str(self.i).encode().hex()
-
+class DandyCollector(DandyHashNode):
+  CATEGORY = DANDY_COLLECTORS_CATEGORY
 
 class DandyImageCollector(DandyCollector):
   @classmethod
-  def INPUT_TYPES(self):
+  def DANDY_INPUTS(self):
     return DandyWidgets({
-      DIRTY_NAME: DIRTY_TYPE_INPUT,
       'image': ('IMAGE',),
       'mask': ('MASK',),
-      IMAGE_URL_NAME: IMAGE_URL_TYPE_INPUT,
     })
 
   RETURN_TYPES = (IMAGE_URL_TYPE,)
   RETURN_NAMES = (IMAGE_URL_NAME,)
 
-  def run(self, dandy_dirty, image=None, mask=None, image_url=None):
-    image_url_out = list()
+  def run(self, hash, image=None, mask=None, **kwargs):
+    x = list()
 
     if image is not None:
-      for x in image:
-        image_url_out.append(make_b64image(x))
+      for y in image:
+        x.append(make_b64image(y))
 
     if mask is not None:
-      for x in mask:
-        image_url_out.append(make_b64image(x))
+      for y in mask:
+        x.append(make_b64image(y))
 
-    return { 'ui': { 'image_url': image_url_out }, 
-             'result': (image_url_out,) }
+    return ui_and_result(x)
 
 
 class DandyIntCollector(DandyCollector):
-
-  @classmethod
-  def INPUT_TYPES(self):
-    return DandyWidgets({
-      DIRTY_NAME: DIRTY_TYPE_INPUT,
-      INT_NAME_1: INT_TYPE_INPUT,
-      INT_NAME_2: INT_TYPE_INPUT,
-    })
-
   RETURN_TYPES = (INT_TYPE,)
   RETURN_NAMES = (INT_NAME,)
 
-  def run(self, dandy_dirty, int1=None, int2=None):
-    int_out = list()
+  def run(self, hash, **kwargs):
+    x = []
+    for key, value in kwargs.items():
+      if key.startswith('int'):
+        x.append(value)
 
-    if int1 is not None:
-      for x in int1:
-        int_out.append(x)
-    
-    if int2 is not None:
-      for x in int2:
-        int_out.append(x)
-
-    return { 'ui': { 'int': int_out }, 
-             'result': (int_out,) }
+    return ui_and_result(x)
 
 
 class DandyFloatCollector(DandyCollector):
-
-  @classmethod
-  def INPUT_TYPES(self):
-    return DandyWidgets({
-      DIRTY_NAME: DIRTY_TYPE_INPUT,
-      FLOAT_NAME_1: FLOAT_TYPE_INPUT,
-      FLOAT_NAME_2: FLOAT_TYPE_INPUT,
-    })
-  
   RETURN_TYPES = (FLOAT_TYPE,)
   RETURN_NAMES = (FLOAT_NAME,)
 
-  def run(self, dandy_dirty, float1=None, float2=None):
-    float_out = list()
+  def run(self, hash, **kwargs):
+    x = []
+    for key, value in kwargs.items():
+      if key.startswith('float'):
+        x.append(value)
 
-    if float1 is not None:
-      for x in float1:
-        float_out.append(x)
-    
-    if float2 is not None:
-      for x in float2:
-        float_out.append(x)
-
-    return { 'ui': { 'float': float_out }, 
-             'result': (float_out,) }
+    return ui_and_result(x)
 
 
 class DandyBooleanCollector(DandyCollector):
-
-  @classmethod
-  def INPUT_TYPES(self):
-    return DandyWidgets({
-      DIRTY_NAME: DIRTY_TYPE_INPUT,
-      BOOLEAN_NAME_1: BOOLEAN_TYPE_INPUT,
-      BOOLEAN_NAME_2: BOOLEAN_TYPE_INPUT,
-    })
-
   RETURN_TYPES = (BOOLEAN_TYPE,)
   RETURN_NAMES = (BOOLEAN_NAME,)
 
-  def run(self, dandy_dirty, boolean1=None, boolean2=None):
-    boolean_out = list()
+  def run(self, hash, **kwargs):
+    x = []
 
-    if boolean1 is not None:
-      for x in boolean1:
-        boolean_out.append(x)
-    
-    if boolean2 is not None:
-      for x in boolean2:
-        boolean_out.append(x)
+    for key, value in kwargs.items():
+      if key.startswith('boolean'):
+        x.append(value)
 
-    return { 'ui': { 'boolean': boolean_out }, 
-             'result': (boolean_out,) }
+    return ui_and_result(x)
 
 
 class DandyStringCollector(DandyCollector):
-
-  @classmethod
-  def INPUT_TYPES(self):
-    return DandyWidgets({
-      DIRTY_NAME: DIRTY_TYPE_INPUT,
-      STRING_NAME_1: STRING_TYPE_INPUT,
-      STRING_NAME_2: STRING_TYPE_INPUT,
-    })
-  
   RETURN_TYPES = (STRING_TYPE,)
   RETURN_NAMES = (STRING_NAME,)
 
-  def run(self, dandy_dirty, string1=None, string2=None):
-    string_out = list()
+  def run(self, **kwargs):
+    x = ""
 
-    if string1 is not None:
-      for x in string1:
-        string_out.append(x)
-    
-    if string2 is not None:
-      for x in string2:
-        string_out.append(x)
+    for key, value in kwargs.items():
+      if key.startswith('string'):
+        x += value + "\n"
 
-    return { 'ui': { 'string': string_out }, 
-             'result': (string_out,) }
+    print("DandyStringCollector :: string_out: " + x)
+    return ui_and_result(x)
 

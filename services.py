@@ -10,7 +10,6 @@ def get_system_fonts():
   for font_file in font_paths:
       font = font_manager.get_font(font_file)
       out.append(font.family_name)
-      # print("DandyServices :: font: " + font.family_name)
   return out
 
 i_service = 0
@@ -34,9 +33,8 @@ class DandyService:
     return await self.ws.send(msg)
 
   async def run_loop(self):
-
     async for msg in self.ws:
-      print("DandyService :: msg recieved: " + str(msg)[:200])
+      #print("DandyService :: msg recieved: " + str(msg)[:200])
       await self.run_command(msg)
 
   async def run_command(self, msg):

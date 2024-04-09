@@ -16,6 +16,8 @@ NODE_CLASS_MAPPINGS = {
   "DandyYaml": DandyYaml,
   "DandyCss": DandyCss,
   "DandyHtml": DandyHtml,
+  "DandyString": DandyString,
+  "DandyStringPreview": DandyStringPreview,
   "DandyP5JsSetup": DandyP5JsSetup,
   "DandyP5JsDraw": DandyP5JsDraw,
   "DandyJsLoader": DandyJsLoader,
@@ -31,6 +33,7 @@ NODE_CLASS_MAPPINGS = {
   "DandyFloatCollector": DandyFloatCollector,
   "DandyBooleanCollector": DandyBooleanCollector,
   "DandyStringCollector": DandyStringCollector,
+  "DandyEditorSettings": DandyEditorSettings,
   "DandyPrompt": DandyPrompt,
 }
 
@@ -41,6 +44,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyCss": "Dandy Css",
   "DandyJson": "Dandy Json",
   "DandyYaml": "Dandy Yaml",
+  "DandyString": "Dandy String",
+  "DandyStringPreview": "Dandy String Preview",
   "DandyJsLoader": "Dandy Js Loader",
   "DandyJsonLoader": "Dandy Json Loader",
   "DandyYamlLoader": "Dandy Yaml Loader",
@@ -57,19 +62,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyBooleanCollector": "Dandy Boolean Collector",
   "DandyStringCollector": "Dandy String Collector",
   "DandyPrompt": "Dandy Prompt",
+  "DandyEditorSettings": "Dandy Editor Settings",
 }
-
-print("DANDY =====================")
-print("DANDY =====================")
-print("DANDY =====================")
-print("DANDY =====================")
-print("DANDY =====================")
-print("DANDY =====================")
-print("DANDY =====================")
-
 
 if mp.current_process().name == 'MainProcess':
   print("DandySocket :: launching server")
   launch_server()
-else:
-  print("Dandy :: process: " + mp.current_process().name)

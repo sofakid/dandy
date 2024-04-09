@@ -15,7 +15,7 @@ const connectWebSocket = () => {
       }
 
       socket.onerror = () => {
-        console.log("WebSocket connection error")
+        console.log("DandySocket :: WebSocket connection error")
         ++retries
         if (retries < max_retries) {
           console.warn(`DandySocket :: Retrying connection (Attempt ${retries} of ${max_retries})...`)
@@ -31,14 +31,29 @@ const connectWebSocket = () => {
 }
 
 export class DandySocket {
+  debug_log(s, ...more) {
+    if (this.debug_verbose) {
+      console.log(`${this.constructor.name} :: ${s}`, ...more)
+    }
+  }
+
+  warn_log(s, ...more) {
+    console.warn(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
+  error_log(s, ...more) {
+    console.error(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
   constructor(dandy=null) {
     this.socket = null
     this._service_id = null
+    this.debug_verbose = false
 
     if (dandy !== null) {
       const service_widget = dandy.service_widget = dandy.find_widget(DandyNames.SERVICE_ID)
       service_widget.serializeValue = async () => {
-        console.warn(`${dandy.constructor.name} :: Serializing service_id...`)
+        this.warn_log(`Serializing service_id...`)
         return await this.get_service_id()
       }
     }
@@ -47,7 +62,7 @@ export class DandySocket {
       .then((socket) => {
         this.socket = socket
         socket.addEventListener('message', (event) => {
-          console.log('DandyServices :: recv: ', event.data.slice(0, 200))
+          this.debug_log('recv: ', event.data.slice(0, 200))
           const response = JSON.parse(event.data)
           const { command, py_client } = response
           
@@ -77,37 +92,37 @@ export class DandySocket {
         this.send({ 'command': 'get_service_id' })
       })
       .catch((error) => {
-          console.error("Failed to establish WebSocket connection:", error)
+          this.error_log("Failed to establish WebSocket connection:", error)
       })
 
     this.on_request_captures = (py_client) => {
-      console.warn("default on_request_captures()")
+      this.warn_log("default on_request_captures()")
     }
 
     this.on_request_string = (py_client) => {
-      console.warn("default on_request_string()")
+      this.warn_log("default on_request_string()")
     }
 
     this.on_request_hash = (py_client) => {
-      console.warn("default on_request_hash()")
+      this.warn_log("default on_request_hash()")
     }
 
     this.on_delivering_fonts = (fonts) => {
-      console.warn("default on_delivering_fonts()")
+      this.warn_log("default on_delivering_fonts()")
     }
 
     this.on_delivering_images = () => {
-      console.warn("default on_delivering_images()")
+      this.warn_log("default on_delivering_images()")
     }
 
     this.on_delivering_masks = () => {
-      console.warn("default on_delivering_masks()")
+      this.warn_log("default on_delivering_masks()")
     }
   }
 
-  send(command) {
-    console.log('DandyServices :: send: ' + JSON.stringify(command).slice(0, 80))
-    this.socket.send(JSON.stringify(command))
+  send(o) {
+    this.debug_log('send: ' + JSON.stringify(o))//.slice(0, 80))
+    this.socket.send(JSON.stringify(o))
   }
 
   async wait_until_up() {
@@ -115,7 +130,7 @@ export class DandySocket {
       const ms = 10 * i
       const ten_sec = 1000
       if (i === ten_sec) {
-        console.error("DandySocket isn't getting its service_id...")
+        this.error_log("DandySocket isn't getting its service_id...")
         --i
       }
       await dandy_delay(ms)

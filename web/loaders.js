@@ -432,7 +432,7 @@ export class DandyP5JsLoader extends DandyNode {
       this.texty.innerText = topLine
     })
     .catch(error => {
-      console.error("Error reading top line of p5.js:", error)
+      this.error_log("Error reading top line of p5.js:", error)
     })
   }
 }

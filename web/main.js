@@ -4,7 +4,7 @@ import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymis
 import { DandyImageCollector, DandyIntCollector, DandyBooleanCollector, 
          DandyFloatCollector, DandyStringCollector } from "/extensions/dandy/collectors.js"
 import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
-         DandyP5JsDraw, DandyP5JsSetup } from "/extensions/dandy/editors.js"
+         DandyP5JsDraw, DandyP5JsSetup, DandyString, DandyStringPreview } from "/extensions/dandy/editors.js"
 import { DandyPrompt } from "/extensions/dandy/prompt.js"
 import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
@@ -22,6 +22,8 @@ const dandy_nodes = {
   "Dandy Yaml": DandyYaml,
   "Dandy Html": DandyHtml,
   "Dandy Css": DandyCss,
+  "Dandy String": DandyString,
+  "Dandy String Preview": DandyStringPreview,
   "Dandy Js Loader": DandyJsLoader,
   "Dandy Wasm Loader": DandyWasmLoader,
   "Dandy Json Loader": DandyJsonLoader,
@@ -73,7 +75,6 @@ const ext = {
         return new DandyWidget(node, inputName, inputData, app)
       }
     })
-    // console.log("getCustomWidgets()", o)
     return o
 	},
 	beforeRegisterNodeDef: async (nodeType, nodeData, app) => {

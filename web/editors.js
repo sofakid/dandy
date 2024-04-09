@@ -1,6 +1,6 @@
-import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, 
+import { IO, DandyJsChain, DandyCssChain, DandyHtmlChain, DandyStringChain,
          DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, dandy_cash, DandyNames } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -273,6 +273,10 @@ export class DandyEditor extends DandyNode {
       }
     }
     
+    const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
+    hash_widget.size = [0, -12]
+    hash_widget.value = dandy_cash(`${Date.now()}`)
+
     this.init_widgets_above_editor()
 
     const dandy_div = this.dandy_div = document.createElement('div')
@@ -335,7 +339,7 @@ export class DandyEditor extends DandyNode {
   on_settings_applied() {
 
   }
-  
+
   toggleFullscreen() {
     const { editor, dandy_div } = this
     const fs = 'dandyEditorFullscreen'
@@ -377,15 +381,17 @@ export class DandyEditor extends DandyNode {
     } else {
       this.set_text("")
     }
-    //console.log(`${this.constructor.name} :: Editor configured`, node)
+    this.debug_log(`Editor configured`, node)
     button_bar.set_filename(filename)
   }
 
   apply_text() {
-    const { editor, node, chain } = this
+    const { editor, node, chain, hash_widget } = this
     const { properties } = node
     const text = editor.getValue()
     properties.text = text
+
+    hash_widget.value = dandy_cash(text)
 
     if (chain) {
       this.text_blob = new Blob([text], { type: this.mimetype })
@@ -521,5 +527,78 @@ export class DandyYaml extends DandyEditor {
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/yaml')
     this.set_text("")
+  }
+}
+
+export class DandyString extends DandyEditor {
+  constructor(node, app) {
+    super(node, app, Mimes.STRING)
+    this.debug_verbose = true
+    this.chain = new DandyStringChain(this, IO.IN_OUT)
+    node.size = [300, 280]
+    
+    const { editor } = this
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/text')
+    this.set_text("")
+  }
+
+  apply_text() {
+    const { editor, node, chain, hash_widget } = this
+    const { properties } = node
+    const text = editor.getValue()
+    properties.text = text
+
+    hash_widget.value = dandy_cash(text)
+
+    if (chain) {
+      chain.contributions = text
+      chain.update_chain()
+    }
+  }
+
+}
+
+
+export class DandyStringPreview extends DandyEditor {
+  constructor(node, app) {
+    super(node, app, Mimes.STRING)
+    this.debug_verbose = true
+    this.chain = new DandyStringChain(this, IO.IN_OUT)
+    node.size = [300, 280]
+    
+    const { editor } = this
+    const editor_session = editor.getSession()
+    editor_session.setMode('ace/mode/text')
+    this.set_text("")
+  }
+
+  on_settings_applied() {
+    const { editor } = this
+    editor.setOption('readOnly', true)
+  }
+
+  on_chain_updated() {
+    const { chain } = this
+    const { data } = chain
+
+    this.debug_log('on_chain_updated', data)
+
+    if (typeof data === 'string') {
+      this.set_text(data)
+    }
+    // let s = ''
+    // data.forEach((o, i) => {
+    //   s += `${i}:${o.value}\n`
+    // })
+
+  }
+
+  apply_text() {
+    const { editor, node, hash_widget } = this
+    const { properties } = node
+    const text = editor.getValue()
+    properties.text = text
+    hash_widget.value = dandy_cash(text)
   }
 }

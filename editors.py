@@ -1,137 +1,116 @@
 from .constants import *
-    
-class DandyJs:
-  def __init__(self):
-    pass
 
+class DandyEditor:
+  def __init__(self):
+      pass
+
+  @classmethod
+  def IS_CHANGED(self, hash, **kwargs):
+    return f'{hash}'.encode().hex()
+
+  FUNCTION = 'run'
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+class DandyJs(DandyEditor):
+  
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      JS_NAME: JS_TYPE_INPUT
+      HASH_NAME: HASH_TYPE_INPUT,
+      JS_NAME: JS_TYPE_INPUT,
     })
-
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
 
   RETURN_TYPES = (JS_TYPE,)
   RETURN_NAMES = (JS_NAME,)
 
-  FUNCTION = 'run'
-  OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
-
-  def run(self, js):
+  def run(self, hash, js):
     return (js,)
 
 
-class DandyHtml:
-  def __init__(self):
-    pass
+class DandyHtml(DandyEditor):
 
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      HTML_NAME: HTML_TYPE_INPUT
+      HASH_NAME: HASH_TYPE_INPUT,
+      HTML_NAME: HTML_TYPE_INPUT,
     })
-  
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
 
   RETURN_TYPES = (HTML_TYPE,)
   RETURN_NAMES = (HTML_NAME,)
-  FUNCTION = 'run'
-  OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
 
-  def run(self, html):
+  def run(self, hash, html):
     return (html,)
 
 
-class DandyCss:
-  def __init__(self):
-    pass
-
+class DandyCss(DandyEditor):
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      CSS_NAME: CSS_TYPE_INPUT
+      HASH_NAME: HASH_TYPE_INPUT,
+      CSS_NAME: CSS_TYPE_INPUT,
     })
   
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
-
   RETURN_TYPES = (CSS_TYPE,)
   RETURN_NAMES = (CSS_NAME,)
-  FUNCTION = 'run'
-  OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
-
-  def run(self, css):
+  
+  def run(self, hash, css):
     return (css,)
 
   
-class DandyJson:
-  def __init__(self):
-    pass
-
+class DandyJson(DandyEditor):
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      JSON_NAME: JSON_TYPE_INPUT
+      HASH_NAME: HASH_TYPE_INPUT,
+      JSON_NAME: JSON_TYPE_INPUT,
     })  
-  
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
 
   RETURN_TYPES = (JSON_TYPE,)
   RETURN_NAMES = (JSON_NAME,)
-  FUNCTION = 'run'
-  OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
 
-  def run(self, js):
+  def run(self, hash, js):
     return (js,)
 
 
 class DandyYaml:
-  def __init__(self):
-    pass
-
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      YAML_NAME: YAML_TYPE_INPUT
+      HASH_NAME: HASH_TYPE_INPUT,
+      YAML_NAME: YAML_TYPE_INPUT,
     })
-  
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
 
   RETURN_TYPES = (YAML_TYPE,)
   RETURN_NAMES = (YAML_NAME,)
-  FUNCTION = 'run'
-  OUTPUT_NODE = False
-  CATEGORY = DANDY_CATEGORY
-
-  def run(self, yaml):
+  
+  def run(self, hash, yaml):
     return (yaml,)
+  
 
-class DandyEditorSettings:
-  def __init__(self):
-    pass
-
+class DandyString(DandyEditor):
   @classmethod
   def INPUT_TYPES(self):
     return DandyWidgets({
-      YAML_NAME: YAML_TYPE_INPUT
+      HASH_NAME: HASH_TYPE_INPUT,
+      STRING_NAME: STRING_TYPE_INPUT,
     })
+
+  RETURN_TYPES = (STRING_TYPE,)
+  RETURN_NAMES = (STRING_NAME,)
+  
+  def run(self, hash, string):
+    return (string,)
+
+# --------------------------------------------------------------------
+class DandyEditorSettings:
+  @classmethod
+  def INPUT_TYPES(self):
+    return DandyWidgets({})
   
   @classmethod
-  def IS_CHANGED(self, yaml=None):
+  def IS_CHANGED(self):
     return NEVER_CHANGE
 
   RETURN_TYPES = ()
@@ -140,5 +119,38 @@ class DandyEditorSettings:
   OUTPUT_NODE = False
   CATEGORY = DANDY_CATEGORY
 
-  def run(self, yaml=None):
+  def run(self):
+    return ()
+
+class DandyStringPreview(DandyEditor):
+  @classmethod
+  def INPUT_TYPES(self):
+    return DandyWidgets({
+      HASH_NAME: HASH_TYPE_INPUT,
+      STRING_NAME: STRING_TYPE_INPUT,
+    })
+
+  RETURN_TYPES = (STRING_TYPE,)
+  RETURN_NAMES = (STRING_NAME,)
+  
+  def run(self, hash, string):
+    return (string,)
+
+# --------------------------------------------------------------------
+class DandyEditorSettings:
+  @classmethod
+  def INPUT_TYPES(self):
+    return DandyWidgets({})
+  
+  @classmethod
+  def IS_CHANGED(self):
+    return NEVER_CHANGE
+
+  RETURN_TYPES = ()
+  RETURN_NAMES = ()
+  FUNCTION = 'run'
+  OUTPUT_NODE = False
+  CATEGORY = DANDY_CATEGORY
+
+  def run(self):
     return ()

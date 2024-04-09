@@ -101,7 +101,7 @@ export class DandySettings {
     
     const socket = this.socket = new DandySocket()
     socket.on_delivering_fonts = (fonts) => {
-      console.log("Fonts delivered.")
+      console.log("DandySettings :: Fonts delivered.")
       this.fonts = collect_monospace_fonts(fonts)
       this.save_fonts_to_local_storage()
     }
@@ -169,9 +169,6 @@ export class DandySettings {
     const { key_o, options } = this
     const o = {}
     Object.entries(options).forEach(([name, value]) => {
-      // if (name === 'keyboardHandler') {
-      //   console.log('save_to_local_storage', value, typeof value)
-      // }
       if (name === 'keyboardHandler' && typeof value === 'object') {
         o[name] = 'ace'
       } else {
@@ -445,7 +442,6 @@ export class DandyEditorSettings extends DandyNode {
     Object.entries(settings.options).forEach(([name, value]) => {
       let v = null
       if (name === 'keyboardHandler') {
-        // console.log("keyboard handler from settings", value, typeof value)
         if (typeof value === 'object' || value === 'ace') {
           v = 'ace'
         } else {
@@ -453,7 +449,6 @@ export class DandyEditorSettings extends DandyNode {
         }
       } else if (name === 'theme') {
         v = value.slice('ace/theme/'.length)
-        // console.log(`THEME: value: ${value}, v: ${v}`)
       } else {
         v = value
       }
