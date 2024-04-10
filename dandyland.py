@@ -1,4 +1,5 @@
 from .constants import *
+from .dandynodes import *
 from .client import DandyServicesClient
 from .image import *
     
@@ -20,16 +21,10 @@ def deserialize_with_tensors(o):
     return [deserialize_with_tensors(item) for item in o]
   return o
 
-class DandyLand:
-  def __init__(self):
-    self.client = DandyServicesClient()
-    pass
-  
+class DandyLand(DandyWithHashSocket):
   @classmethod
-  def INPUT_TYPES(s):
-    return DandyWidgets({
-      HASH_NAME: HASH_TYPE_INPUT,  
-      SERVICE_ID_NAME: SERVICE_ID_TYPE_INPUT,
+  def DANDY_INPUTS(cls):
+    return DandyOptionalInputs(super(), {
       'image': ('IMAGE',),
       'mask': ('MASK',),
       'positive':('CONDITIONING',),
@@ -37,35 +32,18 @@ class DandyLand:
       'int': ('INT', { 'display': 'number', "default": 0 }),
       'float': ('FLOAT', { 'display': 'number', "default": 0.0 }),
       'boolean': ('BOOLEAN', { 'default': False }),
-      'string': ('STRING', { 'default': 'stringy' }),
-      HTML_NAME: HTML_TYPE_INPUT,
-      CSS_NAME: CSS_TYPE_INPUT,
-      JS_NAME: JS_TYPE_INPUT,
-      WASM_NAME: WASM_TYPE_INPUT,
-      JSON_NAME: JSON_TYPE_INPUT,
-      YAML_NAME: YAML_TYPE_INPUT,
-      IMAGE_URL_NAME: IMAGE_URL_TYPE_INPUT,
       'width': WIDTH_HEIGHT_INPUT,
       'height': WIDTH_HEIGHT_INPUT,
     })
 
-  @classmethod
-  def IS_CHANGED(self, hash, **kwargs):
-    # print(f'DandyLand :: IS_CHANGED {hash}')
-    return hash
-    
-  RETURN_TYPES = ('IMAGE', 'MASK', 'CONDITIONING', 'CONDITIONING', 'INT', 'FLOAT', 'BOOLEAN', 'STRING', 'INT',   'INT')
-  RETURN_NAMES = ('image', 'mask', 'positive',     'negative',     'int', 'float', 'boolean', 'string', 'width', 'height')
-  FUNCTION = 'run'
-  OUTPUT_NODE = True
-  CATEGORY = DANDY_CATEGORY
+  RETURN_TYPES = ('IMAGE', 'MASK', 'CONDITIONING', 'CONDITIONING', 'INT', 'FLOAT', 'BOOLEAN', 'INT',   'INT'   , 'STRING')
+  RETURN_NAMES = ('image', 'mask', 'positive',     'negative',     'int', 'float', 'boolean', 'width', 'height', 'string')
 
-  def run(self, hash, service_id, 
+  def run(self, service_id=None, 
           image=None, mask=None, 
           positive=None, negative=None, 
           int=None, float=None, boolean=False, string=None, 
-          html=None, css=None, js=None, wasm=None, json=None, yaml=None, 
-          image_url=None, width=None, height=None):
+          **kwargs):
 
     b64images = []    
     if image != None:
@@ -87,6 +65,23 @@ class DandyLand:
     if negative != None:
       ser_negative = serialize_with_tensors(negative)
     
+    if int is None:
+      int = 0
+
+    if float is None:
+      float = 0
+
+    if boolean is None:
+      boolean = False  
+    
+    if string is None:
+      string = ''
+    
+    kwargs['captures'] = 'deleted'
+    kwargs['positive'] = 'deleted'
+    kwargs['negative'] = 'deleted'
+    print("DandyLand :: run :: kwargs: " + str(kwargs))
+
     o = self.client.request_captures(service_id,
                                      int, float, boolean, string, 
                                      ser_positive, ser_negative, b64images, b64masks)
@@ -101,7 +96,6 @@ class DandyLand:
     out_images_batch, out_width, out_height = batch(out_images)
     out_masks_batch, mask_width, mask_height = batch(out_masks)
     
-    #print("DandyLand :: run :: o: " + str(o))
     out_int = o['int']
     out_float = o['float']
     out_boolean = o['boolean']
@@ -113,6 +107,11 @@ class DandyLand:
     ser_negative = o['negative']
     out_negative = deserialize_with_tensors(ser_negative)
     
+    o['captures'] = 'deleted'
+    o['positive'] = 'deleted'
+    o['negative'] = 'deleted'
+    print("DandyLand :: run :: o: " + str(o))
+
     print(f'DandyLand :: width: {out_width}, height: {out_height}, string: <{out_string}>')
     return (out_images_batch, out_masks_batch, out_positive, out_negative,
-            out_int, out_float, out_boolean, out_string, out_width, out_height)
+            (out_int,), (out_float,), (out_boolean,), (out_width,), (out_height,), (out_string,))

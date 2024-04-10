@@ -77,14 +77,14 @@ export class DandySocket {
           if (command === 'request_string') {
             this.on_request_string(response)
           }
-    
-          if (command === 'request_hash') {
-            this.on_request_hash(py_client)
-          }
-    
+
           if (command === 'delivering_fonts') {
             const { fonts } = response 
             this.on_delivering_fonts(fonts)
+          }
+
+          if (command === 'sending_input') {
+            this.on_sending_input(response)
           }
           
         })
@@ -95,16 +95,16 @@ export class DandySocket {
           this.error_log("Failed to establish WebSocket connection:", error)
       })
 
-    this.on_request_captures = (py_client) => {
+    this.on_request_captures = (o) => {
       this.warn_log("default on_request_captures()")
     }
 
-    this.on_request_string = (py_client) => {
+    this.on_request_string = (o) => {
       this.warn_log("default on_request_string()")
     }
 
-    this.on_request_hash = (py_client) => {
-      this.warn_log("default on_request_hash()")
+    this.on_sending_input = (o) => {
+      this.warn_log("default on_sending_input()")
     }
 
     this.on_delivering_fonts = (fonts) => {
@@ -152,8 +152,8 @@ export class DandySocket {
     this.send({ 'command': 'delivering_hash', 'hash': hash, 'py_client': py_client })
   }
 
-  thanks(py_client) {
-    this.send({ 'command': 'thanks', 'py_client': py_client })
+  thanks(py_client, output) {
+    this.send({ 'command': 'thanks', 'py_client': py_client, 'output': output })
   }
 
   request_fonts() {

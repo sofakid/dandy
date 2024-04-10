@@ -163,7 +163,7 @@ export class DandyNode {
         }
         return x
       }
-      console.warn(`fixing values <${name},${type},${value}>`)
+
       if (type === 'number') {
         if (typeof value !== 'number') {
           widget.value = default_value(0)
@@ -178,7 +178,7 @@ export class DandyNode {
       }
 
       if (type === 'STRING' && typeof value !== 'string') {
-        widget.value = {"value":"","mime":"text/text"}
+        widget.value = ''
       }
       
     })
@@ -373,5 +373,28 @@ export const dandy_cash = (strings) => {
     }
   }
   return x
+}
+
+export class DandyHashDealer {
+  constructor(dandy) {
+    this.dandy = dandy
+    this.message_getter = () => Date.now()
+    const widget = this.widget = dandy.find_widget(DandyNames.HASH)
+    const size = [0, -4]
+    this.message = Date.now()
+    widget.computeSize = () => size
+    widget.size = size
+    widget.serializeValue = async () => {
+      const { message } = this
+      return dandy_cash(JSON.stringify(message))
+    }
+
+  }
+
+  get hash() {
+    const { message } = this
+    return dandy_cash(JSON.stringify(message))
+  }
+
 }
 

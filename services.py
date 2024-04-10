@@ -2,6 +2,7 @@
 from matplotlib import font_manager
 import json
 from .constants import *
+from .dandynodes import *
 
 def get_system_fonts():
   font_paths = font_manager.findSystemFonts()
@@ -64,12 +65,6 @@ class DandyService:
   async def delivering_captures(self, o):
     await self.send_to_py(o)
 
-  async def request_hash(self, o):
-    await self.send_to_js(o)
-
-  async def delivering_hash(self, o):
-    await self.send_to_py(o)
-
   async def request_string(self, o):
     await self.send_to_js(o)
 
@@ -80,6 +75,9 @@ class DandyService:
     await self.send_to_js(o)
   
   async def delivering_masks(self, o):
+    await self.send_to_js(o)
+
+  async def sending_input(self, o):
     await self.send_to_js(o)
 
   async def thanks(self, o):

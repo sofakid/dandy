@@ -1,24 +1,26 @@
 import json
-from .dandynodes import DandyHashNode
 from .image import make_b64image
 from .constants import *
+from .dandynodes import *
 
-class DandyCollector(DandyHashNode):
+class DandyCollector(DandyWithHash):
   CATEGORY = DANDY_COLLECTORS_CATEGORY
+  @classmethod
+  def DANDY_INPUTS(cls):
+    return DandyOptionalInputs(super(), { 'n_inputs': N_INPUTS_INPUT, })
 
 class DandyImageCollector(DandyCollector):
   @classmethod
-  def DANDY_INPUTS(self):
-    return DandyWidgets({
+  def DANDY_INPUTS(cls):
+    return DandyOptionalInputs(super(), { 
       'image': ('IMAGE',),
       'mask': ('MASK',),
-      'n_inputs': N_INPUTS_INPUT,
     })
-
+  
   RETURN_TYPES = (IMAGE_URL_TYPE,)
   RETURN_NAMES = (IMAGE_URL_NAME,)
 
-  def run(self, hash, image=None, mask=None, **kwargs):
+  def run(self, image=None, mask=None, **kwargs):
     x = list()
 
     if image is not None:
@@ -33,10 +35,6 @@ class DandyImageCollector(DandyCollector):
 
 
 class DandyIntCollector(DandyCollector):
-  @classmethod
-  def DANDY_INPUTS(self):
-    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
-  
   RETURN_TYPES = (INT_TYPE,)
   RETURN_NAMES = (INT_NAME,)
 
@@ -50,10 +48,6 @@ class DandyIntCollector(DandyCollector):
 
 
 class DandyFloatCollector(DandyCollector):
-  @classmethod
-  def DANDY_INPUTS(self):
-    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
-  
   RETURN_TYPES = (FLOAT_TYPE,)
   RETURN_NAMES = (FLOAT_NAME,)
 
@@ -67,14 +61,10 @@ class DandyFloatCollector(DandyCollector):
 
 
 class DandyBooleanCollector(DandyCollector):
-  @classmethod
-  def DANDY_INPUTS(self):
-    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
-  
   RETURN_TYPES = (BOOLEAN_TYPE,)
   RETURN_NAMES = (BOOLEAN_NAME,)
 
-  def run(self, hash, **kwargs):
+  def run(self,**kwargs):
     x = []
 
     for key, value in kwargs.items():
@@ -85,19 +75,15 @@ class DandyBooleanCollector(DandyCollector):
 
 
 class DandyStringCollector(DandyCollector):
-  @classmethod
-  def DANDY_INPUTS(self):
-    return DandyWidgets({ 'n_inputs': N_INPUTS_INPUT, })
-  
   RETURN_TYPES = (STRING_TYPE,)
   RETURN_NAMES = (STRING_NAME,)
 
   def run(self, **kwargs):
     x = ""
     for key, value in kwargs.items():
-      if key.startswith('string'):
+      if key.startswith('string') and value != None:
         print("catting: " + str(value))
-        x += value + "\n"
+        x += value
 
     print("DandyStringCollector :: string_out: " + x)
     return ui_and_result(x)

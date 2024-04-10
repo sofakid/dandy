@@ -8,6 +8,7 @@ import numpy as np
 import comfy.utils
 
 from .constants import *
+from .dandynodes import *
 
 def batch(images):
   n = len(images)

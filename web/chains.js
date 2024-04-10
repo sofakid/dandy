@@ -1,4 +1,5 @@
-import { DandyNames, DandyTypes, type_is_dandy, Mimes, DandyInvisibleWidget } from "/extensions/dandy/dandymisc.js"
+import { DandyNames, DandyTypes, type_is_dandy, Mimes, 
+  DandyInvisibleWidget, DandyWidget } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const N = DandyNames
@@ -7,12 +8,16 @@ const M = Mimes
 
 export class DandyChain {
   static debug_blobs = false
-  static debug_verbose = true
+  static debug_verbose = false
 
   debug_log(s, ...more) {
     if (DandyChain.debug_verbose) {
       console.log(`${this.dandy.constructor.name}.chain<${this.type}> :: ${s}`, ...more)
     }
+  }
+
+  log(s, ...more) {
+    console.log(`${this.dandy.constructor.name}.chain<${this.type}> :: ${s}`, ...more)
   }
 
   warn_log(s, ...more) {
@@ -70,9 +75,18 @@ export class DandyChain {
   }
   
   set n_inputs(n_inputs) {
-    this._n_inputs = n_inputs
     const { dandy, node, app, name, type, in_slots, input_widgets } = this
-
+    
+    this.each_input((nom, i) => {
+      const w = input_widgets[i]
+      if (w) {
+        w.callback = () => {}
+      }
+    })
+    in_slots.length = 0
+    input_widgets.length = 0
+    this._n_inputs = n_inputs
+    
     if (!type_is_dandy(type)) {
       dandy.remove_inputs_and_widgets(name)
     }
@@ -104,7 +118,7 @@ export class DandyChain {
     if (!type_is_dandy(type)) {
       dandy.remove_outputs(name)
     }
-
+    out_slots.length = 0
     this.each_output((nom, i) => {
       out_slots.push(dandy.put_output_slot(nom, type))
     })
@@ -243,6 +257,7 @@ export class DandyChain {
       }
 
       this.each_input((input_name, i) => {
+        this.debug_log("EACH INPUT", i)
         const input_widget = input_widgets[i]
         const in_slot = in_slots[i]
         const in_data = get_in_data(in_slot)

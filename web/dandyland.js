@@ -1,6 +1,6 @@
 import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain,
          DandyYamlChain, DandyImageUrlChain, DandyStringChain } from '/extensions/dandy/chains.js'
-import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay } from '/extensions/dandy/dandymisc.js'
+import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay, DandyHashDealer } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { DandySocket } from '/extensions/dandy/socket.js'
 import { api } from '/scripts/api.js'
@@ -70,6 +70,7 @@ export class DandyLand extends DandyNode {
     this.input_int = 0
     this.input_float = 0.0
     this.input_boolean = false
+    this.input_string = ''
     this.input_positive = ''
     this.input_negative = ''
     this.input_images_urls = []
@@ -77,12 +78,13 @@ export class DandyLand extends DandyNode {
 
     socket.on_request_captures = (o) => {
       this.debug_log("socket.on_request_captures()", o)
-      const { py_client, int, float, boolean, positive, negative, image, mask } = o
+      const { py_client, int, float, boolean, positive, negative, string, image, mask } = o
       const { input_images_urls, input_masks_urls } = this
 
       this.input_int = int
       this.input_float = float
       this.input_boolean = boolean
+      this.input_string = string
       this.input_positive = positive
       this.input_negative = negative
       
@@ -105,19 +107,15 @@ export class DandyLand extends DandyNode {
       this.render(py_client)
     }
 
-    socket.on_request_hash = (py_client) => {
-      this.deliver_hash(py_client)
-    }
-
     this.canvas_hash = dandy_cash([`${Date.now()}`])
-    const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
+    const hash_dealer = this.hash_dealer = new DandyHashDealer(this)
 
     const hash_f = async () => {
       const b64s = await this.get_canvases_b64s()
       return dandy_cash(b64s)
     }
 
-    hash_widget.serializeValue = hash_f
+    hash_dealer.widget.serializeValue = hash_f
     
     const check_for_changes = async () => {
       const hash = await hash_f()
@@ -210,13 +208,6 @@ export class DandyLand extends DandyNode {
       this.reload_iframe()
     } 
     this.done_rendering(py_client)
-  }
-
-  async deliver_hash(py_client) {
-    const { socket } = this
-    const b64s = await this.get_canvases_b64s()
-    const hash = dandy_cash(b64s)
-    socket.deliver_hash(hash, py_client)
   }
 
   async done_rendering(py_client) {
@@ -410,7 +401,7 @@ export class DandyLand extends DandyNode {
 
   async reload_iframe_job (when_done) {
     const { divvy, image_url_chain,
-      js_chain, html_chain, css_chain, json_chain, yaml_chain, string_chain,
+      js_chain, html_chain, css_chain, json_chain, yaml_chain,
       width_widget, height_widget, 
     } = this
 
@@ -424,8 +415,6 @@ export class DandyLand extends DandyNode {
     const yaml_urls = yaml_chain.data.map(just_value)
     const image_urls = image_url_chain.data
     
-    this.input_string = string_chain.data.map(just_value).join('\n')
-
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
     const yamls = await load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))

@@ -1,7 +1,7 @@
 import { DandyEditor } from "/extensions/dandy/editors.js"
 import { DandyStringChain } from "/extensions/dandy/chains.js"
 import { DandySocket } from "/extensions/dandy/socket.js"
-import { Mimes, DandyNames, dandy_cash, dandy_stable_diffusion_mode } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNames, dandy_cash, dandy_stable_diffusion_mode, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
 
 export class DandyPrompt extends DandyEditor {
   constructor(node, app) {
@@ -15,16 +15,12 @@ export class DandyPrompt extends DandyEditor {
 
     const socket = this.socket = new DandySocket(this)
     socket.on_request_string = (o) => {
-      o.string = string_chain.data.map((x) => x.value).join('\n')
+      o.string = string_chain.data
       socket.deliver_string(o)
     }
 
-    const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
-    hash_widget.computeSize = () => [0, -20]
-    hash_widget.serializeValue = async () => {
-      const s = JSON.stringify(string_chain.data)
-      return dandy_cash(s)
-    }
+    this.hash_dealer = new DandyHashDealer(this)
+    this.hash_dealer.message_getter = () => string_chain.data
 
     node.size = [500, 180]
   }

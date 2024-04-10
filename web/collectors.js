@@ -1,6 +1,6 @@
 import { DandyImageUrlChain, DandyIntChain, DandyBooleanChain, 
   DandyFloatChain, DandyStringChain } from "/extensions/dandy/chains.js"
-import { DandyNames, DandyTypes, DandyNode, dandy_cash } from "/extensions/dandy/dandymisc.js"
+import { DandyNames, DandyTypes, DandyNode, dandy_cash, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
 
 export class DandyCollector extends DandyNode {
   constructor(node, app, name, type) {
@@ -8,14 +8,14 @@ export class DandyCollector extends DandyNode {
     this.debug_verbose = true
     this.name = name
     this.type = type
-    this.hash_widget = this.find_widget(DandyNames.HASH)
-    this.hash_widget.value = dandy_cash(`${Date.now()}`)
-    this.hash_widget.size = [0, -4]
+    this.hash_dealer = new DandyHashDealer(this)
     this.collection_widget = null
+
     this.n_inputs_widget = this.find_widget('n_inputs')
     this.n_inputs_widget.callback = (x) => {
       if (x >= 0) {
-        this.chain.n_inputs = x 
+        this.chain.n_inputs = x
+        node.size = node.computeSize()
       }
     }
   }
@@ -32,7 +32,7 @@ export class DandyCollector extends DandyNode {
   }
 
   update_hash() {
-    this.hash_widget.value = dandy_cash(`${this.chain.data}`)
+    this.hash_dealer.message = this.chain.data
   }
 
   on_configure() {

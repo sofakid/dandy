@@ -7,7 +7,7 @@ NEVER_CHANGE = 'never change'.encode().hex()
 DANDY_CATEGORY = 'Dandy'
 DANDY_EXAMPLES_CATEGORY = 'Dandy Examples'
 DANDY_COLLECTORS_CATEGORY = 'Dandy Collectors'
-DANDY_LOADERS_CATEGORY = 'Dandy Collectors'
+DANDY_LOADERS_CATEGORY = 'Dandy Loaders'
 
 WIDTH_HEIGHT_INPUT = ('INT', {'default': 512, 'min': 10, 'max': MAX_RESOLUTION, 'step': 128})
 N_INPUTS_INPUT = ('INT', {'default': 2, 'min': 0, 'max': MAX_RESOLUTION, 'step': 1})
@@ -75,10 +75,6 @@ BOOLEAN_TYPE_INPUT = (BOOLEAN_TYPE, { 'default': '' })
 STRING_NAME = 'string'
 STRING_TYPE = 'STRING'
 STRING_TYPE_INPUT = (STRING_TYPE, { 'default': '' })
-
-
-def DandyWidgets(o):
-  return { 'required': {}, 'hidden': {}, 'optional': o }
 
 def ui_and_result(x):
   return { 'ui': { 'value': (x,)}, 'result': (x,) }

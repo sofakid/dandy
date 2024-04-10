@@ -1,74 +1,43 @@
 from .constants import *
+from .dandynodes import *
+from .editors import DandyEditor
 
-class DandyP5JsLoader:
-  def __init__(self):
-    pass
-
+class DandyP5JsLoader(DandyNode):
   @classmethod
-  def INPUT_TYPES(s):
-    return DandyWidgets({
-      JS_NAME: JS_TYPE_INPUT
-    })
-
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
+  def DANDY_INPUTS(cls):
+    return DandyOptionalInputs(super(), { JS_NAME: JS_TYPE_INPUT })
   
   RETURN_TYPES = (JS_TYPE,)
   RETURN_NAMES = (JS_NAME,)
-  FUNCTION = 'run'
   OUTPUT_NODE = False
   CATEGORY = DANDY_EXAMPLES_CATEGORY
 
-  def run(self, js):
+  def run(self, js=None, **kwargs):
     return (js,)
 
 
-class DandyP5JsSetup:
-  def __init__(self):
-    pass
-
+class DandyP5JsSetup(DandyEditor):
   @classmethod
-  def INPUT_TYPES(self):
-    return DandyWidgets({
-      JS_NAME: JS_TYPE_INPUT
-    })
+  def DANDY_INPUTS(cls):
+    return DandyOptionalInputs(super(), { JS_NAME: JS_TYPE_INPUT })
   
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
-
   RETURN_TYPES = (JS_TYPE,)
   RETURN_NAMES = (JS_NAME,)
-  FUNCTION = 'run'
-  OUTPUT_NODE = False
   CATEGORY = DANDY_EXAMPLES_CATEGORY
 
-  def run(self, js):
+  def run(self, js=None, **kwargs):
     return (js,)
 
 
-class DandyP5JsDraw:
-  def __init__(self):
-    pass
-
+class DandyP5JsDraw(DandyEditor):
   @classmethod
-  def INPUT_TYPES(self):
-    return DandyWidgets({
-      JS_NAME: JS_TYPE_INPUT
-    })
+  def DANDY_INPUTS(cls):
+    return DandyOptionalInputs(super(), { JS_NAME: JS_TYPE_INPUT })
 
-  @classmethod
-  def IS_CHANGED(self, js):
-    return NEVER_CHANGE
-  
   RETURN_TYPES = (JS_TYPE,)
   RETURN_NAMES = (JS_NAME,)
-  FUNCTION = 'run'
   OUTPUT_NODE = False
   CATEGORY = DANDY_EXAMPLES_CATEGORY
 
-  def run(self, js):
+  def run(self, js=None, **kwargs):
     return (js, )
-
-

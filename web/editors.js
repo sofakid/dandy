@@ -1,6 +1,7 @@
+import { DandySocket } from "/extensions/dandy/socket.js"
 import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyStringChain,
          DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, dandy_cash, DandyNames } from "/extensions/dandy/dandymisc.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, dandy_cash, DandyNames, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -273,9 +274,9 @@ export class DandyEditor extends DandyNode {
       }
     }
     
-    const hash_widget = this.hash_widget = this.find_widget(DandyNames.HASH)
-    hash_widget.size = [0, -12]
-    hash_widget.value = dandy_cash(`${Date.now()}`)
+    this.hash_dealer = new DandyHashDealer(this)
+    const socket = this.socket = new DandySocket(this)
+    socket.on_sending_input = () => {}
 
     this.init_widgets_above_editor()
 
@@ -386,12 +387,12 @@ export class DandyEditor extends DandyNode {
   }
 
   apply_text() {
-    const { editor, node, chain, hash_widget } = this
+    const { editor, node, chain, hash_dealer } = this
     const { properties } = node
     const text = editor.getValue()
     properties.text = text
 
-    hash_widget.value = dandy_cash(text)
+    hash_dealer.message = text
 
     if (chain) {
       this.text_blob = new Blob([text], { type: this.mimetype })
@@ -541,22 +542,37 @@ export class DandyString extends DandyEditor {
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/text')
     this.set_text("")
+
+    const { socket, chain } = this
+    socket.on_sending_input = (o) => {
+      const { input, py_client } = o
+      const { string } = input
+      
+      let out_string = ''
+      if (string !== undefined) {
+        out_string += string
+      }
+      const text = editor.getValue()
+      out_string += text
+      chain.output_update_ignoring_input(out_string)
+      const output = { 'string': out_string }
+      socket.thanks(py_client, output)
+    }
   }
 
   apply_text() {
-    const { editor, node, chain, hash_widget } = this
+    const { editor, node, chain, hash_dealer } = this
     const { properties } = node
     const text = editor.getValue()
     properties.text = text
 
-    hash_widget.value = dandy_cash(text)
+    hash_dealer.message = text
 
     if (chain) {
       chain.contributions = text
       chain.update_chain()
     }
   }
-
 }
 
 
@@ -571,6 +587,16 @@ export class DandyStringPreview extends DandyEditor {
     const editor_session = editor.getSession()
     editor_session.setMode('ace/mode/text')
     this.set_text("")
+
+    const { socket, chain } = this
+    socket.on_sending_input = (o) => {
+      const { input, py_client } = o
+      const { string } = input
+      this.debug_log("dirty")
+      chain.output_update_ignoring_input(string)
+      this.set_text(string)
+      socket.thanks(py_client)
+    }
   }
 
   on_settings_applied() {
@@ -595,10 +621,10 @@ export class DandyStringPreview extends DandyEditor {
   }
 
   apply_text() {
-    const { editor, node, hash_widget } = this
+    const { editor, node, hash_dealer } = this
     const { properties } = node
     const text = editor.getValue()
     properties.text = text
-    hash_widget.value = dandy_cash(text)
+    hash_dealer.message = text
   }
 }
