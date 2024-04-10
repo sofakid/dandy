@@ -71,8 +71,8 @@ export class DandyLand extends DandyNode {
     this.input_float = 0.0
     this.input_boolean = false
     this.input_string = ''
-    this.input_positive = ''
-    this.input_negative = ''
+    this.input_positive = []
+    this.input_negative = []
     this.input_images_urls = []
     this.input_masks_urls = []
 
@@ -226,6 +226,7 @@ export class DandyLand extends DandyNode {
 
     const { dandy_output } = this
 
+    const o_dandy_output = JSON.parse(dandy_output)
     const {
       int, 
       float,
@@ -233,9 +234,12 @@ export class DandyLand extends DandyNode {
       boolean,
       positive, 
       negative, 
-    } = dandy_output
+    } = o_dandy_output
+
+    this.error_log("capture and deliver 1", dandy_output, typeof dandy_output)
     
     this.string_chain.output_update_ignoring_input(string)
+    this.error_log("capture and deliver 2", dandy_output)
 
     const default_value = (v, d) => v !== undefined ? v : d
     const o = {
@@ -244,10 +248,11 @@ export class DandyLand extends DandyNode {
       int: default_value(int, 0),
       float: default_value(float, 0),
       boolean: default_value(boolean, false),
-      string: default_value(string, ''),
+      string: default_value(string, 'defaulty'),
       positive: default_value(positive, []),
       negative: default_value(negative, []),
     }
+    this.error_log("capture and deliver 3", o, string)
 
     this.debug_log("sending o: ", o)
     socket.deliver_captures(o)

@@ -25,8 +25,11 @@ async def start_server():
   print("DandySocket :: ending")
 
 def run_server():
-  asyncio.run(start_server())
-
+  try:
+    asyncio.run(start_server())
+  except Exception:
+    pass
+  
 ### Main Process ================================================================
 def launch_server():
   script_path = os.path.abspath(__file__)

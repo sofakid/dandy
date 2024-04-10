@@ -592,9 +592,27 @@ export class DandyStringPreview extends DandyEditor {
     socket.on_sending_input = (o) => {
       const { input, py_client } = o
       const { string } = input
-      this.debug_log("dirty")
-      chain.output_update_ignoring_input(string)
-      this.set_text(string)
+
+      const f = (x) => {
+        chain.output_update_ignoring_input(x)
+        this.set_text(x)
+      }
+      if (string !== undefined) {
+        if (typeof string === 'string') {
+          f(string)
+        } else {
+          if (string.length > 0) {
+            const s = string[0]
+            if (typeof s === 'string') {
+              f(s)
+            } else {
+              this.error_log('got invalid string', s)
+            }
+          } else {
+            this.error_log('got invalid string', string)
+          }
+        }
+      }
       socket.thanks(py_client)
     }
   }
