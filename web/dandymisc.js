@@ -123,9 +123,13 @@ export class DandyNode {
       if (link_info) {
         const { chains } = this
         if (chains) {
-          const chain = chains[link_info.type]
-          if (chain) {
-            chain.update_chain()
+          const x = chains[link_info.type]
+          if (x) {
+            x.forEach((chain) => {
+              if (chain) {
+                chain.update_chain()
+              }
+            })
           }
         }
       }

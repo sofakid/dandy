@@ -36,15 +36,19 @@ export class DandyChain {
     this.type = type
     this.in_slots = []
     this.out_slots = []
-    this.input_widgets = []
+    this.input_widgets = [] 
 
     const { node, app } = this
 
-    this.debug_log(`constructng chain`)
+    this.debug_log(`constructing chain`)
     if (dandy.chains === undefined) {
       dandy.chains = {}
     }
-    dandy.chains[type] = this
+    const { chains } = dandy
+    if (chains[type] === undefined) {
+      chains[type] = []
+    }
+    chains[type].push(this)
 
     this._contributions = ''
     this._mime = mime
@@ -52,9 +56,7 @@ export class DandyChain {
     // these are setters
     this.n_inputs = n_inputs
     this.n_outputs = n_outputs
-    
-    this.split_chain = false
-    
+
     if (DandyChain.debug_blobs) {
       this.debug_blobs_widget = ComfyWidgets.STRING(node, 'debug_blobs', ['', {
         default:'', multiline: true, serialize: false}], app)
@@ -64,6 +66,14 @@ export class DandyChain {
       dandy.init_after_chain()
     }
 
+  }
+
+  get is_start() {
+    return this.n_inputs === 0
+  }
+
+  get is_end() {
+    return this.n_outputs === 0
   }
 
   get n_inputs() {
@@ -141,18 +151,13 @@ export class DandyChain {
   }
 
   // f_each_node: (chain) => {}
-  follow_chain(f_each_node, seen = [], on_loop_detected = () => {}, go_passed_split = false) {
+  follow_chain(f_each_node, seen = [], on_loop_detected = () => {}) {
     const { node, out_slots, type, split_chain } = this
     const { graph, outputs } = node
 
     this.debug_log('f_each_node(this)')
     f_each_node(this)
 
-    if (split_chain && !go_passed_split) {
-      this.debug_log('stopping propagation')
-      return
-    }
-    
     this.each_output((nom, i) => {
       const out_slot = out_slots[i]
       const output = outputs[out_slot]
@@ -198,9 +203,13 @@ export class DandyChain {
           this.debug_log(`target.dandy: `, target_dandy)
           // we might be connected to a non-dandy input, like 'STRING'
           if (target_dandy) {
-            const target_chain = target_dandy.chains[type]
-            const stop_at_split = false
-            target_chain.follow_chain(f_each_node, seen_prime, on_loop_detected, stop_at_split)
+            const target_chains = target_dandy.chains[type]
+            target_chains.forEach((target_chain) => {
+              // don't follow a new chain
+              if (!target_chain.is_start) {
+                target_chain.follow_chain(f_each_node, seen_prime, on_loop_detected)
+              }
+            })
           }
         }
       }
@@ -229,10 +238,10 @@ export class DandyChain {
     const seen = []
     const on_loop_detected = () => {}
     const go_passed_split = true
-    let outputting_from_split_chain = value
+    let using_this_input = value
     this.follow_chain((chain) => {
-      chain.update_data(outputting_from_split_chain)
-      outputting_from_split_chain = false
+      chain.update_data(using_this_input)
+      using_this_input = false
     }, seen, on_loop_detected, go_passed_split)
   }
 
@@ -242,12 +251,12 @@ export class DandyChain {
     })
   }
 
-  update_data(outputting_from_split_chain = false) {
+  update_data(using_this_input = false) {
     const { node, _contributions, _mime, dandy, type, cat_widget, input_widgets, in_slots, out_slots } = this
 
     let cat_data = ''
 
-    if (outputting_from_split_chain === false) {
+    if (using_this_input === false) {
       const get_in_data = (in_slot) => {
         if (in_slot !== null && node.isInputConnected(in_slot)) {
           const force_update = false
@@ -278,9 +287,9 @@ export class DandyChain {
       })
     }
 
-    const contributions = outputting_from_split_chain ? outputting_from_split_chain : _contributions
+    const contributions = using_this_input ? using_this_input : _contributions
     if (type === 'STRING') {
-      this.warn_log("my contributions", contributions)
+      this.log("my contributions", contributions)
       cat_data += contributions
     }
     else {
@@ -303,11 +312,11 @@ export class DandyChain {
       }).join('\n')
     }
     
-    if (outputting_from_split_chain === false) {
+    // if (using_this_input === false) {
       if (dandy.on_chain_updated) {
         dandy.on_chain_updated(type)
       }
-    }
+    // }
   }
 
   get data() {

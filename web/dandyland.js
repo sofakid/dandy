@@ -1,5 +1,5 @@
-import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain,
-         DandyYamlChain, DandyImageUrlChain, DandyStringChain } from '/extensions/dandy/chains.js'
+import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain, DandyYamlChain, 
+         DandyImageUrlChain, DandyIntChain, DandyFloatChain, DandyBooleanChain, DandyStringChain } from '/extensions/dandy/chains.js'
 import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay, DandyHashDealer } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { DandySocket } from '/extensions/dandy/socket.js'
@@ -51,9 +51,12 @@ export class DandyLand extends DandyNode {
     this.json_chain = new DandyJsonChain(this, 1, 0)
     this.yaml_chain = new DandyYamlChain(this, 1, 0)
     this.image_url_chain = new DandyImageUrlChain(this, 1, 0)
-    this.string_chain = new DandyStringChain(this, 1, 1)
-    this.string_chain.split_chain = true
+    this.string_chain = new DandyStringChain(this, 1, 0)
 
+    this.output_int_chain = new DandyIntChain(this, 0, 1)
+    this.output_float_chain = new DandyFloatChain(this, 0, 1)
+    this.output_boolean_chain = new DandyBooleanChain(this, 0, 1)
+    this.output_string_chain = new DandyStringChain(this, 0, 1)
 
     this.chain_cache = {}
     const socket = this.socket = new DandySocket(this)
@@ -188,7 +191,7 @@ export class DandyLand extends DandyNode {
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {
-    if (link_info) {
+    if (this.constructed && link_info) {
       const is_input_slot_that_changed = i_or_o === LiteGraph.INPUT
       const is_image_slot = link_info.type === 'IMAGE'
       if (is_image_slot && is_input_slot_that_changed) {
