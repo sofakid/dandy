@@ -189,13 +189,15 @@ class DandyFileLoader extends DandyNode {
   update_chain() {
     const { order } = this.node.properties
     const { urlmap, chains, type } = this
-    const chain = chains[type]
-    let s = ''
-    order.forEach((filename) => {
-      const url = urlmap[filename]
-      s += `${url}\n`
+    const our_chains = chains[type]
+    our_chains.forEach((chain) => {
+      let s = ''
+      order.forEach((filename) => {
+        const url = urlmap[filename]
+        s += `${url}\n`
+      })
+      chain.contributions = s
     })
-    chain.contributions = s
   }
 
   async add_files(chosen_files) {

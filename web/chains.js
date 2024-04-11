@@ -8,7 +8,7 @@ const M = Mimes
 
 export class DandyChain {
   static debug_blobs = false
-  static debug_verbose = false
+  static debug_verbose = true
 
   debug_log(s, ...more) {
     if (DandyChain.debug_verbose) {
@@ -37,6 +37,7 @@ export class DandyChain {
     this.in_slots = []
     this.out_slots = []
     this.input_widgets = [] 
+    this.key = `${n_inputs}:${type}:${n_outputs}`
 
     const { node, app } = this
 
@@ -97,17 +98,14 @@ export class DandyChain {
     input_widgets.length = 0
     this._n_inputs = n_inputs
     
-    if (!type_is_dandy(type)) {
+    // if (n_inputs >= 1) {
       dandy.remove_inputs_and_widgets(name)
-    }
-    
-    if (n_inputs >= 1) {
-      new DandyInvisibleWidget(node, name, [type], app) // cat_widget
-    }
+      new DandyInvisibleWidget(node, name, type) // cat_widget
+    // }
 
     this.each_input((nom, i) => {
       this.debug_log('each input', nom)
-      new DandyInvisibleWidget(node, nom, [type], app)
+      new DandyInvisibleWidget(node, nom, type)
     })
 
     const cat_widget = this.cat_widget = dandy.find_widget(name)
@@ -235,6 +233,7 @@ export class DandyChain {
   }
 
   output_update_ignoring_input(value) {
+    this.debug_log("output_update_ignoring_input")
     const seen = []
     const on_loop_detected = () => {}
     const go_passed_split = true
@@ -274,9 +273,6 @@ export class DandyChain {
         if (in_data) {
           const s = `${in_data}\n`
           cat_data += s
-          if (type === 'STRING') {
-            this.warn_log("setting input widget", s)
-          }
           input_widget.value = s
         }
         else {
@@ -288,8 +284,8 @@ export class DandyChain {
     }
 
     const contributions = using_this_input ? using_this_input : _contributions
+    this.debug_log("my contributions", contributions)
     if (type === 'STRING') {
-      this.log("my contributions", contributions)
       cat_data += contributions
     }
     else {
@@ -314,7 +310,8 @@ export class DandyChain {
     
     // if (using_this_input === false) {
       if (dandy.on_chain_updated) {
-        dandy.on_chain_updated(type)
+        this.debug_log(`${dandy.constructor.name}.on_chain_updated(${this.constructor.name})`)
+        dandy.on_chain_updated(this)
       }
     // }
   }

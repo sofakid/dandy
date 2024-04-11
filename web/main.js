@@ -1,7 +1,7 @@
 import { app } from "/scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
-import { DandyImageCollector, DandyIntCollector, DandyBooleanCollector, 
+import { DandyImageCollector, DandyMaskCollector, DandyIntCollector, DandyBooleanCollector, 
          DandyFloatCollector, DandyStringCollector } from "/extensions/dandy/collectors.js"
 import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
          DandyP5JsDraw, DandyP5JsSetup, DandyString, DandyStringPreview } from "/extensions/dandy/editors.js"
@@ -34,6 +34,7 @@ const dandy_nodes = {
   "Dandy p5.js Loader": DandyP5JsLoader,
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw,
+  "Dandy Mask Collector": DandyMaskCollector,
   "Dandy Image Collector": DandyImageCollector,
   "Dandy Int Collector": DandyIntCollector,
   "Dandy Float Collector": DandyFloatCollector,
@@ -72,7 +73,7 @@ const ext = {
     const o = {}
     Object.entries(DandyTypes).forEach(([_, type]) => {
       o[type] = (node, inputName, inputData, app) => {
-        return new DandyWidget(node, inputName, inputData, app)
+        return new DandyWidget(node, inputName, inputData[0], inputData[1])
       }
     })
     return o

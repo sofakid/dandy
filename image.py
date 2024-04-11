@@ -16,14 +16,17 @@ def batch(images):
   if n == 0:
     return None, 0, 0
 
-  is_image = False
-  if len(images[0].shape) == 4: # shape [1, 512, 512, 3]
-    is_image = True
+  shape_len = len(images[0].shape)
+
+  if shape_len == 4: # shape [1, 512, 512, 3] (images)
     h = 1
     w = 2
   
-  elif len(images[0].shape) == 2: # shape [512, 512]
-    is_image = False
+  elif shape_len == 3: # shape [512, 512, 3] (images)
+    h = 0
+    w = 1
+  
+  elif shape_len == 2: # shape [512, 512] (masks)
     h = 0
     w = 1
 
@@ -38,18 +41,43 @@ def batch(images):
     return images[0], max_width, max_height
   
   resized_images = []
+  
   for image in images:
-    if is_image:
-      if image.shape[1:3] != (max_height, max_width):
-        resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+    if image.shape[h] != max_height or image.shape[w] != max_width:
+      if shape_len == 4:
+          resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+      elif shape_len == 3:
+          resized_image = comfy.utils.common_upscale(torch.unsqueeze(image, dim=0).movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
       else:
-        resized_image = image
+          resized_image = comfy.utils.common_upscale(image, max_width, max_height, 'bilinear', 'center')
     else:
-      if image.shape != (max_height, max_width):
-        resized_image = comfy.utils.common_upscale(image, max_width, max_height, 'bilinear', 'center')
+      if shape_len == 3:
+        resized_image = torch.unsqueeze(image, dim=0)
       else:
         resized_image = image
+    
+    print("DandyBatch :: " + str(resized_image.shape))
     resized_images.append(resized_image)
+
+  # for image in images:
+  #   if shape_len == 4:
+  #     if image.shape[1:3] != (max_height, max_width):
+  #       resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+  #     else:
+  #       resized_image = image
+
+  #   elif shape_len == 3:
+  #     image = torch.unsqueeze(image, dim=0)
+  #     if image.shape[1:3] != (max_height, max_width):
+  #       resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
+  #     else:
+  #       resized_image = image
+  #   else:
+  #     if image.shape != (max_height, max_width):
+  #       resized_image = comfy.utils.common_upscale(image, max_width, max_height, 'bilinear', 'center')
+  #     else:
+  #       resized_image = image
+  #   resized_images.append(resized_image)
 
   batched_image = torch.cat(resized_images, dim=0)
   return batched_image, max_width, max_height

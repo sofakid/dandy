@@ -622,8 +622,7 @@ export class DandyStringPreview extends DandyEditor {
     editor.setOption('readOnly', true)
   }
 
-  on_chain_updated() {
-    const { chain } = this
+  on_chain_updated(chain) {
     const { data } = chain
 
     this.debug_log('on_chain_updated', data)

@@ -15,6 +15,15 @@ const DandyColorTypeMap = {
   IMAGE_URL: DandyColors.DATA,
 }
 
+export const ComfyTypes = {
+  INT: 'INT',
+  STRING: 'STRING',
+  FLOAT: 'FLOAT',
+  BOOLEAN: 'BOOLEAN',
+}
+
+export const ComfyTypesList = Object.entries(ComfyTypes).map(([k,v]) => v)
+
 export const DandyTypes = {
   PROMPT: 'DANDY_PROMPT',
   HASH: 'DANDY_HASH',
@@ -76,6 +85,10 @@ export class DandyNode {
     }
   }
 
+  log(s, ...more) {
+    console.log(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
+  }
+
   warn_log(s, ...more) {
     console.warn(`${this.constructor.name} :: ${s}`, ...more)
   }
@@ -97,8 +110,8 @@ export class DandyNode {
       // the values it puts in the chains are invalid by now
       this.for_each_chain((chain, type) => {
         this.debug_log(`setting chain ${chain.type}`, chain)
-        if (chain.widget) {
-          chain.widget.value = ''
+        if (chain.cat_widget) {
+          chain.cat_widget.value = ''
         } else {
           this.warn_log(`there is a ${type} chain with no widget.`)
         }
@@ -123,9 +136,9 @@ export class DandyNode {
       if (link_info) {
         const { chains } = this
         if (chains) {
-          const x = chains[link_info.type]
-          if (x) {
-            x.forEach((chain) => {
+          const our_chains = chains[link_info.type]
+          if (our_chains) {
+            our_chains.forEach((chain) => {
               if (chain) {
                 chain.update_chain()
               }
@@ -208,8 +221,10 @@ export class DandyNode {
   for_each_chain(f_chain_type) {
     const { chains } = this
     if (chains) {
-      Object.entries(chains).forEach(([type, chain]) => {
-        f_chain_type(chain, type)
+      Object.entries(chains).forEach(([type, chainy]) => {
+        chainy.forEach((chain) => {
+          f_chain_type(chain, type)
+        })
       })
     }
   }
@@ -234,7 +249,11 @@ export class DandyNode {
     const { node } = this
     const slot = node.findInputSlot(name)
     if (slot !== -1) {
-      node.removeInput(slot)
+      try {
+        node.removeInput(slot)
+      } catch (error) {
+        this.error_log(`removing input slot failed`, error)
+      }
     }
   }
 
@@ -242,18 +261,33 @@ export class DandyNode {
     const { node } = this
     const slot = node.findOutputSlot(name)
     if (slot !== -1) {
-      node.removeOutput(slot)
+      try {
+        node.removeOutput(slot)
+      } catch (error) {
+        this.error_log(`removing output slot failed`, error)
+      }
     }
   }
 
   remove_io_and_widgets(name) {
-    this.remove_inputs_and_widgets(name)
+    this.remove_widgets(name)
+    this.remove_inputs(name)
     this.remove_outputs(name)
   }
 
+
   remove_inputs_and_widgets(name) {
+    this.remove_widgets(name)
+    this.remove_inputs(name)
+  }
+
+  remove_widgets(name) {
     const { node } = this
     node.widgets = node.widgets.filter((w) => !w.name.startsWith(name))
+  }
+
+  remove_inputs(name) {
+    const { node } = this
     for (let x = 1, i = 0; x >= 0; ++i) {
       const nom = `${name}${i}`
       x = node.findInputSlot(nom)
@@ -275,7 +309,8 @@ export class DandyNode {
   find_widget(name) {
     const widget = this.node.widgets.find((x) => x.name === name)
     if (!widget) {
-      this.error_log(`find_widget(${name}) :: no widget`)
+      this.warn_log(`find_widget(${name}) :: no widget`)
+      return undefined
     }
     return widget
   }
@@ -296,6 +331,10 @@ export class DandyWidget {
     }
   }
 
+  log(s, ...more) {
+    console.log(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
+  }
+
   warn_log(s, ...more) {
     console.warn(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
   }
@@ -304,22 +343,23 @@ export class DandyWidget {
     console.error(`${this.constructor.name}<${this.name}, ${this.type}> :: ${s}`, ...more)
   }
 
-  constructor(node, inputName, inputData, app) {
+  constructor(node, name, type, options={}) {
     this.debug_verbose = false
-    this.type = inputData[0]
-    this.name = inputName
+    this.type = type
+    this.name = name
     if (++i_dandy_widget === Number.MAX_SAFE_INTEGER) {
       i_dandy_widget = 0
     }
-    this.id = `${inputName}_${i_dandy_widget}`
+    this.id = `${name}_${i_dandy_widget}`
     this.callback = (value) => {
       this.debug_log(`callback`, value)
     }
     this.options = { serialize: true } // i'm not convinced this does anything
+    Object.assign(this.options, options)
     this.value_ = null
     this.size = [0, 0]
     node.addCustomWidget(this)
-    this.debug_log(`constructed`, this)
+    this.log(`constructed`, this)
   }
 
   get value() {
@@ -344,8 +384,8 @@ export class DandyWidget {
 }
 
 export class DandyInvisibleWidget extends DandyWidget {
-  constructor(node, inputName, inputData, app) {
-    super(node, inputName, inputData, app)
+  constructor(node, name, type, options={}) {
+    super(node, name, type, options)
     this.size = [0, -4] // LiteGraph will pad it by 4
   }
 }
@@ -365,16 +405,18 @@ export const dandy_js_plain_module_toggle = (dandy) => {
 
 export const dandy_delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-export const dandy_cash = (strings) => {
+export const dandy_cash = (message) => {
+  let msg = JSON.stringify(message)
+  if (msg === undefined) {
+    console.error('dandy_cash got bad message', message)
+    msg = 'undefined'
+  } 
+
   let x = 0xDEADBEEF & 0xFFFFFFFF
-  const n_strings = strings.length
-  for (let i = 0; i < n_strings; ++i) {
-    const s = strings[i]
-    const n = s.length
-    for (let j = 0; j < n; ++j) {
-      const c = s.charCodeAt(j) & 0xFF
-      x ^= ((x * x + c * c) & 0xFFFFFFFF)
-    }
+  const n = msg.length
+  for (let j = 0; j < n; ++j) {
+    const c = msg.charCodeAt(j) & 0xFF
+    x ^= ((x * x + c * c) & 0xFFFFFFFF)
   }
   return x
 }
@@ -390,14 +432,14 @@ export class DandyHashDealer {
     widget.size = size
     widget.serializeValue = async () => {
       const { message } = this
-      return dandy_cash(JSON.stringify(message))
+      return dandy_cash(message)
     }
 
   }
 
   get hash() {
     const { message } = this
-    return dandy_cash(JSON.stringify(message))
+    return dandy_cash(message)
   }
 
 }

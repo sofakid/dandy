@@ -10,7 +10,7 @@ DANDY_COLLECTORS_CATEGORY = 'Dandy Collectors'
 DANDY_LOADERS_CATEGORY = 'Dandy Loaders'
 
 WIDTH_HEIGHT_INPUT = ('INT', {'default': 512, 'min': 10, 'max': MAX_RESOLUTION, 'step': 128})
-N_INPUTS_INPUT = ('INT', {'default': 2, 'min': 0, 'max': MAX_RESOLUTION, 'step': 1})
+N_INPUTS_INPUT = ('INT', {'default': 2, 'min': 1, 'max': MAX_RESOLUTION, 'step': 1})
 
 HASH_NAME = 'hash'
 HASH_TYPE = 'DANDY_HASH'
@@ -76,5 +76,14 @@ STRING_NAME = 'string'
 STRING_TYPE = 'STRING'
 STRING_TYPE_INPUT = (STRING_TYPE, { 'default': '' })
 
-def ui_and_result(x):
-  return { 'ui': { 'value': (x,)}, 'result': (x,) }
+IMAGE_NAME = 'image'
+IMAGE_TYPE = 'IMAGE'
+IMAGE_TYPE_INPUT = (IMAGE_TYPE,)
+
+MASK_NAME = 'mask'
+MASK_TYPE = 'MASK'
+MASK_TYPE_INPUT = (MASK_TYPE,)
+
+
+def ui_and_result(*args):
+  return { 'ui': { 'value': list(args)}, 'result': list(args) }

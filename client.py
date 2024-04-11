@@ -7,7 +7,7 @@ from .dandynodes import *
 from .image import make_b64image
 
 async def send_data_async(data):
-  try:  
+  # try:  
     async with websockets.connect('ws://localhost:' + str(DANDY_WS_PORT)) as websocket:
       websocket.max_size=MAX_DANDY_SOCKET_MSG
       print('DandyServicesClient :: get_service_id ')
@@ -29,9 +29,9 @@ async def send_data_async(data):
       print('DandyServicesClient :: response: ' + response[:200])
 
       return json.loads(response)
-  except ConnectionClosedOK:
-    print("DandyServicesClient :: websocket closed")
-  return None
+  # except ConnectionClosedOK:
+  #   print("DandyServicesClient :: websocket closed")
+  
     
 class DandyServicesClient:
   def __init__(self):

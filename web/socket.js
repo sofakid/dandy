@@ -36,6 +36,10 @@ export class DandySocket {
       console.log(`${this.constructor.name} :: ${s}`, ...more)
     }
   }
+  log(s, ...more) {
+    console.log(`${this.constructor.name} :: ${s}`, ...more)
+  }
+  
 
   warn_log(s, ...more) {
     console.warn(`${this.constructor.name} :: ${s}`, ...more)

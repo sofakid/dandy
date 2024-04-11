@@ -114,4 +114,4 @@ class DandyLand(DandyWithHashSocket):
 
     print(f'DandyLand :: width: {out_width}, height: {out_height}, string: <{out_string}>')
     return (out_images_batch, out_masks_batch, out_positive, out_negative,
-            (out_int,), (out_float,), (out_boolean,), (out_width,), (out_height,), (out_string,))
+            out_int, out_float, out_boolean, out_width, out_height, out_string)

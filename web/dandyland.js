@@ -351,21 +351,22 @@ export class DandyLand extends DandyNode {
     return canvas
   }
 
-  on_chain_updated(type) {
-    const { chain_cache, chains, constructed } = this
+  on_chain_updated(chain) {
+    const { chain_cache, constructed } = this
+    const { key } = chain
     if (!constructed) {
-      this.warn_log(`on_chain_updated(${type}) :: dandyland not constructed yet`)
+      this.warn_log(`on_chain_updated(${key}) :: dandyland not constructed yet`)
       return
     }
-    const cached_value = chain_cache[type]
-    const new_value = dandy_cash(JSON.stringify(chains[type].data))
+    const cached_value = chain_cache[key]
+    const new_value = dandy_cash(chain.data)
 
     const v = new_value != cached_value ? '!==' : '==='
     const cv = `${cached_value}`.slice(0, 80)
     const nv = `${new_value}`.slice(0, 80)
-    this.debug_log(`on_chain_updated(${type}) :: <${cv}> ${v} <${nv}>`)
+    this.debug_log(`on_chain_updated(${key}) :: <${cv}> ${v} <${nv}>`)
     if (new_value !== cached_value) {
-      chain_cache[type] = new_value
+      chain_cache[key] = new_value
       this.reload_iframe()
     }
   }
