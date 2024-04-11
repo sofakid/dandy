@@ -61,24 +61,30 @@ export class DandyCollector extends DandyNode {
   }
 
   on_chain_updated(type, chain) {
+    this.debug_log('on_chain_updated')
     this.update_hash()
   }
 
   on_executed(output) {
-    const { name, collection_widget, chain, type } = this 
-    let value = output[name]
+    const { collection_widget, chain, type } = this 
+    let value = output.value[0]
 
-    if (type in ComfyTypesList && Array.isArray(value)) {
-      value = value[0]
-    }
-    this.warn_log(`ON_EXECUTED :: value: <${value}>output: `, output)
+    // if (type in ComfyTypesList && Array.isArray(value)) {
+    //   value = value[0]
+    // }
+
+    // if (type in [DandyTypes.IMAGE_URL]) {
+    //   value = value.split('\n')
+    // }
+
+    this.warn_log(`ON_EXECUTED :: value: <${value}>, output: `, output)
 
     const last_value = collection_widget.value
 
     if (last_value !== value) {
       collection_widget.value = value
       chain.output_update_ignoring_input(value)
-      this.update_hash()
+      //this.update_hash()
       //chain.contributions = value
     }
   }

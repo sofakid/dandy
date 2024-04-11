@@ -355,7 +355,7 @@ export class DandyLand extends DandyNode {
     const { chain_cache, constructed } = this
     const { key } = chain
     if (!constructed) {
-      this.warn_log(`on_chain_updated(${key}) :: dandyland not constructed yet`)
+      this.debug_log(`on_chain_updated(${key}) :: dandyland not constructed yet`)
       return
     }
     const cached_value = chain_cache[key]
@@ -422,7 +422,9 @@ export class DandyLand extends DandyNode {
     const css_urls = css_chain.data.map(just_value)
     const json_urls = json_chain.data.map(just_value)
     const yaml_urls = yaml_chain.data.map(just_value)
-    const image_urls = image_url_chain.data
+    const image_urls = image_url_chain.data.map(just_value)
+
+    this.warn_log("reload_iframe_job :: image_url_data:", image_urls)
     
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))

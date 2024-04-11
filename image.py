@@ -59,26 +59,6 @@ def batch(images):
     print("DandyBatch :: " + str(resized_image.shape))
     resized_images.append(resized_image)
 
-  # for image in images:
-  #   if shape_len == 4:
-  #     if image.shape[1:3] != (max_height, max_width):
-  #       resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
-  #     else:
-  #       resized_image = image
-
-  #   elif shape_len == 3:
-  #     image = torch.unsqueeze(image, dim=0)
-  #     if image.shape[1:3] != (max_height, max_width):
-  #       resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
-  #     else:
-  #       resized_image = image
-  #   else:
-  #     if image.shape != (max_height, max_width):
-  #       resized_image = comfy.utils.common_upscale(image, max_width, max_height, 'bilinear', 'center')
-  #     else:
-  #       resized_image = image
-  #   resized_images.append(resized_image)
-
   batched_image = torch.cat(resized_images, dim=0)
   return batched_image, max_width, max_height
 

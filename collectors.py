@@ -19,11 +19,11 @@ class DandyImageCollector(DandyCollector):
   RETURN_TYPES = (IMAGE_TYPE, IMAGE_URL_TYPE,)
   RETURN_NAMES = (IMAGE_NAME, IMAGE_URL_NAME,)
 
-  def run(self, image=None, image_url=None, **kwargs):
+  def run(self, **kwargs):
     urls = list()
     images = []
-    image_input_re = r'image\d+'
-    image_url_input_re = r'image_url\d+'
+    image_input_re = r'image\d*'
+    image_url_input_re = r'image_url\d*'
 
     for key, value in kwargs.items():
       if re.match(image_input_re, key) and value != None:
@@ -35,14 +35,10 @@ class DandyImageCollector(DandyCollector):
         for url in value:
           img = make_image_from_b64(url)
           images.append(img)
+          urls.append(url)
     
-    print("DandyImageCollector :: " + str(images)[:200])
-
+    urls = '\n'.join(urls)
     batched, w, h = batch(images)
-    
-    # print("DandyImageCollector :: " + str(batched.shape())[:200])
-    print("DandyImageCollector :: " + str(batched)[:200])
-
     return { 'ui': { 'value': [urls]}, 'result': [batched, urls] } 
   
 
@@ -72,7 +68,7 @@ class DandyMaskCollector(DandyCollector):
           img = make_mask_from_b64(url)
           masks.append(img)
     
-    batched = batch(masks)
+    batched, w, h = batch(masks)
     
     return { 'ui': { 'value': [urls]}, 'result': [batched, urls] } 
 

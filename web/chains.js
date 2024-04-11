@@ -1,5 +1,5 @@
 import { DandyNames, DandyTypes, type_is_dandy, Mimes, 
-  DandyInvisibleWidget, DandyWidget } from "/extensions/dandy/dandymisc.js"
+  DandyInvisibleWidget, DandyWidget, ComfyTypes } from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const N = DandyNames
@@ -7,7 +7,7 @@ const T = DandyTypes
 const M = Mimes
 
 export class DandyChain {
-  static debug_blobs = false
+  static debug_blobs = true
   static debug_verbose = true
 
   debug_log(s, ...more) {
@@ -132,6 +132,10 @@ export class DandyChain {
     })
   }
 
+  get is_start() {
+    return this.in_slots.length === 0
+  }
+
   each_input(f) {
     const { name, n_inputs } = this
     for (let i = 0; i < n_inputs; ++i) {
@@ -202,24 +206,25 @@ export class DandyChain {
           // we might be connected to a non-dandy input, like 'STRING'
           if (target_dandy) {
             const target_chains = target_dandy.chains[type]
-            target_chains.forEach((target_chain) => {
-              // don't follow a new chain
-              if (!target_chain.is_start) {
-                target_chain.follow_chain(f_each_node, seen_prime, on_loop_detected)
-              }
-            })
+            this.debug_log(`target_chains: `, target_chains)
+            if (target_chains) {
+              target_chains.forEach((target_chain) => {
+                // don't follow a new chain
+                this.debug_log(`target_chains.forEach: `, target_chain)
+  
+                if (!target_chain.is_start) {
+                  this.debug_log(`target_chain following: `, target_chain)
+  
+                  target_chain.follow_chain(f_each_node, seen_prime, on_loop_detected)
+                } else {
+                  this.debug_log(`target_chain not following: `, target_chain, target_chain.is_start)
+                }
+              })
+            }
           }
         }
       }
     })
-  }
-
-  get is_start() {
-    const { node, in_slot } = this
-    if (in_slot === null) {
-      return true  
-    }
-    return !node.isInputConnected(in_slot)
   }
 
   set contributions(v) {
@@ -236,12 +241,12 @@ export class DandyChain {
     this.debug_log("output_update_ignoring_input")
     const seen = []
     const on_loop_detected = () => {}
-    const go_passed_split = true
     let using_this_input = value
+
     this.follow_chain((chain) => {
       chain.update_data(using_this_input)
       using_this_input = false
-    }, seen, on_loop_detected, go_passed_split)
+    }, seen, on_loop_detected)
   }
 
   update_chain() {
@@ -284,21 +289,31 @@ export class DandyChain {
     }
 
     const contributions = using_this_input ? using_this_input : _contributions
-    this.debug_log("my contributions", contributions)
-    if (type === 'STRING') {
+    const make_o = (value) => {
+      if (value.length === 0) {
+        return ''
+      }
+      return JSON.stringify({ value: value, mime: _mime }) + '\n'
+    }
+    this.warn_log("my contributions", contributions)
+    if (type === ComfyTypes.STRING) {
       cat_data += contributions
     }
+    if (type === DandyTypes.IMAGE_URL) {
+      cat_data += contributions.split('\n').map(make_o)
+    }
     else {
-      cat_data += JSON.stringify({ value: contributions, mime: _mime })
+      cat_data += make_o(contributions)
     }
     
+    cat_widget.value = cat_data
+
     this.each_output((output_name, i) => {
       const out_slot = out_slots[i]
+      this.warn_log("Setting output", out_slot, cat_data)
       node.setOutputData(out_slot, cat_data)
       node.triggerSlot(out_slot)
     })
-    
-    cat_widget.value = cat_data
     
     if (DandyChain.debug_blobs) {
       this.debug_blobs_widget.widget.element.value = cat_data.split('\n').map((x) => {
@@ -319,8 +334,11 @@ export class DandyChain {
   get data() {
     const no_fakes = (x) => x !== 'undefined' && x.length > 0
     this.debug_log(`get data :: ${this.cat_widget.value}`)
-    const a = this.cat_widget.value.split('\n').filter(no_fakes)
-    const z = a.map((x) => JSON.parse(x)).filter((x) => no_fakes(x.value))
+    const a = this.cat_widget.value.split('\n').filter(no_fakes)3
+    const z = a.map((x) => {
+      this.warn_log("data map :: ", x.slice(0, 200))
+      return JSON.parse(x)
+    }).filter((x) => no_fakes(x.value))
     this.debug_log(`got data :: `, z)
     return z
   }
