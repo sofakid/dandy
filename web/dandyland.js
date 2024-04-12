@@ -95,7 +95,7 @@ export class DandyLand extends DandyNode {
       image.forEach((x, i) => {
         input_images_urls.push({
           value: x,
-          id: `comfyui_image_${i}`
+          id: `image_${i}`
         })
       })
 
@@ -103,7 +103,7 @@ export class DandyLand extends DandyNode {
       mask.forEach((x, i) => {
         input_masks_urls.push({
           value: x,
-          id: `comfyui_mask_${i}`
+          id: `mask_${i}`
         })
       })
 
@@ -228,7 +228,7 @@ export class DandyLand extends DandyNode {
     this.canvas_hash = dandy_cash(b64s)
 
     const { dandy_output } = this
-
+    this.debug_log("capture_and_deliver", dandy_output)
     const o_dandy_output = JSON.parse(dandy_output)
     const {
       int, 
@@ -469,44 +469,81 @@ export class DandyLand extends DandyNode {
     const n_input_images = input_images_urls.length
     const n_input_masks = input_masks_urls.length
 
-    const load_one_image = (image_or_mask, url, id) => `
-    (() => {
-      const img = document.createElement('img')
-      ${id ? 'img.id ="' + id + '"' : ''}
-      img.onload = image_loaded
-      img.style.display = "none"
-      img.src = "${url}"
-      dandy.${image_or_mask}.push(img)
-      document.body.appendChild(img)
-    })();
-    `
+    const o_image_urls = image_urls.map((x, i) => ({
+      value: x, 
+      id: `image_url_${i}`
+    }))
+
+    this.debug_log("o_image_urls", o_image_urls)
+    const o_mask_urls = image_urls.map((x, i) => ({
+      value: x, 
+      id: `mask_url_${i}`
+    }))
+
+    const load_one_image = (image_or_mask, url, id) => {
+      const s = `
+      (() => {
+        const img = document.createElement('img')
+        ${id ? 'img.id ="' + id + '"' : ''}
+        img.style.display = "none"
+        img.src = "${url}"
+        dandy.${image_or_mask}.push(img)
+        document.body.appendChild(img)
+      })();
+      `
+      this.debug_log('load_one_image', s, image_or_mask, url, id)
+      return s
+    } 
+      
     const load_images_masks_map = (image_or_mask, o) => load_one_image(image_or_mask, o.value, o.id)
     const load_images_map = (o) => load_images_masks_map('image', o)
     const load_masks_map = (o) => load_images_masks_map('mask', o)
 
     const load_input_images = input_images_urls.map(load_images_map).join('\n')
     const load_input_masks = input_masks_urls.map(load_masks_map).join('\n')
-    const load_all_images = image_urls.map(load_images_map).join('\n')
-    const load_all_masks = image_urls.map(load_masks_map).join('\n')
+    const load_all_images = o_image_urls.map(load_images_map).join('\n')
+    const load_all_masks = o_mask_urls.map(load_masks_map).join('\n')
 
+    this.debug_log(`load_all_images`, load_all_images)
     const load_images_js = `
     (()=>{
       const n_images = ${image_urls.length + image_urls.length + n_input_images + n_input_masks}
       let i_image = 0
       const image_loaded = () => {
+        console.warn('dandy image loaded', i_image)
         if (++i_image === n_images) {
           dandy.onload()
         }
       }
+
       ${load_input_images}
       ${load_input_masks}
       ${load_all_images}
       ${load_all_masks}
+
+      const f_count_images = (img) => {
+        if (img.complete) {
+          image_loaded()
+        } else {
+          img.onload = image_loaded
+          img.onerror = () => {
+            console.error("Failed to load image.", img)
+            image_loaded()
+          }
+        }
+      }
+
+      dandy.image.forEach(f_count_images)
+      dandy.mask.forEach(f_count_images)
+
       if (n_images === 0) {
         dandy.onload()
       }
     })();
     `
+
+    this.debug_log(`load_images_js:
+${load_images_js.slice(0, 300)}`)
     const load_images_blob = new Blob([load_images_js], { type: Mimes.JS })
     const load_images_url = URL.createObjectURL(load_images_blob)
     this.load_images_url = load_images_url

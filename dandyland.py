@@ -45,6 +45,10 @@ class DandyLand(DandyWithHashSocket):
           int=None, float=None, boolean=False, string=None, 
           **kwargs):
 
+    if service_id == None:
+      print('DandyLand :: service_id is None')
+      abort_abort_abort()
+
     b64images = []    
     if image != None:
       for x in image:

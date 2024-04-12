@@ -87,3 +87,8 @@ MASK_TYPE_INPUT = (MASK_TYPE,)
 
 def ui_and_result(*args):
   return { 'ui': { 'value': list(args)}, 'result': list(args) }
+
+def abort_abort_abort():
+  print('abort abort abort')
+  import comfy.model_management
+  raise comfy.model_management.InterruptProcessingException

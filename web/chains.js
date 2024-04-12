@@ -293,14 +293,14 @@ export class DandyChain {
       if (value.length === 0) {
         return ''
       }
-      return JSON.stringify({ value: value, mime: _mime }) + '\n'
+      return JSON.stringify({ value: value, mime: _mime })
     }
     this.warn_log("my contributions", contributions)
     if (type === ComfyTypes.STRING) {
       cat_data += contributions
     }
     if (type === DandyTypes.IMAGE_URL) {
-      cat_data += contributions.split('\n').map(make_o)
+      cat_data += contributions.split('\n').map(make_o).join('\n')
     }
     else {
       cat_data += make_o(contributions)
@@ -334,7 +334,7 @@ export class DandyChain {
   get data() {
     const no_fakes = (x) => x !== 'undefined' && x.length > 0
     this.debug_log(`get data :: ${this.cat_widget.value}`)
-    const a = this.cat_widget.value.split('\n').filter(no_fakes)3
+    const a = this.cat_widget.value.split('\n').filter(no_fakes)
     const z = a.map((x) => {
       this.warn_log("data map :: ", x.slice(0, 200))
       return JSON.parse(x)
@@ -393,13 +393,8 @@ export class DandyPrimativeChain extends DandyChain {
   }
 
   get data() {
-    // const no_fakes = (x) => x !== 'undefined' && x.length > 0
     this.debug_log(`get data :: ${this.cat_widget.value}`)
     return this.cat_widget.value
-    // const a = this.cat_widget.value.split('\n').filter(no_fakes)
-    // const z = a.map((x) => JSON.parse(x)).filter((x) => no_fakes(x.value))
-    // this.debug_log(`got data :: `, z)
-    // return z
   }
 }
 
