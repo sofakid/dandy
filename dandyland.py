@@ -57,9 +57,16 @@ class DandyLand(DandyWithHashSocket):
 
     b64masks = []
     if mask != None:
+      print("Type of mask is " + str(type(mask)))
+      i = 0
       for x in mask:
-        b64 = make_b64image(x)
-        b64masks.append(b64)
+        print("Type of X in mask: " + str(type(x)))
+        i += 1
+        if i > 4:
+          break
+        
+      b64 = make_b64image(mask)
+      b64masks.append(b64)
 
     ser_positive = []
     if positive != None:
@@ -114,7 +121,8 @@ class DandyLand(DandyWithHashSocket):
     o['captures'] = 'deleted'
     o['positive'] = 'deleted'
     o['negative'] = 'deleted'
-    print("DandyLand :: run :: o: " + str(o))
+    for key, value in o.items():
+      print("DandyLand :: run :: " + str(key) + ": " + str(value)[:200])
 
     print(f'DandyLand :: width: {out_width}, height: {out_height}, string: <{out_string}>')
     return (out_images_batch, out_masks_batch, out_positive, out_negative,

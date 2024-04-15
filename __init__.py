@@ -1,5 +1,6 @@
 import multiprocessing as mp
 from .editors import *
+from .previews import *
 from .loaders import *
 from .dandyland import *
 from .p5 import *
@@ -17,6 +18,9 @@ NODE_CLASS_MAPPINGS = {
   "DandyCss": DandyCss,
   "DandyHtml": DandyHtml,
   "DandyString": DandyString,
+  "DandyIntPreview": DandyIntPreview,
+  "DandyFloatPreview": DandyFloatPreview,
+  "DandyBooleanPreview": DandyBooleanPreview,
   "DandyStringPreview": DandyStringPreview,
   "DandyP5JsSetup": DandyP5JsSetup,
   "DandyP5JsDraw": DandyP5JsDraw,
@@ -33,7 +37,8 @@ NODE_CLASS_MAPPINGS = {
   "DandyIntCollector": DandyIntCollector,
   "DandyFloatCollector": DandyFloatCollector,
   "DandyBooleanCollector": DandyBooleanCollector,
-  "DandyStringCollector": DandyStringCollector,
+  "DandyStringArrayCollector": DandyStringArrayCollector,
+  "DandyStringCatCollector": DandyStringCatCollector,
   "DandyEditorSettings": DandyEditorSettings,
   "DandyPrompt": DandyPrompt,
 }
@@ -47,6 +52,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyYaml": "Dandy Yaml",
   "DandyString": "Dandy String",
   "DandyStringPreview": "Dandy String Preview",
+  "DandyIntPreview": "Dandy Int Preview",
+  "DandyFloatPreview": "Dandy Float Preview",
+  "DandyBooleanPreview": "Dandy Boolean Preview",
   "DandyJsLoader": "Dandy Js Loader",
   "DandyJsonLoader": "Dandy Json Loader",
   "DandyYamlLoader": "Dandy Yaml Loader",
@@ -62,7 +70,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyIntCollector": "Dandy Int Collector",
   "DandyFloatCollector": "Dandy Float Collector",
   "DandyBooleanCollector": "Dandy Boolean Collector",
-  "DandyStringCollector": "Dandy String Collector",
+  "DandyStringArrayCollector": "Dandy String Array Collector",
+  "DandyStringCatCollector": "Dandy String Cat Collector",
   "DandyPrompt": "Dandy Prompt",
   "DandyEditorSettings": "Dandy Editor Settings",
 }

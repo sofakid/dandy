@@ -79,6 +79,28 @@ export class DandyLand extends DandyNode {
     this.input_images_urls = []
     this.input_masks_urls = []
 
+    this.canvas_hash = dandy_cash([`${Date.now()}`])
+    const hash_dealer = this.hash_dealer = new DandyHashDealer(this)
+
+    const hash_f = async () => {
+      const b64s = await this.get_canvases_b64s()
+      return dandy_cash(b64s)
+    }
+
+    hash_dealer.widget.serializeValue = hash_f
+    
+    const check_for_changes = async () => {
+      const hash = await hash_f()
+      if (hash !== this.canvas_hash) {
+        this.canvas_hash = hash
+        api.dispatchEvent(new CustomEvent("graphChanged"))
+      }
+    }
+    
+    const changes_interval_ms = 15000
+    this.changes_interval = setInterval(check_for_changes, changes_interval_ms)
+
+
     socket.on_request_captures = (o) => {
       this.debug_log("socket.on_request_captures()", o)
       const { py_client, int, float, boolean, positive, negative, string, image, mask } = o
@@ -109,27 +131,6 @@ export class DandyLand extends DandyNode {
 
       this.render(py_client)
     }
-
-    this.canvas_hash = dandy_cash([`${Date.now()}`])
-    const hash_dealer = this.hash_dealer = new DandyHashDealer(this)
-
-    const hash_f = async () => {
-      const b64s = await this.get_canvases_b64s()
-      return dandy_cash(b64s)
-    }
-
-    hash_dealer.widget.serializeValue = hash_f
-    
-    const check_for_changes = async () => {
-      const hash = await hash_f()
-      if (hash !== this.canvas_hash) {
-        this.canvas_hash = hash
-        api.dispatchEvent(new CustomEvent("graphChanged"))
-      }
-    }
-    
-    const half_sec = 500
-    this.changes_interval = setInterval(check_for_changes, half_sec)
 
     this.dandy_continue_event_listener = null
     this.iframe = null
@@ -228,34 +229,49 @@ export class DandyLand extends DandyNode {
     this.canvas_hash = dandy_cash(b64s)
 
     const { dandy_output } = this
-    this.debug_log("capture_and_deliver", dandy_output)
-    const o_dandy_output = JSON.parse(dandy_output)
-    const {
-      int, 
-      float,
-      string,
-      boolean,
-      positive, 
-      negative, 
-    } = o_dandy_output
 
-    this.error_log("capture and deliver 1", dandy_output, typeof dandy_output)
-    
-    this.string_chain.output_update_ignoring_input(string)
-    this.error_log("capture and deliver 2", dandy_output)
-
-    const default_value = (v, d) => v !== undefined ? v : d
-    const o = {
+    let o = {
       py_client,
       captures: b64s,
-      int: default_value(int, 0),
-      float: default_value(float, 0),
-      boolean: default_value(boolean, false),
-      string: default_value(string, 'defaulty'),
-      positive: default_value(positive, []),
-      negative: default_value(negative, []),
+      int: 0,
+      float: 0,
+      boolean: false,
+      string: 'error',
+      positive: [],
+      negative: [],
     }
-    this.error_log("capture and deliver 3", o, string)
+
+    try {
+      const o_dandy_output = JSON.parse(dandy_output)
+      const {
+        int, 
+        float,
+        string,
+        boolean,
+        positive, 
+        negative, 
+      } = o_dandy_output
+  
+      this.debug_log("capture and deliver 1", dandy_output, typeof dandy_output)
+      
+      this.string_chain.output_update_ignoring_input(string)
+      this.debug_log("capture and deliver 2", dandy_output)
+  
+      const default_value = (v, d) => v !== undefined ? v : d
+      o = {
+        py_client,
+        captures: b64s,
+        int: default_value(int, 0),
+        float: default_value(float, 0),
+        boolean: default_value(boolean, false),
+        string: default_value(string, 'defaulty'),
+        positive: default_value(positive, []),
+        negative: default_value(negative, []),
+      }
+      this.debug_log("capture and deliver 3", o, string)
+    } catch (error) {
+      this.error_log(`Can't parse dandy.ouput`, dandy_output, error)
+    }
 
     this.debug_log("sending o: ", o)
     socket.deliver_captures(o)
@@ -269,9 +285,8 @@ export class DandyLand extends DandyNode {
     if (iframe) {
       const dandydoc = iframe.contentDocument || iframe.contentWindow.document
       
-      if (dandydoc.readyState !== 'complete') {
-        this.error_log("get_canvases() :: dandyland content not fully loaded")
-        return canvases_out
+      while (dandydoc.readyState !== 'complete') {
+        await dandy_delay(100)
       }
       
       const canvas_list = dandydoc.body.querySelectorAll('canvas')
@@ -474,14 +489,12 @@ export class DandyLand extends DandyNode {
       id: `image_url_${i}`
     }))
 
-    this.debug_log("o_image_urls", o_image_urls)
     const o_mask_urls = image_urls.map((x, i) => ({
       value: x, 
       id: `mask_url_${i}`
     }))
 
-    const load_one_image = (image_or_mask, url, id) => {
-      const s = `
+    const load_one_image = (image_or_mask, url, id) => `
       (() => {
         const img = document.createElement('img')
         ${id ? 'img.id ="' + id + '"' : ''}
@@ -491,9 +504,6 @@ export class DandyLand extends DandyNode {
         document.body.appendChild(img)
       })();
       `
-      this.debug_log('load_one_image', s, image_or_mask, url, id)
-      return s
-    } 
       
     const load_images_masks_map = (image_or_mask, o) => load_one_image(image_or_mask, o.value, o.id)
     const load_images_map = (o) => load_images_masks_map('image', o)
@@ -504,37 +514,37 @@ export class DandyLand extends DandyNode {
     const load_all_images = o_image_urls.map(load_images_map).join('\n')
     const load_all_masks = o_mask_urls.map(load_masks_map).join('\n')
 
-    this.debug_log(`load_all_images`, load_all_images)
+    // this.debug_log(`load_all_images`, load_all_images)
     const load_images_js = `
     (()=>{
-      const n_images = ${image_urls.length + image_urls.length + n_input_images + n_input_masks}
-      let i_image = 0
-      const image_loaded = () => {
-        console.warn('dandy image loaded', i_image)
-        if (++i_image === n_images) {
-          dandy.onload()
-        }
-      }
-
       ${load_input_images}
       ${load_input_masks}
       ${load_all_images}
       ${load_all_masks}
 
-      const f_count_images = (img) => {
+      const n_images = ${image_urls.length + image_urls.length + n_input_images + n_input_masks}
+      let i_image = 0
+      const count_image = () => {
+        // console.warn('dandy image counted', i_image)
+        if (++i_image === n_images) {
+          dandy.onload()
+        }
+      }
+
+      const image_loaded = (img) => {
         if (img.complete) {
-          image_loaded()
+          count_image()
         } else {
-          img.onload = image_loaded
+          img.onload = count_image
           img.onerror = () => {
             console.error("Failed to load image.", img)
-            image_loaded()
+            count_image()
           }
         }
       }
 
-      dandy.image.forEach(f_count_images)
-      dandy.mask.forEach(f_count_images)
+      dandy.image.forEach(image_loaded)
+      dandy.mask.forEach(image_loaded)
 
       if (n_images === 0) {
         dandy.onload()

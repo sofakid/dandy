@@ -10,7 +10,7 @@ export class DandyCollector extends DandyNode {
     this.name = name
     this.type = type
     this.hash_dealer = new DandyHashDealer(this)
-    this.collection_widget = null
+    this.collection = []
     
     const n_inputs_widget = this.find_widget('n_inputs')
     n_inputs_widget.callback = (x) => {
@@ -19,12 +19,6 @@ export class DandyCollector extends DandyNode {
         node.size = node.computeSize()
       }
     }
-  }
-
-  init_after_chain() {
-    const { name } = this
-    this.collection_widget = this.find_widget(name)
-    this.collection_widget.value = ''
   }
 
   get chain() {
@@ -42,21 +36,22 @@ export class DandyCollector extends DandyNode {
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {
-    const { name, collection_widget, chain, type, node } = this 
+    const { chain, type, node } = this 
     this.debug_log('on_connections_change(i_or_o, index, connected, link_info, input)', 
       i_or_o, index, connected, link_info, input)
     const I = 1
     const O = 2
 
-    if (collection_widget === null) {
+    if (chain === null) {
       // we're not constructed yet
       return
     }
 
     if (i_or_o === I) {
-      collection_widget.value = ''
-      chain.contributions = ''
+      this.last_value = []
+      chain.contributions = []
     }
+    this.hash_dealer.salt()
     this.update_hash()
   }
 
@@ -66,7 +61,7 @@ export class DandyCollector extends DandyNode {
   }
 
   on_executed(output) {
-    const { collection_widget, chain, type } = this 
+    const { chain } = this 
     let value = output.value[0]
 
     // if (type in ComfyTypesList && Array.isArray(value)) {
@@ -77,15 +72,11 @@ export class DandyCollector extends DandyNode {
     //   value = value.split('\n')
     // }
 
-    this.warn_log(`ON_EXECUTED :: value: <${value}>, output: `, output)
-
-    const last_value = collection_widget.value
-
-    if (last_value !== value) {
-      collection_widget.value = value
+    this.debug_log(`ON_EXECUTED :: value: <${value}>, output: `, output)
+    
+    if (this.last_value !== value) {
+      this.last_value = value
       chain.output_update_ignoring_input(value)
-      //this.update_hash()
-      //chain.contributions = value
     }
   }
 }
@@ -104,7 +95,7 @@ export class DandyImageyCollector extends DandyCollector {
       precision: 0,
     }
 
-    const f_image_inputs = (n) => {
+    const f_imagey_inputs = (n) => {
       if (n >= 0) {
         this.remove_inputs(name)
         for (let i = 0; i < n; ++i) {
@@ -122,10 +113,10 @@ export class DandyImageyCollector extends DandyCollector {
       }
     }
 
-    node.addWidget('number', 'n_image_inputs', 2, f_image_inputs, inty_options)
+    node.addWidget('number', `n_${name}_inputs`, 2, f_imagey_inputs, inty_options)
     node.addWidget('number', 'n_url_inputs', 1, f_url_inputs, inty_options)
 
-    f_image_inputs(2)
+    f_imagey_inputs(2)
     f_url_inputs(1)
   }
 
@@ -172,7 +163,15 @@ export class DandyBooleanCollector extends DandyCollector {
   }
 }
 
-export class DandyStringCollector extends DandyCollector {
+export class DandyStringArrayCollector extends DandyCollector {
+  constructor(node, app) {
+    super(node, app, 'string', 'STRING')
+    new DandyStringChain(this, 2, 1)
+  }
+}
+
+
+export class DandyStringCatCollector extends DandyCollector {
   constructor(node, app) {
     super(node, app, 'string', 'STRING')
     new DandyStringChain(this, 2, 1)

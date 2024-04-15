@@ -1,6 +1,6 @@
 import json
 import re
-from .image import make_b64image, batch, make_image_from_b64, make_mask_from_b64
+from .image import make_b64image, batch, make_image_from_b64, make_mask_from_b64, make_b64mask
 from .constants import *
 from .dandynodes import *
 
@@ -27,7 +27,9 @@ class DandyImageCollector(DandyCollector):
 
     for key, value in kwargs.items():
       if re.match(image_input_re, key) and value != None:
+        print("DandyImageCollector :: image :: " + str(value.size(0)) + " :: " + str(type(value)))
         for img in value:
+          print("DandyImageCollector :: img  :: " + str(img.size(0)) + " :: " + str(type(img)))
           urls.append(make_b64image(img))
           images.append(img)
 
@@ -51,7 +53,7 @@ class DandyMaskCollector(DandyCollector):
   RETURN_TYPES = (MASK_TYPE, IMAGE_URL_TYPE,)
   RETURN_NAMES = (MASK_NAME, IMAGE_URL_NAME,)
 
-  def run(self, mask=None, image_url=None, **kwargs):
+  def run(self, **kwargs):
     urls = list()
     masks = []
     mask_input_re = r'mask\d+'
@@ -59,19 +61,41 @@ class DandyMaskCollector(DandyCollector):
 
     for key, value in kwargs.items():
       if re.match(mask_input_re, key) and value != None:
-        for msk in value:
-          urls.append(make_b64image(msk))
-          masks.append(msk)
+        print("DandyMaskCollector :: mask :: " + str(value.size(0)) + " :: " + str(type(value)))
+        urls.append(make_b64mask(value))
+        masks.append(value)
 
       if re.match(image_url_input_re, key) and value != None:
         for url in value:
-          img = make_mask_from_b64(url)
-          masks.append(img)
+          msk = make_mask_from_b64(url)
+          masks.append(msk)
     
     batched, w, h = batch(masks)
+
+    print("DandyMaskCollector :: Batched masks :: " + str(batched.size(0)))
     
     return { 'ui': { 'value': [urls]}, 'result': [batched, urls] } 
 
+
+def flatten(lst):
+  flattened = []
+  for x in lst:
+    if isinstance(x, list):
+      flattened.extend(flatten(x))
+    else:
+      flattened.append(x)
+  return flattened
+
+def string_cat(lst):
+  cat = ""
+  for x in lst:
+      if isinstance(x, list):
+          cat += string_cat(x)
+      elif isinstance(x, str):
+          cat += x
+      else:
+          cat += str(x)
+  return cat
 
 class DandyIntCollector(DandyCollector):
   RETURN_TYPES = (INT_TYPE,)
@@ -81,7 +105,10 @@ class DandyIntCollector(DandyCollector):
     x = []
     for key, value in kwargs.items():
       if key.startswith('int') and value != None:
+        print("Value" + str(value))
         x.append(value)
+
+    x = flatten(x)
 
     return ui_and_result(x)
 
@@ -96,6 +123,7 @@ class DandyFloatCollector(DandyCollector):
       if key.startswith('float') and value != None:
         x.append(value)
 
+    x = flatten(x)
     return ui_and_result(x)
 
 
@@ -103,27 +131,41 @@ class DandyBooleanCollector(DandyCollector):
   RETURN_TYPES = (BOOLEAN_TYPE,)
   RETURN_NAMES = (BOOLEAN_NAME,)
 
-  def run(self,**kwargs):
+  def run(self, **kwargs):
     x = []
 
     for key, value in kwargs.items():
       if key.startswith('boolean') and value != None:
         x.append(value)
 
+    x = flatten(x)
     return ui_and_result(x)
 
 
-class DandyStringCollector(DandyCollector):
+class DandyStringArrayCollector(DandyCollector):
   RETURN_TYPES = (STRING_TYPE,)
   RETURN_NAMES = (STRING_NAME,)
 
   def run(self, **kwargs):
-    x = ""
+    x = []
     for key, value in kwargs.items():
       if key.startswith('string') and value != None:
-        print("catting: " + str(value))
-        x += value
+        x.append(value)
 
-    print("DandyStringCollector :: string_out: " + x)
+    x = flatten(x)
     return ui_and_result(x)
+
+class DandyStringCatCollector(DandyCollector):
+  RETURN_TYPES = (STRING_TYPE,)
+  RETURN_NAMES = (STRING_NAME,)
+
+  def run(self, **kwargs):
+    x = []
+    for key, value in kwargs.items():
+      if key.startswith('string') and value != None:
+        x.append(value)
+
+    x = string_cat(x)    
+    return ui_and_result(x)
+
 

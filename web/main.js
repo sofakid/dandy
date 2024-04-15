@@ -2,9 +2,11 @@ import { app } from "/scripts/app.js"
 import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { DandyImageCollector, DandyMaskCollector, DandyIntCollector, DandyBooleanCollector, 
-         DandyFloatCollector, DandyStringCollector } from "/extensions/dandy/collectors.js"
+         DandyFloatCollector, DandyStringArrayCollector, DandyStringCatCollector } from "/extensions/dandy/collectors.js"
 import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
-         DandyP5JsDraw, DandyP5JsSetup, DandyString, DandyStringPreview } from "/extensions/dandy/editors.js"
+         DandyP5JsDraw, DandyP5JsSetup, DandyString } from "/extensions/dandy/editors.js"
+import { DandyStringPreview, DandyIntPreview,
+        DandyFloatPreview, DandyBooleanPreview } from "/extensions/dandy/previews.js"
 import { DandyPrompt } from "/extensions/dandy/prompt.js"
 import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
@@ -23,6 +25,9 @@ const dandy_nodes = {
   "Dandy Html": DandyHtml,
   "Dandy Css": DandyCss,
   "Dandy String": DandyString,
+  "Dandy Int Preview": DandyIntPreview,
+  "Dandy Float Preview": DandyFloatPreview,
+  "Dandy Boolean Preview": DandyBooleanPreview,
   "Dandy String Preview": DandyStringPreview,
   "Dandy Js Loader": DandyJsLoader,
   "Dandy Wasm Loader": DandyWasmLoader,
@@ -39,7 +44,8 @@ const dandy_nodes = {
   "Dandy Int Collector": DandyIntCollector,
   "Dandy Float Collector": DandyFloatCollector,
   "Dandy Boolean Collector": DandyBooleanCollector,
-  "Dandy String Collector": DandyStringCollector,
+  "Dandy String Array Collector": DandyStringArrayCollector,
+  "Dandy String Cat Collector": DandyStringCatCollector,
   "Dandy Editor Settings": DandyEditorSettings,
   "Dandy Prompt": DandyPrompt,
 }

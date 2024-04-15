@@ -41,22 +41,26 @@ def batch(images):
     return images[0], max_width, max_height
   
   resized_images = []
-  
   for image in images:
+    # print("DandyBatch :: original: " + str(image.shape))
     if image.shape[h] != max_height or image.shape[w] != max_width:
       if shape_len == 4:
           resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
       elif shape_len == 3:
           resized_image = comfy.utils.common_upscale(torch.unsqueeze(image, dim=0).movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
       else:
+          image = image.unsqueeze(0)
+          image = image.unsqueeze(0)
           resized_image = comfy.utils.common_upscale(image, max_width, max_height, 'bilinear', 'center')
+          resized_image = resized_image.squeeze(0)
+          resized_image = resized_image.squeeze(0)
     else:
       if shape_len == 3:
         resized_image = torch.unsqueeze(image, dim=0)
       else:
         resized_image = image
     
-    print("DandyBatch :: " + str(resized_image.shape))
+    # print("DandyBatch :: resized: " + str(resized_image.shape))
     resized_images.append(resized_image)
 
   batched_image = torch.cat(resized_images, dim=0)
@@ -70,31 +74,35 @@ def make_b64image(image):
   img_base64 = base64.b64encode(buffered.getvalue())
   return f'data:image/png;base64,{img_base64.decode()}'
 
+def make_b64mask(mask):
+  mask = mask.reshape((-1, 1, mask.shape[-2], mask.shape[-1])).movedim(1, -1).expand(-1, -1, -1, 3)
+  make_b64image(mask)
+
 def make_image_from_b64(b64_data_url):
-  _, base64_data = b64_data_url.split(',', 1)
-  binary_data = base64.b64decode(base64_data)
-  i = Image.open(BytesIO(binary_data))
-  i = ImageOps.exif_transpose(i)
-  i = i.convert('RGB')
-  i = np.array(i).astype(np.float32) / 255.0
-  i = torch.from_numpy(i)[None,]
+  _, i = b64_data_url.split(',', 1)
+  i = base64.b64decode(i)
+  i = BytesIO(i)
+  i = image_to_torch(i)
   return i
 
 def make_mask_from_b64(b64_data_url):
-  _, base64_data = b64_data_url.split(',', 1)
-  binary_data = base64.b64decode(base64_data)
-  m = Image.open(BytesIO(binary_data))
-  m = ImageOps.exif_transpose(m)
-    
-  if 'A' in m.getbands():
-    m = np.array(m.getchannel('A')).astype(np.float32) / 255.0
-    m = torch.from_numpy(m)
-  else:
-    m = torch.zeros((64,64), dtype=torch.float32, device='cpu')
+  _, m = b64_data_url.split(',', 1)
+  m = base64.b64decode(m)
+  m = BytesIO(m)
+  m = mask_to_torch(m)
   return m
 
 def make_image_from_file(filename):
   i = folder_paths.get_annotated_filepath(filename)
+  i = image_to_torch(i)
+  return i
+
+def make_mask_from_file(filename):
+  m = folder_paths.get_annotated_filepath(filename)
+  m = mask_to_torch(m)
+  return m 
+
+def image_to_torch(i):
   i = Image.open(i)
   i = ImageOps.exif_transpose(i)
   i = i.convert('RGB')
@@ -102,8 +110,7 @@ def make_image_from_file(filename):
   i = torch.from_numpy(i)[None,]
   return i
 
-def make_mask_from_file(filename):
-  m = folder_paths.get_annotated_filepath(filename)
+def mask_to_torch(m):
   m = Image.open(m)
   m = ImageOps.exif_transpose(m)
 
@@ -112,5 +119,5 @@ def make_mask_from_file(filename):
     m = torch.from_numpy(m)
   else:
     m = torch.zeros((64,64), dtype=torch.float32, device='cpu')
-
-  return m 
+  
+  return m

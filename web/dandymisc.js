@@ -63,6 +63,9 @@ export const Mimes = {
   PNG: 'image/png',
   CLIP: 'text/clip',
   STRING: 'text/text',
+  INT: 'text/text',
+  FLOAT: 'text/text',
+  BOOLEAN: 'text/text',
   VALUE: 'value/javascript',
 }
 
@@ -94,7 +97,7 @@ export class DandyNode {
   }
 
   error_log(s, ...more) {
-    console.error(`${this.constructor.name} :: ${s}`, ...more)
+    console.error(new Error(`${this.constructor.name} :: ${s}`), ...more)
   }
 
   constructor(node, app) {
@@ -107,23 +110,11 @@ export class DandyNode {
     // if you extend DandyNode, implement on_configure instead of setting it on the node
     node.onConfigure = (info) => {
       // LiteGraph will reconfigure the widgets even if options.serialize is false
-      // the values it puts in the chains are invalid by now
+      // the values it puts in any chains widget are invalid by now
       this.for_each_chain((chain, type) => {
         this.debug_log(`setting chain ${chain.type}`, chain)
-        if (chain.cat_widget) {
-          chain.cat_widget.value = ''
-        } else {
-          this.warn_log(`there is a ${type} chain with no widget.`)
-        }
         if (chain.debug_blobs_widget) {
           chain.debug_blobs_widget.widget.value = ''
-        }
-  
-        if (chain.is_start) {
-          const one_sec = 1000
-          setTimeout(() => {
-            chain.update_chain()  
-          }, one_sec)
         }
       })
 
@@ -132,7 +123,7 @@ export class DandyNode {
     }
 
     node.onConnectionsChange = (i_or_o, index, connected, link_info, input) => {
-      // console.warn(`${this.id}.node.onConnectionsChange(type, index, connected, link_info)`, this, type, index, connected, link_info)
+      this.warn_log(`onConnectionsChange(i_or_o, index, connected, link_info)`, this, i_or_o, index, connected, link_info)
       if (link_info) {
         const { chains } = this
         if (chains) {
@@ -202,10 +193,11 @@ export class DandyNode {
   }
 
   on_configure(info) {
-    console.warn(`${this.constructor.name} default on_configure running`)
+    this.warn_log(`default on_configure running`)
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {
+    this.warn_log(`default on_connections_change running`)
   }
 
   on_execution_start() {
@@ -405,8 +397,8 @@ export const dandy_js_plain_module_toggle = (dandy) => {
 
 export const dandy_delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
-export const dandy_cash = (message) => {
-  let msg = JSON.stringify(message)
+export const dandy_cash = (message, salt=0) => {
+  let msg = `${JSON.stringify(message)}${salt}`
   if (msg === undefined) {
     console.error('dandy_cash got bad message', message)
     msg = 'undefined'
@@ -428,19 +420,23 @@ export class DandyHashDealer {
     const widget = this.widget = dandy.find_widget(DandyNames.HASH)
     const size = [0, -4]
     this.message = Date.now()
+    this._salt = 0
     widget.computeSize = () => size
     widget.size = size
     widget.serializeValue = async () => {
-      const { message } = this
-      return dandy_cash(message)
+      return this.hash
     }
-
   }
 
   get hash() {
-    const { message } = this
-    return dandy_cash(message)
+    const { message, _salt } = this
+      return dandy_cash(message, _salt)
   }
 
+  salt() {
+    if (this._salt++ >= 1000) {
+      this._salt = 0
+    }
+  }
 }
 

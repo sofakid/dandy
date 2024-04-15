@@ -85,13 +85,3 @@ class DandyString(DandyEditor):
     out_string = o['output']['string']
     return (out_string,)
 
-
-class DandyStringPreview(DandyString):
-  OUTPUT_NODE = True
-
-  def run(self, **kwargs):
-    string = kwargs.get('string', '')
-    service_id = kwargs.get('service_id', '0')
-    print(f'DandyStringPreview :: string: {str(string)}, service_id: ${str(service_id)}')
-    o = self.client.send_input(service_id, kwargs)
-    return (string,)

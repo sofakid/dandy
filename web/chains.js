@@ -1,13 +1,45 @@
 import { DandyNames, DandyTypes, type_is_dandy, Mimes, 
-  DandyInvisibleWidget, DandyWidget, ComfyTypes } from "/extensions/dandy/dandymisc.js"
+  DandyInvisibleWidget, DandyWidget, ComfyTypes, 
+  ComfyTypesList} from "/extensions/dandy/dandymisc.js"
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const N = DandyNames
 const T = DandyTypes
 const M = Mimes
 
+export class DandyChainData {
+  static from_json(s) {
+    const o = JSON.parse(s)
+    if (o === undefined) {
+      return o
+    }
+    console.log(`DandyChainData.from_json() :: ${s}`)
+    return new DandyChainData(o.value. o.mime, o.type)
+  }
+
+  static wrap_if_needed(o, mime, type) {
+    console.log(`raw`, o)
+    const x = o.is_dandy_chain_data ? o : new DandyChainData(o, mime, type)
+    console.log(`wrapped `, x)
+    return x
+  }
+
+  constructor(value, mime, type) {
+    console.log(`new DandyChainData()`, value, typeof(value), mime, type)
+    this.value = value
+    this.mime = mime
+    this.type = type
+    this.is_dandy_chain_data = true
+  }
+
+  get json() {
+    const { value, mime, type, is_dandy_chain_data } = this
+    return JSON.stringify({ value, mime, type, is_dandy_chain_data })
+  }
+}
+
 export class DandyChain {
-  static debug_blobs = true
+  static debug_blobs = false
   static debug_verbose = true
 
   debug_log(s, ...more) {
@@ -37,6 +69,7 @@ export class DandyChain {
     this.in_slots = []
     this.out_slots = []
     this.input_widgets = [] 
+    this.cat_data = []
     this.key = `${n_inputs}:${type}:${n_outputs}`
 
     const { node, app } = this
@@ -86,7 +119,7 @@ export class DandyChain {
   }
   
   set n_inputs(n_inputs) {
-    const { dandy, node, app, name, type, in_slots, input_widgets } = this
+    const { dandy, node, name, type, in_slots, input_widgets } = this
     
     this.each_input((nom, i) => {
       const w = input_widgets[i]
@@ -100,16 +133,12 @@ export class DandyChain {
     
     // if (n_inputs >= 1) {
       dandy.remove_inputs_and_widgets(name)
-      new DandyInvisibleWidget(node, name, type) // cat_widget
     // }
 
     this.each_input((nom, i) => {
       this.debug_log('each input', nom)
       new DandyInvisibleWidget(node, nom, type)
     })
-
-    const cat_widget = this.cat_widget = dandy.find_widget(name)
-    cat_widget.value = ''
 
     this.each_input((nom, i) => {
       const widget = dandy.find_widget(nom)
@@ -237,6 +266,10 @@ export class DandyChain {
     this.update_chain()
   }
 
+  get mime() {
+    return this._mime
+  }
+
   output_update_ignoring_input(value) {
     this.debug_log("output_update_ignoring_input")
     const seen = []
@@ -256,9 +289,9 @@ export class DandyChain {
   }
 
   update_data(using_this_input = false) {
-    const { node, _contributions, _mime, dandy, type, cat_widget, input_widgets, in_slots, out_slots } = this
+    const { node, _contributions, mime, dandy, type, cat_data, input_widgets, in_slots, out_slots } = this
 
-    let cat_data = ''
+    cat_data.length = 0
 
     if (using_this_input === false) {
       const get_in_data = (in_slot) => {
@@ -276,9 +309,18 @@ export class DandyChain {
         const in_data = get_in_data(in_slot)
 
         if (in_data) {
-          const s = `${in_data}\n`
-          cat_data += s
-          input_widget.value = s
+          const f = (x) => {
+            const o = DandyChainData.wrap_if_needed(x, mime, type)
+            cat_data.push(o)
+          }
+          if (Array.isArray(in_data)) {
+            in_data.forEach(f)
+          }
+          else {
+            f(in_data)
+          }
+          this.debug_log(`Setting widget ${input_name}`, in_data, JSON.stringify(in_data))
+          input_widget.value = JSON.stringify(in_data)
         }
         else {
           if (input_widget) {
@@ -288,59 +330,51 @@ export class DandyChain {
       })
     }
 
-    const contributions = using_this_input ? using_this_input : _contributions
-    const make_o = (value) => {
-      if (value.length === 0) {
-        return ''
-      }
-      return JSON.stringify({ value: value, mime: _mime })
-    }
+    console.log("using_this_input", using_this_input)
+    const contributions_raw = using_this_input ? using_this_input : _contributions
+    const contributions = DandyChainData.wrap_if_needed(contributions_raw, mime, type)
+    
     this.warn_log("my contributions", contributions)
-    if (type === ComfyTypes.STRING) {
-      cat_data += contributions
+    if (type in ComfyTypesList) {
+      console.log('just pushing')
+      cat_data.push(contributions)
     }
-    if (type === DandyTypes.IMAGE_URL) {
-      cat_data += contributions.split('\n').map(make_o).join('\n')
+    else if (type === DandyTypes.IMAGE_URL) {
+      contributions.value.split('\n').forEach((url) => {
+      console.log(`making data :: url contributions`, url)
+      cat_data.push(make_data(url))
+      })
     }
     else {
-      cat_data += make_o(contributions)
+      console.log(`else push :: contributions`, contributions)
+      cat_data.push(contributions)
     }
     
-    cat_widget.value = cat_data
-
     this.each_output((output_name, i) => {
       const out_slot = out_slots[i]
-      this.warn_log("Setting output", out_slot, cat_data)
+      this.debug_log("Setting output", out_slot, cat_data)
       node.setOutputData(out_slot, cat_data)
       node.triggerSlot(out_slot)
     })
     
     if (DandyChain.debug_blobs) {
-      this.debug_blobs_widget.widget.element.value = cat_data.split('\n').map((x) => {
-        const p = x.length - 100
-        const q = x.length
-        return x.slice(p, q)
-      }).join('\n')
+      this.debug_blobs_widget.widget.element.value = cat_data.map((x) => x.json).join('\n')
     }
     
-    // if (using_this_input === false) {
-      if (dandy.on_chain_updated) {
-        this.debug_log(`${dandy.constructor.name}.on_chain_updated(${this.constructor.name})`)
-        dandy.on_chain_updated(this)
-      }
-    // }
+    if (dandy.on_chain_updated) {
+      this.debug_log(`${dandy.constructor.name}.on_chain_updated(${this.constructor.name})`)
+      dandy.on_chain_updated(this)
+    }
   }
 
   get data() {
-    const no_fakes = (x) => x !== 'undefined' && x.length > 0
-    this.debug_log(`get data :: ${this.cat_widget.value}`)
-    const a = this.cat_widget.value.split('\n').filter(no_fakes)
-    const z = a.map((x) => {
-      this.warn_log("data map :: ", x.slice(0, 200))
-      return JSON.parse(x)
-    }).filter((x) => no_fakes(x.value))
-    this.debug_log(`got data :: `, z)
-    return z
+    const { cat_data } = this 
+    const no_fakes = (x) => {
+      const { value } = x
+      this.debug_log('DATA FILTER', value, (value !== undefined && value !== '' && value.length > 0))
+      return value !== undefined && value !== '' && value.length > 0
+    }
+    return cat_data.filter(no_fakes)
   }
 }
 
@@ -390,11 +424,6 @@ export class DandyImageUrlChain extends DandyChain {
 export class DandyPrimativeChain extends DandyChain {
   constructor(dandy, name, type, mime, n_inputs, n_outputs) {
     super(dandy, name, type, mime, n_inputs, n_outputs)
-  }
-
-  get data() {
-    this.debug_log(`get data :: ${this.cat_widget.value}`)
-    return this.cat_widget.value
   }
 }
 

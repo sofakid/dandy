@@ -1,3 +1,4 @@
+import traceback
 from .client import DandyServicesClient
 from .constants import *
 
@@ -28,7 +29,7 @@ class DandyNode:
   def DANDY_INPUTS(cls):
     return { 'required': {}, 'hidden': {}, 'optional': {} }
   
-  FUNCTION = 'run'
+  FUNCTION = 'execute'
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
   RETURN_TYPES = ()
@@ -38,8 +39,13 @@ class DandyNode:
   def IS_CHANGED(cls, **kwargs):
     return NEVER_CHANGE
   
-  def run(self, **kwargs):
-    return ()
+  def execute(self, **kwargs):
+    try:
+      return self.run(**kwargs)
+    except Exception as e:
+      print("Exception", e)
+      traceback.print_exc()
+      abort_abort_abort()
 
 
 class DandyWithHash(DandyNode):

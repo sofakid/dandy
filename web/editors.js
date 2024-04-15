@@ -1,7 +1,8 @@
 import { DandySocket } from "/extensions/dandy/socket.js"
-import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyStringChain,
-         DandyJsonChain, DandyYamlChain } from "/extensions/dandy/chains.js"
-import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, dandy_cash, DandyNames, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
+import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlChain, 
+         DandyStringChain,} from "/extensions/dandy/chains.js"
+import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, 
+         DandyNames, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -250,6 +251,11 @@ class DandyEditorTopBar {
     dandy.filename = filename
     dandy.node.properties.filename = filename
   }
+
+  completely_hide_tray() {
+    const { div } = this
+    div.style.display = 'none'
+  }
 }
 
 export class DandyEditor extends DandyNode {
@@ -277,7 +283,8 @@ export class DandyEditor extends DandyNode {
     this.hash_dealer = new DandyHashDealer(this)
     const socket = this.socket = new DandySocket(this)
     socket.on_sending_input = () => {}
-
+    const service_id_widget = this.find_widget(DandyNames.SERVICE_ID)
+    service_id_widget.size = [0, -12]
     this.init_widgets_above_editor()
 
     const dandy_div = this.dandy_div = document.createElement('div')
@@ -328,6 +335,10 @@ export class DandyEditor extends DandyNode {
 
     const editor_session = editor.getSession()
     editor_session.on('change', handleTextChange)
+  }
+
+  completely_hide_tray() {
+    this.button_bar.completely_hide_tray()
   }
 
   init_widgets_above_editor() {
@@ -572,76 +583,5 @@ export class DandyString extends DandyEditor {
       chain.contributions = text
       chain.update_chain()
     }
-  }
-}
-
-
-export class DandyStringPreview extends DandyEditor {
-  constructor(node, app) {
-    super(node, app, Mimes.STRING)
-    this.debug_verbose = true
-    this.chain = new DandyStringChain(this, 1, 1)
-    node.size = [300, 280]
-    
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/text')
-    this.set_text("")
-
-    const { socket, chain } = this
-    socket.on_sending_input = (o) => {
-      const { input, py_client } = o
-      const { string } = input
-
-      const f = (x) => {
-        chain.output_update_ignoring_input(x)
-        this.set_text(x)
-      }
-      if (string !== undefined) {
-        if (typeof string === 'string') {
-          f(string)
-        } else {
-          if (string.length > 0) {
-            const s = string[0]
-            if (typeof s === 'string') {
-              f(s)
-            } else {
-              this.error_log('got invalid string', s)
-            }
-          } else {
-            this.error_log('got invalid string', string)
-          }
-        }
-      }
-      socket.thanks(py_client)
-    }
-  }
-
-  on_settings_applied() {
-    const { editor } = this
-    editor.setOption('readOnly', true)
-  }
-
-  on_chain_updated(chain) {
-    const { data } = chain
-
-    this.debug_log('on_chain_updated', data)
-
-    if (typeof data === 'string') {
-      this.set_text(data)
-    }
-    // let s = ''
-    // data.forEach((o, i) => {
-    //   s += `${i}:${o.value}\n`
-    // })
-
-  }
-
-  apply_text() {
-    const { editor, node, hash_dealer } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-    hash_dealer.message = text
   }
 }
