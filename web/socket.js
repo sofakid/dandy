@@ -57,7 +57,7 @@ export class DandySocket {
     if (dandy !== null) {
       const service_widget = dandy.service_widget = dandy.find_widget(DandyNames.SERVICE_ID)
       service_widget.serializeValue = async () => {
-        this.warn_log(`Serializing service_id...`)
+        this.debug_log(`Serializing service_id...`)
         return await this.get_service_id()
       }
     }

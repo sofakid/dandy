@@ -13,6 +13,7 @@ DANDY_PREVIEWS_CATEGORY = 'Dandy Previews'
 
 WIDTH_HEIGHT_INPUT = ('INT', {'default': 512, 'min': 10, 'max': MAX_RESOLUTION, 'step': 128})
 N_INPUTS_INPUT = ('INT', {'default': 2, 'min': 1, 'max': MAX_RESOLUTION, 'step': 1})
+N_OUTPUTS_INPUT = ('INT', {'default': 2, 'min': 1, 'max': MAX_RESOLUTION, 'step': 1})
 
 HASH_NAME = 'hash'
 HASH_TYPE = 'DANDY_HASH'

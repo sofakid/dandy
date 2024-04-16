@@ -3,6 +3,7 @@ import { load_dandy_css } from "/extensions/dandy/dandycss.js"
 import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymisc.js"
 import { DandyImageCollector, DandyMaskCollector, DandyIntCollector, DandyBooleanCollector, 
          DandyFloatCollector, DandyStringArrayCollector, DandyStringCatCollector } from "/extensions/dandy/collectors.js"
+import { DandyBooleanSplitter, DandyFloatSplitter, DandyIntSplitter, DandyStringArraySplitter } from "/extensions/dandy/splitters.js"
 import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
          DandyP5JsDraw, DandyP5JsSetup, DandyString } from "/extensions/dandy/editors.js"
 import { DandyStringPreview, DandyIntPreview,
@@ -25,10 +26,12 @@ const dandy_nodes = {
   "Dandy Html": DandyHtml,
   "Dandy Css": DandyCss,
   "Dandy String": DandyString,
+
   "Dandy Int Preview": DandyIntPreview,
   "Dandy Float Preview": DandyFloatPreview,
   "Dandy Boolean Preview": DandyBooleanPreview,
   "Dandy String Preview": DandyStringPreview,
+  
   "Dandy Js Loader": DandyJsLoader,
   "Dandy Wasm Loader": DandyWasmLoader,
   "Dandy Json Loader": DandyJsonLoader,
@@ -36,9 +39,11 @@ const dandy_nodes = {
   "Dandy Css Loader": DandyCssLoader,
   "Dandy Html Loader": DandyHtmlLoader,
   "Dandy Url Loader": DandyUrlLoader,
+  
   "Dandy p5.js Loader": DandyP5JsLoader,
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw,
+  
   "Dandy Mask Collector": DandyMaskCollector,
   "Dandy Image Collector": DandyImageCollector,
   "Dandy Int Collector": DandyIntCollector,
@@ -46,6 +51,12 @@ const dandy_nodes = {
   "Dandy Boolean Collector": DandyBooleanCollector,
   "Dandy String Array Collector": DandyStringArrayCollector,
   "Dandy String Cat Collector": DandyStringCatCollector,
+
+  "Dandy Int Splitter": DandyIntSplitter,
+  "Dandy Float Splitter": DandyFloatSplitter,
+  "Dandy Boolean Splitter": DandyBooleanSplitter,
+  "Dandy String Array Splitter": DandyStringArraySplitter,
+  
   "Dandy Editor Settings": DandyEditorSettings,
   "Dandy Prompt": DandyPrompt,
 }

@@ -13,19 +13,15 @@ export class DandyChainData {
     if (o === undefined) {
       return o
     }
-    console.log(`DandyChainData.from_json() :: ${s}`)
     return new DandyChainData(o.value. o.mime, o.type)
   }
 
   static wrap_if_needed(o, mime, type) {
-    console.log(`raw`, o)
     const x = o.is_dandy_chain_data ? o : new DandyChainData(o, mime, type)
-    console.log(`wrapped `, x)
     return x
   }
 
   constructor(value, mime, type) {
-    console.log(`new DandyChainData()`, value, typeof(value), mime, type)
     this.value = value
     this.mime = mime
     this.type = type
@@ -74,7 +70,6 @@ export class DandyChain {
 
     const { node, app } = this
 
-    this.debug_log(`constructing chain`)
     if (dandy.chains === undefined) {
       dandy.chains = {}
     }
@@ -136,12 +131,7 @@ export class DandyChain {
     // }
 
     this.each_input((nom, i) => {
-      this.debug_log('each input', nom)
-      new DandyInvisibleWidget(node, nom, type)
-    })
-
-    this.each_input((nom, i) => {
-      const widget = dandy.find_widget(nom)
+      const widget = new DandyInvisibleWidget(node, nom, type)
       widget.value = ''
       input_widgets.push(widget)
       in_slots.push(dandy.put_input_slot(nom, type))
@@ -166,7 +156,7 @@ export class DandyChain {
   }
 
   each_input(f) {
-    const { name, n_inputs } = this
+    const { n_inputs, name } = this
     for (let i = 0; i < n_inputs; ++i) {
       const nom = n_inputs === 1 ? name : `${name}${i}`
       f(nom, i)
@@ -181,21 +171,58 @@ export class DandyChain {
     }
   }
 
+  reconnect_input_connections(links_table) {
+    const {graph } = this.node
+    this.each_input((input_name, i) => {
+      this.debug_log('reconnect_input_connections', i)
+      const links_row = links_table[i]
+      this.debug_log('reconnect_input_connections links row', i, links_row)
+
+      if (links_row) {
+        links_row.forEach((link) => {
+          const { origin_id, origin_slot, target_id, target_slot } = link
+          this.debug_log('reconnect_input_connections', i, origin_id, origin_slot, target_id, target_slot)
+
+          const origin = graph.getNodeById(origin_id)
+          origin.connect(origin_slot, target_id, target_slot) 
+        })
+      }
+    })
+  }
+
+  reconnect_output_connections(links_table) {
+    const { node } = this
+    this.each_output((output_name, i) => {
+      const links_row = links_table[i]
+      if (links_row) {
+        links_row.forEach((link) => {
+          const { target_id, target_slot } = link
+          node.connect(output_name, target_id, target_slot) 
+        })
+      }
+    })
+  }
+
+
   // f_each_node: (chain) => {}
   follow_chain(f_each_node, seen = [], on_loop_detected = () => {}) {
-    const { node, out_slots, type, split_chain } = this
+    const { node, out_slots, type } = this
     const { graph, outputs } = node
 
-    this.debug_log('f_each_node(this)')
     f_each_node(this)
 
     this.each_output((nom, i) => {
       const out_slot = out_slots[i]
+      if (!(out_slot > -1)) {
+        return
+      }
       const output = outputs[out_slot]
+      if (!output) {
+        return
+      }
       const { links } = output
       if (links === null || links.length === 0) {
         // we've reached the end
-        this.debug_log(`reached end with no links, maybe reload your nodes`, links, output)
         return
       }
   
@@ -210,7 +237,6 @@ export class DandyChain {
         const link = graph.links[link_id]
         if (link === undefined) {
           // node was likely removed and that's why we're firing
-          this.debug_log(`undefined link`)
           return
         }
   
@@ -231,22 +257,14 @@ export class DandyChain {
         const target_node = graph.getNodeById(link.target_id)
         if (target_node) {
           const target_dandy = target_node.dandy
-          this.debug_log(`target.dandy: `, target_dandy)
           // we might be connected to a non-dandy input, like 'STRING'
           if (target_dandy) {
             const target_chains = target_dandy.chains[type]
-            this.debug_log(`target_chains: `, target_chains)
             if (target_chains) {
               target_chains.forEach((target_chain) => {
                 // don't follow a new chain
-                this.debug_log(`target_chains.forEach: `, target_chain)
-  
                 if (!target_chain.is_start) {
-                  this.debug_log(`target_chain following: `, target_chain)
-  
                   target_chain.follow_chain(f_each_node, seen_prime, on_loop_detected)
-                } else {
-                  this.debug_log(`target_chain not following: `, target_chain, target_chain.is_start)
                 }
               })
             }
@@ -289,7 +307,8 @@ export class DandyChain {
   }
 
   update_data(using_this_input = false) {
-    const { node, _contributions, mime, dandy, type, cat_data, input_widgets, in_slots, out_slots } = this
+    const { node, _contributions, mime, dandy, type, cat_data, input_widgets, 
+      in_slots, out_slots, n_outputs } = this
 
     cat_data.length = 0
 
@@ -303,7 +322,6 @@ export class DandyChain {
       }
 
       this.each_input((input_name, i) => {
-        this.debug_log("EACH INPUT", i)
         const input_widget = input_widgets[i]
         const in_slot = in_slots[i]
         const in_data = get_in_data(in_slot)
@@ -319,7 +337,7 @@ export class DandyChain {
           else {
             f(in_data)
           }
-          this.debug_log(`Setting widget ${input_name}`, in_data, JSON.stringify(in_data))
+          //this.debug_log(`Setting widget ${input_name}`, in_data, JSON.stringify(in_data))
           input_widget.value = JSON.stringify(in_data)
         }
         else {
@@ -330,39 +348,50 @@ export class DandyChain {
       })
     }
 
-    console.log("using_this_input", using_this_input)
     const contributions_raw = using_this_input ? using_this_input : _contributions
     const contributions = DandyChainData.wrap_if_needed(contributions_raw, mime, type)
     
-    this.warn_log("my contributions", contributions)
+    //this.debug_log("my contributions", contributions)
     if (type in ComfyTypesList) {
-      console.log('just pushing')
       cat_data.push(contributions)
     }
     else if (type === DandyTypes.IMAGE_URL) {
       contributions.value.split('\n').forEach((url) => {
-      console.log(`making data :: url contributions`, url)
       cat_data.push(make_data(url))
       })
     }
     else {
-      console.log(`else push :: contributions`, contributions)
       cat_data.push(contributions)
     }
     
-    this.each_output((output_name, i) => {
-      const out_slot = out_slots[i]
-      this.debug_log("Setting output", out_slot, cat_data)
-      node.setOutputData(out_slot, cat_data)
-      node.triggerSlot(out_slot)
-    })
-    
+    if (n_outputs > 1) {
+      const n = Math.min(n_outputs, cat_data.length)
+      this.each_output((output_name, i) => {
+        const j = i % n
+        const out_slot = out_slots[i]
+        if (out_slot) {
+          //this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j])
+          node.setOutputData(out_slot, cat_data[j])
+          node.triggerSlot(out_slot)
+        }
+      })
+    } else {
+      this.each_output((output_name, i) => {
+        const out_slot = out_slots[i]
+        if (out_slot) {
+          //this.debug_log("Setting output", out_slot, cat_data)
+          node.setOutputData(out_slot, cat_data)
+          node.triggerSlot(out_slot)
+        }
+      })
+    }
+        
     if (DandyChain.debug_blobs) {
       this.debug_blobs_widget.widget.element.value = cat_data.map((x) => x.json).join('\n')
     }
     
     if (dandy.on_chain_updated) {
-      this.debug_log(`${dandy.constructor.name}.on_chain_updated(${this.constructor.name})`)
+      // this.debug_log(`${dandy.constructor.name}.on_chain_updated(${this.constructor.name})`)
       dandy.on_chain_updated(this)
     }
   }
@@ -371,7 +400,6 @@ export class DandyChain {
     const { cat_data } = this 
     const no_fakes = (x) => {
       const { value } = x
-      this.debug_log('DATA FILTER', value, (value !== undefined && value !== '' && value.length > 0))
       return value !== undefined && value !== '' && value.length > 0
     }
     return cat_data.filter(no_fakes)

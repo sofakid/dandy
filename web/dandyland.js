@@ -439,8 +439,6 @@ export class DandyLand extends DandyNode {
     const yaml_urls = yaml_chain.data.map(just_value)
     const image_urls = image_url_chain.data.map(just_value)
 
-    this.warn_log("reload_iframe_job :: image_url_data:", image_urls)
-    
     const htmls = await load_list_of_urls(html_urls, (x) => x)
     const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
     const yamls = await load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))

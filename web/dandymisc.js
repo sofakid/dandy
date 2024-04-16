@@ -112,7 +112,6 @@ export class DandyNode {
       // LiteGraph will reconfigure the widgets even if options.serialize is false
       // the values it puts in any chains widget are invalid by now
       this.for_each_chain((chain, type) => {
-        this.debug_log(`setting chain ${chain.type}`, chain)
         if (chain.debug_blobs_widget) {
           chain.debug_blobs_widget.widget.value = ''
         }
@@ -123,7 +122,6 @@ export class DandyNode {
     }
 
     node.onConnectionsChange = (i_or_o, index, connected, link_info, input) => {
-      this.warn_log(`onConnectionsChange(i_or_o, index, connected, link_info)`, this, i_or_o, index, connected, link_info)
       if (link_info) {
         const { chains } = this
         if (chains) {
@@ -344,14 +342,14 @@ export class DandyWidget {
     }
     this.id = `${name}_${i_dandy_widget}`
     this.callback = (value) => {
-      this.debug_log(`callback`, value)
+      this.debug_log(`default callback`, value)
     }
     this.options = { serialize: true } // i'm not convinced this does anything
     Object.assign(this.options, options)
     this.value_ = null
     this.size = [0, 0]
     node.addCustomWidget(this)
-    this.log(`constructed`, this)
+    //this.debug_log(`constructed`, this)
   }
 
   get value() {

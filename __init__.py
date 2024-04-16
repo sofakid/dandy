@@ -6,6 +6,7 @@ from .dandyland import *
 from .p5 import *
 from .prompt import *
 from .collectors import *
+from .splitters import *
 from .socket import launch_server
 
 WEB_DIRECTORY = "web"
@@ -39,6 +40,10 @@ NODE_CLASS_MAPPINGS = {
   "DandyBooleanCollector": DandyBooleanCollector,
   "DandyStringArrayCollector": DandyStringArrayCollector,
   "DandyStringCatCollector": DandyStringCatCollector,
+  "DandyIntSplitter": DandyIntSplitter,
+  "DandyFloatSplitter": DandyFloatSplitter,
+  "DandyBooleanSplitter": DandyBooleanSplitter,
+  "DandyStringArraySplitter": DandyStringArraySplitter,
   "DandyEditorSettings": DandyEditorSettings,
   "DandyPrompt": DandyPrompt,
 }
@@ -71,7 +76,10 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyFloatCollector": "Dandy Float Collector",
   "DandyBooleanCollector": "Dandy Boolean Collector",
   "DandyStringArrayCollector": "Dandy String Array Collector",
-  "DandyStringCatCollector": "Dandy String Cat Collector",
+  "DandyIntSplitter": "Dandy Int Splitter",
+  "DandyFloatSplitter": "Dandy Float Splitter",
+  "DandyBooleanSplitter": "Dandy Boolean Splitter",
+  "DandyStringArraySplitter": "Dandy String Array Splitter",
   "DandyPrompt": "Dandy Prompt",
   "DandyEditorSettings": "Dandy Editor Settings",
 }

@@ -12,10 +12,13 @@ export class DandyCollector extends DandyNode {
     this.hash_dealer = new DandyHashDealer(this)
     this.collection = []
     
-    const n_inputs_widget = this.find_widget('n_inputs')
+    const n_inputs_widget = this.n_inputs_widget = this.find_widget('n_inputs')
     n_inputs_widget.callback = (x) => {
       if (x >= 0) {
-        this.chain.n_inputs = x
+        const { chain } = this
+        const input_links = this.get_input_connections()
+        chain.n_inputs = x
+        chain.reconnect_input_connections(input_links)
         node.size = node.computeSize()
       }
     }
@@ -23,8 +26,46 @@ export class DandyCollector extends DandyNode {
 
   get chain() {
     const { chains, type } = this
-    this.warn_log(`get chain() :: chains[${type}]:`, chains[type])
     return chains[type][0]
+  }
+
+  // we can't do this in the chain because the chain thinks it has 2 inputs when it's created
+  get_input_connections() {
+    const { node, type } = this
+    const { graph, inputs } = node
+
+    const links_table = []
+
+    if (inputs.length > 0) {
+      inputs.forEach((input, i) => {
+        const links_row = [] 
+        if (input.type !== type) {
+          links_table.push(links_row)
+          return
+        }
+
+        const { link:link_id } = input
+        if (link_id === null) {
+          links_table.push(links_row)
+          return
+        }
+        
+        const link = graph.links[link_id]
+        if (link === undefined || link === null) {
+          this.debug_log(`collecting input_connections: undefined link`)
+          links_table.push(links_row)
+          return
+        }
+      
+        // link can change, clone it
+        const o = {...link}
+        o.target_slot = i
+        links_row.push(o)
+        links_table.push(links_row)
+      })
+    }
+    this.debug_log("collecting input_connections :: ", links_table)
+    return links_table
   }
 
   update_hash() {
@@ -32,13 +73,15 @@ export class DandyCollector extends DandyNode {
   }
 
   on_configure() {
+    const { n_inputs_widget } = this
+    n_inputs_widget.callback(n_inputs_widget.value)
     this.update_hash()
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {
     const { chain, type, node } = this 
-    this.debug_log('on_connections_change(i_or_o, index, connected, link_info, input)', 
-      i_or_o, index, connected, link_info, input)
+    // this.debug_log('on_connections_change(i_or_o, index, connected, link_info, input)', 
+    //   i_or_o, index, connected, link_info, input)
     const I = 1
     const O = 2
 
@@ -56,7 +99,6 @@ export class DandyCollector extends DandyNode {
   }
 
   on_chain_updated(type, chain) {
-    this.debug_log('on_chain_updated')
     this.update_hash()
   }
 

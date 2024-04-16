@@ -24,7 +24,6 @@ export class DandyPreview extends DandyEditor {
       const { input, py_client } = o
       const value = input[name]
 
-      this.debug_log("on_sending_input", value)
       const f = (x) => {
         chain.output_update_ignoring_input(x)
         this.set_text(x)
@@ -64,14 +63,12 @@ export class DandyPreview extends DandyEditor {
 
   on_chain_updated(chain) {
     const { data } = chain
-    this.debug_log('on_chain_updated :: data:', data)
     if (typeof data === 'string') {
       this.error_log("we don't do things this way anymore")
       this.set_text(data)
     }
     else if (Array.isArray(data)) {
       const x = data.map((x) => `${x.value}`).join(', ')
-      this.debug_log('on_chain_updated :: x: ', x)
       this.set_text(x)
     }
     else {
