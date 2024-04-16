@@ -61,14 +61,14 @@ export class DandyLand extends DandyNode {
     this.chain_cache = {}
     const socket = this.socket = new DandySocket(this)
     
-    this.dandy_output = {
+    this.dandy_output = JSON.stringify({
       int: 0,
       float: 0,
       boolean: false,
       string: '',
       positive: null,
       negative: null,
-    }
+    })
 
     this.input_int = 0
     this.input_float = 0.0
@@ -433,6 +433,8 @@ export class DandyLand extends DandyNode {
     
     const just_value = (x) => x.value
     const js_data = js_chain.data
+
+    this.debug_log("js_data", js_data)
     const html_urls = html_chain.data.map(just_value)
     const css_urls = css_chain.data.map(just_value)
     const json_urls = json_chain.data.map(just_value)
@@ -550,15 +552,14 @@ export class DandyLand extends DandyNode {
     })();
     `
 
-    this.debug_log(`load_images_js:
-${load_images_js.slice(0, 300)}`)
+    //this.debug_log(`load_images_js: ${load_images_js.slice(0, 300)}`)
     const load_images_blob = new Blob([load_images_js], { type: Mimes.JS })
     const load_images_url = URL.createObjectURL(load_images_blob)
     this.load_images_url = load_images_url
 
     const iframe_id = `iframe_${++i_iframe}`
-    const dandy_o_js = `const dandy = ${dandy_o_json}; 
-    dandy.onload = () => {};
+    const dandy_o_js = `const dandy = ${dandy_o_json}
+    dandy.onload = () => {}
     dandy.continue = () => {
       console.warn('posting')
       window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })

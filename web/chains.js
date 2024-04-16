@@ -35,7 +35,7 @@ export class DandyChainData {
 }
 
 export class DandyChain {
-  static debug_blobs = false
+  static debug_blobs = true
   static debug_verbose = true
 
   debug_log(s, ...more) {
@@ -320,12 +320,11 @@ export class DandyChain {
         }
         return null
       }
-
+      
       this.each_input((input_name, i) => {
         const input_widget = input_widgets[i]
         const in_slot = in_slots[i]
         const in_data = get_in_data(in_slot)
-
         if (in_data) {
           const f = (x) => {
             const o = DandyChainData.wrap_if_needed(x, mime, type)
@@ -369,8 +368,8 @@ export class DandyChain {
       this.each_output((output_name, i) => {
         const j = i % n
         const out_slot = out_slots[i]
-        if (out_slot) {
-          //this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j])
+        if (out_slot > -1) {
+          this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j])
           node.setOutputData(out_slot, cat_data[j])
           node.triggerSlot(out_slot)
         }
@@ -378,8 +377,8 @@ export class DandyChain {
     } else {
       this.each_output((output_name, i) => {
         const out_slot = out_slots[i]
-        if (out_slot) {
-          //this.debug_log("Setting output", out_slot, cat_data)
+        if (out_slot > -1) {
+          this.debug_log("Setting output", out_slot, cat_data)
           node.setOutputData(out_slot, cat_data)
           node.triggerSlot(out_slot)
         }

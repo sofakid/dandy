@@ -64,7 +64,6 @@ export class DandyCollector extends DandyNode {
         links_table.push(links_row)
       })
     }
-    this.debug_log("collecting input_connections :: ", links_table)
     return links_table
   }
 

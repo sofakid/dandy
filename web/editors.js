@@ -393,7 +393,7 @@ export class DandyEditor extends DandyNode {
     } else {
       this.set_text("")
     }
-    this.debug_log(`Editor configured`, node)
+    // this.debug_log(`Editor configured`, node)
     button_bar.set_filename(filename)
   }
 
