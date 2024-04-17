@@ -76,6 +76,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyFloatCollector": "Dandy Float Collector",
   "DandyBooleanCollector": "Dandy Boolean Collector",
   "DandyStringArrayCollector": "Dandy String Array Collector",
+  "DandyStringCatCollector": "Dandy String Cat Collector",
   "DandyIntSplitter": "Dandy Int Splitter",
   "DandyFloatSplitter": "Dandy Float Splitter",
   "DandyBooleanSplitter": "Dandy Boolean Splitter",

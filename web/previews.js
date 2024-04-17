@@ -50,7 +50,6 @@ export class DandyPreview extends DandyEditor {
     editor.setOption('showGutter', false)
     editor.setOption('wrap', 'free')
     editor.setOption('indentedSoftWrap', false)
-    
   }
 
   on_chain_updated(chain) {

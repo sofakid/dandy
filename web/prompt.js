@@ -63,10 +63,12 @@ export class DandyPrompt extends DandyEditor {
     editor.setOptions(overrides)
   }
 
-  on_connections_change() {
+  on_chain_updated(chain) {
     const { input_string_chain } = this
-    const input_strings = input_string_chain.values
-    this.do_cat(input_strings)
+    if (chain === input_string_chain) {
+      const input_strings = input_string_chain.values
+      this.do_cat(input_strings)
+    }
   }
 
   apply_text() {

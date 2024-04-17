@@ -380,6 +380,14 @@ export class DandyInvisibleWidget extends DandyWidget {
   }
 }
 
+export class DandyIncredibleShrinkingWidget extends DandyWidget {
+  constructor(node, height) {
+    super(node, 'dandy_incredible_shrinking_widget', '', {})
+    this.size = [0, height] // LiteGraph will pad it by 4
+  }
+}
+
+
 export const dandy_js_plain_module_toggle = (dandy) => {
   const { node } = dandy // don't put chains in this it's not there yet
   const default_classic = false

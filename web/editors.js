@@ -2,7 +2,7 @@ import { DandySocket } from "/extensions/dandy/socket.js"
 import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlChain, 
          DandyStringChain,} from "/extensions/dandy/chains.js"
 import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, 
-         DandyNames, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
+         DandyNames, DandyHashDealer, DandyIncredibleShrinkingWidget } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -197,7 +197,7 @@ class DandyEditorTopBar {
       file_input.click()
       file_input.value = null
     }
-    load_file_button.innerHTML = "load file..."
+    load_file_button.innerHTML = "upload file..."
 
     button_div.appendChild(load_file_button)
     button_div.appendChild(save_button)
@@ -284,8 +284,9 @@ export class DandyEditor extends DandyNode {
     const socket = this.socket = new DandySocket(this)
     socket.on_sending_input = () => {}
     const service_id_widget = this.find_widget(DandyNames.SERVICE_ID)
-    service_id_widget.size = [0, -12]
+    service_id_widget.size = [0, 0]
     this.init_widgets_above_editor()
+    new DandyIncredibleShrinkingWidget(node, -15)
 
     const dandy_div = this.dandy_div = document.createElement('div')
     dandy_div.classList.add('dandyEditorContainer')
@@ -547,7 +548,6 @@ export class DandyString extends DandyEditor {
     super(node, app, Mimes.STRING)
     this.debug_verbose = true
     this.chain = new DandyStringChain(this, 1, 1)
-    node.size = [300, 280]
     
     const { editor } = this
     const editor_session = editor.getSession()
@@ -569,6 +569,14 @@ export class DandyString extends DandyEditor {
       const output = { 'string': out_string }
       socket.thanks(py_client, output)
     }
+    node.size = [300, 180]
+  }
+
+  on_settings_applied() {
+    const { editor } = this
+    editor.setOption('showGutter', false)
+    editor.setOption('wrap', 'free')
+    editor.setOption('indentedSoftWrap', false)
   }
 
   apply_text() {
