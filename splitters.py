@@ -37,7 +37,6 @@ class DandySplitter(DandyWithHash):
     
     for key, value in kwargs.items():
       if key.startswith(self.input_name_prefix()) and value != None:
-        print("Value" + str(value))
         inputs.append(value)
 
     inputs = flatten(inputs)

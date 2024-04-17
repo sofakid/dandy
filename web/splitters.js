@@ -18,8 +18,13 @@ export class DandySplitter extends DandyNode {
       if (x >= 0) {
         const connections = this.get_output_connections()
         chain.n_outputs = x
-        chain.reconnect_output_connections(connections)
-        node.size = node.computeSize()
+
+        // if we don't do this timeout, if the taret nodes are moved, and the page is refreshed, they don't reconnect right
+        const just_a_moment = 100
+        setTimeout(() => {
+          chain.reconnect_output_connections(connections)
+          node.size = node.computeSize()
+        }, just_a_moment)
       }
     }
   }
@@ -75,6 +80,7 @@ export class DandySplitter extends DandyNode {
         links_table.push(links_row)
       })
     }
+    this.debug_log('get_output_connections :: links_table: ', links_table)
     return links_table
   }
 
@@ -97,7 +103,7 @@ export class DandySplitter extends DandyNode {
   }
 
   on_chain_updated(type, chain) {
-    this.debug_log('on_chain_updated')
+    //this.debug_log('on_chain_updated')
     this.update_hash()
   }
 
@@ -105,16 +111,8 @@ export class DandySplitter extends DandyNode {
     const { chain } = this 
     let value = output.value[0]
     value = value.value
-    // if (type in ComfyTypesList && Array.isArray(value)) {
-    //   value = value[0]
-    // }
-
-    // if (type in [DandyTypes.IMAGE_URL]) {
-    //   value = value.split('\n')
-    // }
-
     this.debug_log(`ON_EXECUTED :: value: <${value}>, output: `, output)
-    
+
     if (this.last_value !== value) {
       this.last_value = value
       chain.output_update_ignoring_input(value)

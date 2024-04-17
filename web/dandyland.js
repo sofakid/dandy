@@ -392,10 +392,10 @@ export class DandyLand extends DandyNode {
     const cached_value = chain_cache[key]
     const new_value = dandy_cash(chain.data)
 
-    const v = new_value != cached_value ? '!==' : '==='
-    const cv = `${cached_value}`.slice(0, 80)
-    const nv = `${new_value}`.slice(0, 80)
-    this.debug_log(`on_chain_updated(${key}) :: <${cv}> ${v} <${nv}>`)
+    // const v = new_value != cached_value ? '!==' : '==='
+    // const cv = `${cached_value}`.slice(0, 80)
+    // const nv = `${new_value}`.slice(0, 80)
+    // this.debug_log(`on_chain_updated(${key}) :: <${cv}> ${v} <${nv}>`)
     if (new_value !== cached_value) {
       chain_cache[key] = new_value
       this.load_inputs_from_chains()
@@ -646,7 +646,7 @@ export class DandyLand extends DandyNode {
       const { iframe_id: from_iframe_id, dandy_continue, output } = event.data
       if (from_iframe_id === iframe_id && dandy_continue) {
         this.rendering = false
-        this.debug_log("continue listener :: output: ", output)
+        //this.debug_log("continue listener :: output: ", output)
         this.dandy_output = output
       } else {
         //console.warn('unknown event', event.data)

@@ -157,7 +157,7 @@ export class DandyNode {
     const { node } = this
     const { widgets } = node
     if (!widgets) {
-      this.warn_log('No widgets to fix')
+      //this.warn_log('No widgets to fix')
       return
     }
     widgets.forEach((widget) => {
@@ -191,11 +191,11 @@ export class DandyNode {
   }
 
   on_configure(info) {
-    this.warn_log(`default on_configure running`)
+    // this.warn_log(`default on_configure running`)
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {
-    this.warn_log(`default on_connections_change running`)
+    // this.warn_log(`default on_connections_change running`)
   }
 
   on_execution_start() {

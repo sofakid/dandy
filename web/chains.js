@@ -193,12 +193,24 @@ export class DandyChain {
 
   reconnect_output_connections(links_table) {
     const { node } = this
+    this.debug_log("reconnect_output_connections :: links_table: ", links_table)
+    const already = []
     this.each_output((output_name, i) => {
       const links_row = links_table[i]
+      this.debug_log("reconnect_output_connections :: links_row: ", links_row)
+
       if (links_row) {
         links_row.forEach((link) => {
-          const { target_id, target_slot } = link
-          node.connect(output_name, target_id, target_slot) 
+          this.debug_log("reconnect_output_connections :: link: ", link)
+          const { origin_slot, target_id, target_slot } = link
+          const sig = `${origin_slot}_${target_id}_${target_slot}`
+          if (sig in already) {
+            this.warn(`reconnect_output_connections :: multiple links for ${sig} found.`)
+            return
+          }
+          already.push(sig)
+          const x = node.connect(origin_slot, target_id, target_slot)
+          this.debug_log("reconnect_output_connections :: created link: ", x)
         })
       }
     })
@@ -374,7 +386,7 @@ export class DandyChain {
         const j = i % n
         const out_slot = out_slots[i]
         if (out_slot > -1) {
-          this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j])
+          //this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j])
           node.setOutputData(out_slot, cat_data[j])
           node.triggerSlot(out_slot)
         }
@@ -383,7 +395,7 @@ export class DandyChain {
       this.each_output((output_name, i) => {
         const out_slot = out_slots[i]
         if (out_slot > -1) {
-          this.debug_log("Setting output", out_slot, cat_data)
+          //this.debug_log("Setting output", out_slot, cat_data)
           node.setOutputData(out_slot, cat_data)
           node.triggerSlot(out_slot)
         }
