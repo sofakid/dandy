@@ -51,6 +51,9 @@ export class DandyLand extends DandyNode {
     this.json_chain = new DandyJsonChain(this, 1, 0)
     this.yaml_chain = new DandyYamlChain(this, 1, 0)
     this.image_url_chain = new DandyImageUrlChain(this, 1, 0)
+    this.int_chain = new DandyIntChain(this, 1, 0)
+    this.float_chain = new DandyFloatChain(this, 1, 0)
+    this.boolean_chain = new DandyBooleanChain(this, 1, 0)
     this.string_chain = new DandyStringChain(this, 1, 0)
 
     this.output_int_chain = new DandyIntChain(this, 0, 1)
@@ -254,7 +257,11 @@ export class DandyLand extends DandyNode {
   
       this.debug_log("capture and deliver 1", dandy_output, typeof dandy_output)
       
-      this.string_chain.output_update_ignoring_input(string)
+      this.output_int_chain.contributions = int
+      this.output_float_chain.contributions = float
+      this.output_boolean_chain.contributions = boolean
+      this.output_string_chain.contributions = string
+     
       this.debug_log("capture and deliver 2", dandy_output)
   
       const default_value = (v, d) => v !== undefined ? v : d
@@ -366,6 +373,15 @@ export class DandyLand extends DandyNode {
     return canvas
   }
 
+  load_inputs_from_chains() {
+    const { int_chain, float_chain, string_chain, boolean_chain } = this
+    const f = (o) => o.value
+    this.input_int = int_chain.data.map(f)
+    this.input_float = float_chain.data.map(f)
+    this.input_boolean = boolean_chain.data.map(f)
+    this.input_string = string_chain.data.map(f)
+  }
+
   on_chain_updated(chain) {
     const { chain_cache, constructed } = this
     const { key } = chain
@@ -382,6 +398,7 @@ export class DandyLand extends DandyNode {
     this.debug_log(`on_chain_updated(${key}) :: <${cv}> ${v} <${nv}>`)
     if (new_value !== cached_value) {
       chain_cache[key] = new_value
+      this.load_inputs_from_chains()
       this.reload_iframe()
     }
   }
@@ -561,7 +578,6 @@ export class DandyLand extends DandyNode {
     const dandy_o_js = `const dandy = ${dandy_o_json}
     dandy.onload = () => {}
     dandy.continue = () => {
-      console.warn('posting')
       window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })
     }
     `

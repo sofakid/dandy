@@ -25,30 +25,19 @@ export class DandyPreview extends DandyEditor {
       const value = input[name]
 
       const f = (x) => {
-        chain.output_update_ignoring_input(x)
+        chain.output_update_ignoring_input(x) // outputting a catted string, wrong
         this.set_text(x)
       }
       if (value !== undefined) {
         if (typeof value === js_type) {
-          f(`${value}`)
+          chain.output_update_ignoring_input(value) // outputting a catted string, wrong
+          this.set_text(`${value}`)
+        } else if (Array.isArray(value)) {
+          chain.output_update_ignoring_input(value) // outputting a catted string, wrong
+          this.set_text(value.map((x) => `${x}`).filter((x) => x !== '').join(', '))
         } else {
-          if (value.length > 0) {
-            let all_good = true
-            value.forEach((x) => {
-              if (typeof x !== js_type) {
-                this.error_log(`got invalid ${name}`, x)
-                all_good = false
-              }
-            })
-            if (all_good) {
-              f(`${value}`)
-            } else {
-              f(`error in ${name} array: ${value}`)
-            }
-          } else {
-            this.error_log(`got invalid ${name}`, value)
-            f(`error in ${name} array: ${value}`)
-          }
+          this.error_log(`got invalid ${name}`, value)
+          this.set_text(`Error in input ${name}: ${value}`)
         }
       }
       socket.thanks(py_client)
@@ -59,6 +48,9 @@ export class DandyPreview extends DandyEditor {
     const { editor } = this
     editor.setOption('readOnly', true)
     editor.setOption('showGutter', false)
+    editor.setOption('wrap', 'free')
+    editor.setOption('indentedSoftWrap', false)
+    
   }
 
   on_chain_updated(chain) {
@@ -68,7 +60,10 @@ export class DandyPreview extends DandyEditor {
       this.set_text(data)
     }
     else if (Array.isArray(data)) {
-      const x = data.map((x) => `${x.value}`).join(', ')
+      const x = data.map((x, i) => {
+        this.debug_log(`thump thump thump ${i} :: ${x.value}`)
+        return `${x.value}`
+      }).join(', ')
       this.set_text(x)
     }
     else {

@@ -35,7 +35,7 @@ export class DandyChainData {
 }
 
 export class DandyChain {
-  static debug_blobs = true
+  static debug_blobs = false
   static debug_verbose = true
 
   debug_log(s, ...more) {
@@ -126,9 +126,10 @@ export class DandyChain {
     input_widgets.length = 0
     this._n_inputs = n_inputs
     
-    // if (n_inputs >= 1) {
+    // in and out chains exists simultaneously, ignore the case of 0 
+    if (n_inputs >= 1) {
       dandy.remove_inputs_and_widgets(name)
-    // }
+    }
 
     this.each_input((nom, i) => {
       const widget = new DandyInvisibleWidget(node, nom, type)
@@ -348,20 +349,24 @@ export class DandyChain {
     }
 
     const contributions_raw = using_this_input ? using_this_input : _contributions
-    const contributions = DandyChainData.wrap_if_needed(contributions_raw, mime, type)
-    
-    //this.debug_log("my contributions", contributions)
-    if (type in ComfyTypesList) {
-      cat_data.push(contributions)
+    const contributions = []
+    if (Array.isArray(contributions_raw)) {
+      contributions_raw.forEach((contribution) => {
+        contributions.push(DandyChainData.wrap_if_needed(contribution, mime, type))
+      })
     }
     else if (type === DandyTypes.IMAGE_URL) {
-      contributions.value.split('\n').forEach((url) => {
-      cat_data.push(make_data(url))
+      contributions_raw.value.split('\n').forEach((url) => {
+        contributions.push(new DandyChainData(url, mime, type))
       })
     }
     else {
-      cat_data.push(contributions)
+      contributions.push(DandyChainData.wrap_if_needed(contributions_raw, mime, type))
     }
+
+    contributions.forEach((contribution) => {
+      cat_data.push(contribution)
+    }) 
     
     if (n_outputs > 1) {
       const n = Math.min(n_outputs, cat_data.length)
