@@ -420,6 +420,10 @@ export class DandyChain {
     }
     return cat_data.filter(no_fakes)
   }
+
+  get values() {
+    return this.data.map((x) => x.value)
+  }
 }
 
 // ==========================================================================================

@@ -414,7 +414,6 @@ export const dandy_cash = (message, salt=0) => {
 export class DandyHashDealer {
   constructor(dandy) {
     this.dandy = dandy
-    this.message_getter = () => Date.now()
     const widget = this.widget = dandy.find_widget(DandyNames.HASH)
     const size = [0, -4]
     this.message = Date.now()

@@ -6,7 +6,8 @@ import { Mimes, DandyNames, dandy_cash, dandy_stable_diffusion_mode, DandyHashDe
 export class DandyPrompt extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.CLIP)
-    const string_chain = this.string_chain = new DandyStringChain(this, 1, 1)
+    const input_string_chain = this.input_string_chain = new DandyStringChain(this, 1, 0)
+    const output_string_chain = this.output_string_chain = new DandyStringChain(this, 0, 1)
     
     const { editor } = this
     const editor_session = editor.getSession()
@@ -19,9 +20,33 @@ export class DandyPrompt extends DandyEditor {
       socket.deliver_string(o)
     }
 
-    this.hash_dealer = new DandyHashDealer(this)
-    this.hash_dealer.message_getter = () => string_chain.data
+    socket.on_sending_input = (o) => {
+      const { input, py_client } = o
+      const { string } = input
+      
+      const strings = []
 
+      if (string !== undefined) {
+        if (typeof string === 'string') {
+            this.debug_log('on_sending_input :: string input is string: ', string)
+            strings.push(string)
+        } else if (Array.isArray(string)) {
+          string.forEach((str) => {
+            this.debug_log('on_sending_input :: string input is array, each: ', str)
+            strings.push(str)
+          })
+        } else {
+          this.error_log(`got invalid string`, string)
+        }
+      }
+      
+      const cat = this.do_cat(strings)
+      const o_thanks = { prompt: cat } 
+      this.debug_log("o_thanks", o_thanks)
+      socket.thanks(py_client, o_thanks)
+    }
+
+    this.hash_dealer = new DandyHashDealer(this)
     node.size = [500, 180]
   }
 
@@ -33,17 +58,40 @@ export class DandyPrompt extends DandyEditor {
       enableAutoIndent: false,
       showGutter: false,
       wrap: 'free',
+      indentedSoftWrap: false,
     }
     editor.setOptions(overrides)
   }
 
+  on_connections_change() {
+    const { input_string_chain } = this
+    const input_strings = input_string_chain.values
+    this.do_cat(input_strings)
+  }
+
   apply_text() {
-    const { editor, node, string_chain } = this
+    const { editor, node, input_string_chain } = this
     const { properties } = node
     const text = editor.getValue()
     properties.text = text
-    if (string_chain) {
-      string_chain.contributions = text
-    }
+
+    const input_strings = input_string_chain.values
+    this.do_cat(input_strings)
+  }
+
+  do_cat(input_strings) {
+    const { output_string_chain, node } = this
+    const { properties } = node
+    input_strings.push(properties.text)
+    const cat = input_strings.join('\n')
+    output_string_chain.contributions = cat
+    this.rehash()
+    return cat
+  }
+
+  rehash() {
+    const { output_string_chain, hash_dealer } = this
+    const strings = output_string_chain.values
+    hash_dealer.message = strings
   }
 }
