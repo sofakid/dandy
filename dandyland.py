@@ -93,9 +93,8 @@ class DandyLand(DandyWithHashSocket):
     kwargs['negative'] = 'deleted'
     print("DandyLand :: run :: kwargs: " + str(kwargs))
 
-    o = self.client.request_captures(service_id,
-                                     int, float, boolean, string, 
-                                     ser_positive, ser_negative, b64images, b64masks)
+    o = self.client.send_input(service_id, kwargs)
+    o = o['output']
 
     b64s = o['captures']
     def f(g):

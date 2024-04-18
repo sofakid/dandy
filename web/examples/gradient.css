@@ -1,0 +1,49 @@
+
+input {
+  width: 100%;
+  height: 32px;
+  padding: 10px 10px;
+  
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  box-sizing: border-box;
+  color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.clr-field {
+  width: 100%;
+}
+
+.clr-field input:focus {
+  border: none;
+  outline: none;
+  color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.clr-field button {
+  width: 100%;
+  height: 100%;
+  border: none;
+  border-radius: 0px;
+}
+
+.clr-field button:focus {
+  border: none;
+}
+
+.pickers {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.picker {
+  flex: 1;
+  margin-left: 4px;
+  margin-right: 4px;
+}

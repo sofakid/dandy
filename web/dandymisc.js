@@ -107,6 +107,10 @@ export class DandyNode {
     this.debug_verbose = false
     node.serialize_widgets = true
 
+    if (node.properties === undefined) {
+      node.properties = {}
+    }
+
     // if you extend DandyNode, implement on_configure instead of setting it on the node
     node.onConfigure = (info) => {
       // LiteGraph will reconfigure the widgets even if options.serialize is false

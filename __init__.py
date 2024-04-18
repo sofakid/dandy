@@ -8,6 +8,7 @@ from .prompt import *
 from .collectors import *
 from .splitters import *
 from .socket import launch_server
+from .example_gradient import DandyGradient
 
 WEB_DIRECTORY = "web"
 
@@ -46,20 +47,24 @@ NODE_CLASS_MAPPINGS = {
   "DandyStringArraySplitter": DandyStringArraySplitter,
   "DandyEditorSettings": DandyEditorSettings,
   "DandyPrompt": DandyPrompt,
+  "DandyGradient": DandyGradient,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyLand": "Dandy Land",
+  
   "DandyJs": "Dandy Js",
   "DandyHtml": "Dandy Html",
   "DandyCss": "Dandy Css",
   "DandyJson": "Dandy Json",
   "DandyYaml": "Dandy Yaml",
   "DandyString": "Dandy String",
+
   "DandyStringPreview": "Dandy String Preview",
   "DandyIntPreview": "Dandy Int Preview",
   "DandyFloatPreview": "Dandy Float Preview",
   "DandyBooleanPreview": "Dandy Boolean Preview",
+  
   "DandyJsLoader": "Dandy Js Loader",
   "DandyJsonLoader": "Dandy Json Loader",
   "DandyYamlLoader": "Dandy Yaml Loader",
@@ -67,9 +72,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyCssLoader": "Dandy Css Loader",
   "DandyHtmlLoader": "Dandy Html Loader",
   "DandyUrlLoader": "Dandy Url Loader",
-  "DandyP5JsLoader": "Dandy p5.js Loader",
-  "DandyP5JsSetup": "Dandy p5.js Setup",
-  "DandyP5JsDraw": "Dandy p5.js Draw",
+  
   "DandyImageCollector": "Dandy Image Collector",
   "DandyMaskCollector": "Dandy Mask Collector",
   "DandyIntCollector": "Dandy Int Collector",
@@ -77,12 +80,19 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyBooleanCollector": "Dandy Boolean Collector",
   "DandyStringArrayCollector": "Dandy String Array Collector",
   "DandyStringCatCollector": "Dandy String Cat Collector",
+  
   "DandyIntSplitter": "Dandy Int Splitter",
   "DandyFloatSplitter": "Dandy Float Splitter",
   "DandyBooleanSplitter": "Dandy Boolean Splitter",
   "DandyStringArraySplitter": "Dandy String Array Splitter",
+
   "DandyPrompt": "Dandy Prompt",
   "DandyEditorSettings": "Dandy Editor Settings",
+
+  "DandyGradient": "Dandy Gradient",
+  "DandyP5JsLoader": "Dandy p5.js Loader",
+  "DandyP5JsSetup": "Dandy p5.js Setup",
+  "DandyP5JsDraw": "Dandy p5.js Draw",
 }
 
 if mp.current_process().name == 'MainProcess':
