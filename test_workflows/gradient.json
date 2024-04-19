@@ -1,0 +1,500 @@
+{
+  "last_node_id": 15,
+  "last_link_id": 18,
+  "nodes": [
+    {
+      "id": 8,
+      "type": "VAEDecode",
+      "pos": [
+        980,
+        197
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 11,
+      "type": "DandyPrompt",
+      "pos": [
+        410,
+        430
+      ],
+      "size": {
+        "0": 350,
+        "1": 130
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 10
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "",
+        "Node name for S&R": "DandyPrompt",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 14,
+      "type": "VAEEncode",
+      "pos": [
+        930,
+        610
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "pixels",
+          "type": "IMAGE",
+          "link": 15
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      }
+    },
+    {
+      "id": 15,
+      "type": "PreviewImage",
+      "pos": [
+        940,
+        720
+      ],
+      "size": {
+        "0": 210,
+        "1": 246
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 10,
+      "type": "DandyPrompt",
+      "pos": [
+        420,
+        230
+      ],
+      "size": {
+        "0": 340,
+        "1": 150
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 12
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            13
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "cute car, driving in a small Cornish town, seagulls and cats",
+        "Node name for S&R": "DandyPrompt",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 3,
+      "type": "KSampler",
+      "pos": [
+        849,
+        296
+      ],
+      "size": {
+        "0": 315,
+        "1": 262
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 13
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 11
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        930182352388193,
+        "randomize",
+        18,
+        8,
+        "dpmpp_2m_sde_gpu",
+        "karras",
+        0.78
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        10,
+        480
+      ],
+      "size": {
+        "0": 340,
+        "1": 100
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            10,
+            12
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            8,
+            17
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "wildlifexAnimals_wildlifexAnimals.safetensors"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "DandyGradient",
+      "pos": [
+        236,
+        657
+      ],
+      "size": [
+        532,
+        652
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            15,
+            18
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "c1": "#49fc88",
+        "c2": "#00eaff",
+        "Node name for S&R": "DandyGradient"
+      },
+      "widgets_values": [
+        null,
+        null,
+        512,
+        512,
+        null
+      ]
+    },
+    {
+      "id": 12,
+      "type": "PreviewImage",
+      "pos": [
+        1187,
+        306
+      ],
+      "size": [
+        413.63925781249964,
+        416.14243164062486
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    }
+  ],
+  "links": [
+    [
+      1,
+      4,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      10,
+      4,
+      1,
+      11,
+      0,
+      "CLIP"
+    ],
+    [
+      11,
+      11,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      12,
+      4,
+      1,
+      10,
+      0,
+      "CLIP"
+    ],
+    [
+      13,
+      10,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      14,
+      8,
+      0,
+      12,
+      0,
+      "IMAGE"
+    ],
+    [
+      15,
+      13,
+      0,
+      14,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      14,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      17,
+      4,
+      2,
+      14,
+      1,
+      "VAE"
+    ],
+    [
+      18,
+      13,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

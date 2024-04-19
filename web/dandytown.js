@@ -89,7 +89,7 @@ export class DandyTown extends DandyNode {
 
 
     socket.on_sending_input = (o) => {
-      this.debug_log("socket.on_request_captures()", o)
+      this.debug_log("socket.on_sending_input()", o)
       const { py_client, input } = o
       const { int, float, boolean, positive, negative, string, image, mask } = input
       const { input_images_urls, input_masks_urls } = this
@@ -174,7 +174,7 @@ export class DandyTown extends DandyNode {
         }
       }
   
-      const freeze_widget = this.freeze_widget = node.addWidget("button", "choose_file_button", "", () => {
+      const freeze_widget = this.freeze_widget = node.addWidget("button", "freeze_button", "", () => {
         if (this.frozen) {
           unfreeze()
         } else {
@@ -208,30 +208,43 @@ export class DandyTown extends DandyNode {
   }
 
   resize_to_fit() {
-    const { iframe, node } = this
-    if (!iframe) {
-      console.log("resize_to_fit :: no iframe")
 
-      return
-    }
 
-    const doc = iframe.contentDocument || iframe.contentWindow.document
+    // this doesn't work, the nodes current size seems to clip the scrollheight
 
-    let w = doc.body.scrollWidth
-    let h = doc.body.scrollHeight
+    // const { iframe, node } = this
+    // if (!iframe) {
+    //   console.log("resize_to_fit :: no iframe")
 
-    node.widgets.forEach((widget) => {
-      if (widget.computeSize) {
-        h += widget.computeSize()[1]
-      } else {
-        console.log("WIDGET", widget)
-      }
-      h += 4
-    })
-    w += 20
-    h += 10
-    this.debug_log("resize_to_fit", w, h)
-    node.size = [w, h]
+    //   return
+    // }
+
+    // const doc = iframe.contentDocument || iframe.contentWindow.document
+
+    // let w = doc.body.scrollWidth
+    // let h = doc.body.scrollHeight
+
+    // const rows = Math.max(
+    //   node.inputs ? node.inputs.length : 1,
+    //   node.outputs ? node.outputs.length : 1
+    // )
+    
+    // this.debug_log("resize_to_fit without rows", w, h, rows)
+    // h += LiteGraph.NODE_TEXT_SIZE * rows
+    // this.debug_log("resize_to_fit with rows", w, h, rows)
+
+    // node.widgets.forEach((widget) => {
+    //   if (widget.computeSize) {
+    //     h += widget.computeSize()[1]
+    //   } else {
+    //     console.log("WIDGET", widget)
+    //   }
+    //   h += 4
+    // })
+    // w += 20
+    // h += 10
+    // this.debug_log("resize_to_fit", w, h)
+    // node.setSize([w, h])
   }
 
   // --- override these -----------------------------------------------
@@ -318,6 +331,7 @@ export class DandyTown extends DandyNode {
       this.debug_log('delaying...')
       await dandy_delay(ms)
     }
+    this.resize_to_fit()
     await this.capture_and_deliver(py_client)
   }
   
@@ -372,6 +386,7 @@ export class DandyTown extends DandyNode {
       }
       this.debug_log("capture and deliver 3", o, string)
     } catch (error) {
+      this.debug_log(`Can't parse dandy.ouput`, dandy_output, error)
       this.error_log(`Can't parse dandy.ouput`, dandy_output, error)
     }
 

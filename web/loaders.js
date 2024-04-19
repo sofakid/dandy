@@ -18,11 +18,9 @@ class DandyFileLoader extends DandyNode {
     this.blobmap = {}
     this.chains = {}
 
-    if (node.properties === undefined) {
-      node.properties = {
-        texts: {},
-        order: []
-      }
+    node.properties = {
+      texts: {},
+      order: []
     }
     
     this.init_widgets_above_files()

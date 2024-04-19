@@ -111,6 +111,58 @@ export class DandyNode {
       node.properties = {}
     }
 
+    // litegraph doesn't check for undefined graph, otherwise same code
+    node.removeInput = (slot) => {
+      node.disconnectInput(slot)
+      const slot_info = node.inputs.splice(slot, 1)
+      for (let i = slot; i < node.inputs.length; ++i) {
+          if (!node.inputs[i]) {
+            continue
+          }
+          if (!node.graph) {
+            continue
+          }
+          const link = node.graph.links[node.inputs[i].link]
+          if (!link) {
+              continue
+          }
+          link.target_slot -= 1
+      }
+      node.setSize( node.computeSize() )
+      if (node.onInputRemoved) {
+        node.onInputRemoved(slot, slot_info[0] )
+      }
+      node.setDirtyCanvas(true, true)
+    }
+
+    node.removeOutput = (slot) => {
+      node.disconnectOutput(slot)
+      node.outputs.splice(slot, 1)
+      for (let i = slot; i < node.outputs.length; ++i) {
+          if (!node.outputs[i] || !node.outputs[i].links) {
+            continue
+          }
+          if (!node.graph) {
+            continue
+          }
+          const links = node.outputs[i].links
+          for (let j = 0; j < node.length; ++j) {
+            const link = node.graph.links[links[j]]
+            if (!link) {
+              continue
+            }
+            link.origin_slot -= 1
+          }
+      }
+
+      node.setSize( node.computeSize() )
+      if (node.onOutputRemoved) {
+        node.onOutputRemoved(slot)
+      }
+      node.setDirtyCanvas(true, true)
+  };
+
+
     // if you extend DandyNode, implement on_configure instead of setting it on the node
     node.onConfigure = (info) => {
       // LiteGraph will reconfigure the widgets even if options.serialize is false
@@ -242,7 +294,7 @@ export class DandyNode {
   remove_input_slot(name) {
     const { node } = this
     const slot = node.findInputSlot(name)
-    if (slot !== -1) {
+    if (slot > -1) {
       try {
         node.removeInput(slot)
       } catch (error) {
@@ -253,8 +305,9 @@ export class DandyNode {
 
   remove_output_slot(name) {
     const { node } = this
+   
     const slot = node.findOutputSlot(name)
-    if (slot !== -1) {
+    if (slot > -1) {
       try {
         node.removeOutput(slot)
       } catch (error) {

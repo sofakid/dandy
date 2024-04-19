@@ -113,7 +113,9 @@ export class DandyCollector extends DandyNode {
     //   value = value.split('\n')
     // }
 
-    this.debug_log(`ON_EXECUTED :: value: <${value}>, output: `, output)
+    const s = `${value}`.slice(0, 200)
+
+    this.debug_log(`ON_EXECUTED :: value: <${s}>, output: `, output)
     
     if (this.last_value !== value) {
       this.last_value = value

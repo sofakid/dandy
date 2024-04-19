@@ -29,9 +29,6 @@ class DandyLand(DandyWithHashSocket):
       'mask': ('MASK',),
       'positive':('CONDITIONING',),
       'negative':('CONDITIONING',),
-      'int': ('INT', { 'display': 'number', "default": 0 }),
-      'float': ('FLOAT', { 'display': 'number', "default": 0.0 }),
-      'boolean': ('BOOLEAN', { 'default': False }),
       'width': WIDTH_HEIGHT_INPUT,
       'height': WIDTH_HEIGHT_INPUT,
     })
@@ -42,7 +39,7 @@ class DandyLand(DandyWithHashSocket):
   def run(self, service_id=None, 
           image=None, mask=None, 
           positive=None, negative=None, 
-          int=None, float=None, boolean=False, string=None, 
+          int=0, float=0, boolean=False, string='', 
           **kwargs):
 
     if service_id == None:
@@ -56,15 +53,7 @@ class DandyLand(DandyWithHashSocket):
         b64images.append(b64)
 
     b64masks = []
-    if mask != None:
-      print("Type of mask is " + str(type(mask)))
-      i = 0
-      for x in mask:
-        print("Type of X in mask: " + str(type(x)))
-        i += 1
-        if i > 4:
-          break
-        
+    if mask != None:        
       b64 = make_b64image(mask)
       b64masks.append(b64)
 
@@ -76,24 +65,18 @@ class DandyLand(DandyWithHashSocket):
     if negative != None:
       ser_negative = serialize_with_tensors(negative)
     
-    if int is None:
-      int = 0
-
-    if float is None:
-      float = 0
-
-    if boolean is None:
-      boolean = False  
+    inputs = { 
+      'image': b64images,
+      'mask': b64masks,
+      'positive': ser_positive,
+      'negative': ser_negative,
+      'int': int,
+      'float': float,
+      'string': string,
+      'boolean': boolean,
+    }
     
-    if string is None:
-      string = ''
-    
-    kwargs['captures'] = 'deleted'
-    kwargs['positive'] = 'deleted'
-    kwargs['negative'] = 'deleted'
-    print("DandyLand :: run :: kwargs: " + str(kwargs))
-
-    o = self.client.send_input(service_id, kwargs)
+    o = self.client.send_input(service_id, inputs)
     o = o['output']
 
     b64s = o['captures']

@@ -342,9 +342,17 @@ export class DandyChain {
       })
     }
     else if (type === DandyTypes.IMAGE_URL) {
-      contributions_raw.value.split('\n').forEach((url) => {
+      this.debug_log("UPDATE DATA IMAGE_URLS", )
+      let s = contributions_raw
+      if (s.is_dandy_chain_data) {
+        s = contributions_raw.value
+      }
+      s.split('\n').forEach((url) => {
         contributions.push(new DandyChainData(url, mime, type))
       })
+    }
+    else if (contributions_raw === undefined) {
+      // skip it
     }
     else {
       contributions.push(DandyChainData.wrap_if_needed(contributions_raw, mime, type))
