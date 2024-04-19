@@ -44,6 +44,13 @@ input {
 
 .picker {
   flex: 1;
-  margin-left: 4px;
-  margin-right: 4px;
+}
+
+.swap-button {
+  color: #999;
+  justify-content: center;
+  vertical-align: middle;
+  margin-left: 8px;
+  margin-right: 8px;
+  user-select: none;
 }

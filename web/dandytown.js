@@ -124,6 +124,9 @@ export class DandyTown extends DandyNode {
       if (this.render_on_input) {
         this.render(py_client)
       }
+      else {
+        this.done_rendering(py_client)
+      }
     }
 
     this.dandy_message_listener = null
@@ -153,7 +156,7 @@ export class DandyTown extends DandyNode {
     this.frozen = false
     if (this.show_freeze_button) {
       const freeze = () => {
-        console.warn(`Freezing...`)
+        this.debug_log(`Freezing :: dirty:${this.dirty}`)
         freeze_widget.label = "Unfreeze"
         this.frozen = true
         this.rendering = false
@@ -162,7 +165,7 @@ export class DandyTown extends DandyNode {
         }
       }
       const unfreeze = () => {
-        console.warn(`Unfreezing :: dirty:${this.dirty}`)
+        this.debug_log(`Unfreezing :: dirty:${this.dirty}`)
         freeze_widget.label = "Freeze"
         this.frozen = false
         this.rendering = false
@@ -184,10 +187,51 @@ export class DandyTown extends DandyNode {
     const divvy = this.divvy = document.createElement('div')
     divvy.classList.add('dandyMax')
     divvy.id = this.id
-    const div_widget = node.addDOMWidget(divvy.id, "divvy", divvy, { serialize: false })
+    const iframe_widget = this.iframe_widget = node.addDOMWidget(divvy.id, "divvy", divvy, { serialize: false })
+
+    // iframe_widget.computeSize = () => {
+    //   const { iframe } = this
+    //   if (!iframe) {
+    //     return [0, 0]
+    //   }
+    //   const doc = iframe.contentDocument || iframe.contentWindow.document
+
+    //   const w = doc.body.scrollWidth
+    //   const h = doc.body.scrollHeight
+
+    //   return [w, h]
+    // }
+
     this.debug_log("DandyTown constructed", this)
     this.constructed = true
     //this.reload_iframe()
+  }
+
+  resize_to_fit() {
+    const { iframe, node } = this
+    if (!iframe) {
+      console.log("resize_to_fit :: no iframe")
+
+      return
+    }
+
+    const doc = iframe.contentDocument || iframe.contentWindow.document
+
+    let w = doc.body.scrollWidth
+    let h = doc.body.scrollHeight
+
+    node.widgets.forEach((widget) => {
+      if (widget.computeSize) {
+        h += widget.computeSize()[1]
+      } else {
+        console.log("WIDGET", widget)
+      }
+      h += 4
+    })
+    w += 20
+    h += 10
+    this.debug_log("resize_to_fit", w, h)
+    node.size = [w, h]
   }
 
   // --- override these -----------------------------------------------

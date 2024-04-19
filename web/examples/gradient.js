@@ -9,11 +9,18 @@ if (typeof dandy !== 'undefined') {
 
     const pickers = document.createElement('div')
     pickers.classList.add('pickers')
+    pickers.style.width = `${width}px`
     document.body.appendChild(pickers)
 
+    
     const picker1 = document.createElement('div')
     picker1.classList.add('picker')
     pickers.appendChild(picker1)
+
+    const swap_button = document.createElement('span')
+    swap_button.classList.add('swap-button')
+    swap_button.innerHTML = '⇄'
+    pickers.appendChild(swap_button)
 
     const picker2 = document.createElement('div')
     picker2.classList.add('picker')
@@ -56,7 +63,7 @@ if (typeof dandy !== 'undefined') {
       themeMode: 'dark',
       formatToggle: true,
       closeButton: true,
-      clearButton: true,
+      clearButton: false,
       swatches: [
         '#067bc2',
         '#84bcda',
@@ -67,7 +74,6 @@ if (typeof dandy !== 'undefined') {
       ]
     }
 
-    
     Coloris.setInstance('.c1', options)
     Coloris.setInstance('.c2', options)
 
@@ -136,24 +142,37 @@ if (typeof dandy !== 'undefined') {
       }
     })
 
+    const update_thumbnails = () => {
+      c1_input.dispatchEvent(new Event('input', { bubbles: true }))
+      c2_input.dispatchEvent(new Event('input', { bubbles: true }))
+    }
+
     window.addEventListener('message', (event) => {
       const { data } = event
       const { command } = data
       if (command === 'delivering_colors') {
         const { c1, c2 } = data
-        console.log("motherfuckers", c1, c2)
         c1_input.value = c1
         c2_input.value = c2
-        c1_input.dispatchEvent(new Event('input', { bubbles: true }))
-        c2_input.dispatchEvent(new Event('input', { bubbles: true }))
+        update_thumbnails()
       }
     })
 
-    const send_colors = () => {
+    const set_colors = () => {
       dandy.message({ command: 'set_colors', c1: c1_input.value, c2: c2_input.value })
     }
-    c1_input.onchange = send_colors
-    c2_input.onchange = send_colors
+    c1_input.onchange = set_colors
+    c2_input.onchange = set_colors
+
+    const swap_colors = () => {
+      const x = c1_input.value
+      c1_input.value = c2_input.value
+      c2_input.value = x
+      update_thumbnails()
+      set_colors()
+    }
+
+    swap_button.onclick = swap_colors
 
   }
 }

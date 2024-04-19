@@ -8,11 +8,26 @@ export class DandyGradient extends DandyTown {
     properties.c1 = 'red'
     properties.c2 = 'blue'
 
-    this.debug_log("constructed, reloading iframe")
-    this.reload_iframe()
+    const set_size_and_reload = () => {
+      this.resize_to_fit()
+      this.reload_iframe()
+    }
+
+    const { width_widget, height_widget } = this
+    width_widget.callback = set_size_and_reload
+    height_widget.callback = set_size_and_reload
+    
+    set_size_and_reload()
   }
 
-  // we don't have input on in this node, but queuing the prompt will still deliver inputs
+  resize_to_fit() {
+    const { width_widget, height_widget, node } = this
+    let w = width_widget.value + 20
+    let h = height_widget.value + 140
+    node.setSize([w, h])
+  }
+
+  // we don't have input on in this node, but queuing the prompt will still deliver inputs.
   // we don't want to rerender and lose our gradient.
   get render_on_input() {
     return false
@@ -32,19 +47,16 @@ export class DandyGradient extends DandyTown {
     ]
   }
 
-  // we do this so we can persist the colors chosen, writing it to properties keeps them
+  // we do this so we can persist the colors chosen, writing it to node.properties keeps them.
+  // if we had done the color picking in a widget it would persist, but we'd be reloading each time 
+  // and it's nicer this way, and shows how to send messages
   on_message(o) {
     const { properties } = this.node
     const { command } = o
     
-    console.log("GOT MESAGE ", o)
     if (command === 'get_colors') {
-    console.log("GOT BIRDS ")
-
       const { c1, c2 } = properties
-      console.log("GOT DOGS ", c1, c2)
       this.send_message({ command: 'delivering_colors', c1, c2 })
-      console.log("GOT DONKEYS ")
       return
     }
 
@@ -54,7 +66,5 @@ export class DandyGradient extends DandyTown {
       properties.c2 = c2
       return
     }
-    
   } 
-
 }
