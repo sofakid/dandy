@@ -33,13 +33,17 @@ export class DandyGradient extends DandyTown {
     return false
   }
 
+  // js_data returns a list of DandyChainData objects
+  // use DandyJsClassicData(url) and DandyJsModuleData(url) to make those objects
+  // they'll be loaded in the same order
   get js_data() {
     return [
-      DandyJsClassicData('/extensions/dandy/Coloris-0.24.0/coloris.min.js'),
+      DandyJsClassicData('/extensions/dandy/Coloris-0.24.0/coloris.min.js_'),
       DandyJsClassicData('/extensions/dandy/examples/gradient.js')
     ]
   }
 
+  // return a list of CSS urls
   get css_urls() {
     return [
       "/extensions/dandy/Coloris-0.24.0/coloris.min.css",

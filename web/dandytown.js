@@ -157,6 +157,8 @@ export class DandyTown extends DandyNode {
       freeze_widget.label = "Freeze"
     }
 
+    this.init_widgets_above_content()
+
     const divvy = this.divvy = document.createElement('div')
     divvy.classList.add('dandyMax')
     divvy.id = this.id
@@ -221,6 +223,9 @@ export class DandyTown extends DandyNode {
   }
 
   // --- override these -----------------------------------------------
+
+  init_widgets_above_content() {
+  }
 
   get render_on_input() {
     return true

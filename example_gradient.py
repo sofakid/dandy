@@ -7,7 +7,7 @@ class DandyGradient(DandyWithHashSocket):
   OUTPUT_NODE = True
 
   # do it this way instead of INPUT_TYPES
-  # up the inhertance chain we add inputs for hash and service_id
+  # up the inheritance chain we add inputs for hash and service_id
   @classmethod
   def DANDY_INPUTS(cls):
     return DandyOptionalInputs(super(), {

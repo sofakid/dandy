@@ -507,7 +507,7 @@ export class DandyInvisibleWidget extends DandyWidget {
 export class DandyIncredibleShrinkingWidget extends DandyWidget {
   constructor(node, height) {
     super(node, 'dandy_incredible_shrinking_widget', '', {})
-    this.size = [0, height] // LiteGraph will pad it by 4
+    this.size = [0, height]
   }
 }
 

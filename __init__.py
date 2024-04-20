@@ -9,6 +9,7 @@ from .collectors import *
 from .splitters import *
 from .socket import launch_server
 from .example_gradient import DandyGradient
+from .example_pixelsjs import DandyPixelsJs
 
 WEB_DIRECTORY = "web"
 
@@ -47,6 +48,7 @@ NODE_CLASS_MAPPINGS = {
   "DandyStringArraySplitter": DandyStringArraySplitter,
   "DandyEditorSettings": DandyEditorSettings,
   "DandyPrompt": DandyPrompt,
+  "DandyPixelsJs": DandyPixelsJs,
   "DandyGradient": DandyGradient,
 }
 
@@ -89,6 +91,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyPrompt": "Dandy Prompt",
   "DandyEditorSettings": "Dandy Editor Settings",
 
+  "DandyPixelsJs": "Dandy Pixels.JS",
   "DandyGradient": "Dandy Gradient",
   "DandyP5JsLoader": "Dandy p5.js Loader",
   "DandyP5JsSetup": "Dandy p5.js Setup",

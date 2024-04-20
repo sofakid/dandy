@@ -15,6 +15,7 @@ import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJ
          DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "/extensions/dandy/loaders.js"
 import { DandySocket } from "/extensions/dandy/socket.js"
 import { DandyGradient } from '/extensions/dandy/examples/gradient_node.js'
+import { DandyPixelsJs } from '/extensions/dandy/examples/pixelsjs_node.js'
 
 
 const extension_name = "dandy"
@@ -45,6 +46,7 @@ const dandy_nodes = {
   "Dandy p5.js Setup": DandyP5JsSetup,
   "Dandy p5.js Draw": DandyP5JsDraw,
   "Dandy Gradient": DandyGradient,
+  "Dandy Pixels.JS": DandyPixelsJs,
   
   "Dandy Mask Collector": DandyMaskCollector,
   "Dandy Image Collector": DandyImageCollector,
