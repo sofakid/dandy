@@ -16,15 +16,8 @@ export class DandySplitter extends DandyNode {
     n_outputs_widget.callback = (x) => {
       const { chain } = this
       if (x >= 0) {
-        const connections = this.get_output_connections()
         chain.n_outputs = x
-
-        // if we don't do this timeout, if the taret nodes are moved, and the page is refreshed, they don't reconnect right
-        const just_a_moment = 100
-        setTimeout(() => {
-          chain.reconnect_output_connections(connections)
-          node.size = node.computeSize()
-        }, just_a_moment)
+        node.size = node.computeSize()
       }
     }
   }

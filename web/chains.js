@@ -68,7 +68,6 @@ export class DandyChain {
     if (dandy.init_after_chain) {
       dandy.init_after_chain()
     }
-
   }
 
   get is_start() {
@@ -101,8 +100,17 @@ export class DandyChain {
     this._n_inputs = n_inputs
     
     // in and out chains exists simultaneously, ignore the case of 0 
-    if (n_inputs >= 1) {
-      dandy.remove_inputs_and_widgets(name)
+    if (n_inputs > 0) {
+      if (n_inputs === 1) {
+        dandy.rename_input_slot(`${name}0`, name)
+      } else {
+        dandy.rename_input_slot(name, `${name}0`)
+      }
+      dandy.each_io_name(name, n_inputs, (nom, i) => {
+        dandy.put_input_slot(nom, type)
+      })   
+      dandy.remove_inputs_after(n_inputs, name)
+      //dandy.remove_inputs_and_widgets(name)
     }
 
     this.each_input((nom, i) => {
@@ -116,14 +124,27 @@ export class DandyChain {
   set n_outputs(n_outputs) {
     const { out_slots, dandy, name, type } = this
     this._n_outputs = n_outputs
-    
-    if (!type_is_dandy(type)) {
-      dandy.remove_outputs(name)
-    }
     out_slots.length = 0
-    this.each_output((nom, i) => {
-      out_slots.push(dandy.put_output_slot(nom, type))
-    })
+    
+    // in and out chains exists simultaneously, ignore the case of 0 
+    if (n_outputs > 0) {
+      if (n_outputs === 1) {
+        dandy.rename_output_slot(`${name}0`, name)
+      } else {
+        dandy.rename_output_slot(name, `${name}0`)
+      }
+      dandy.each_io_name(name, n_outputs, (nom, i) => {
+        dandy.put_output_slot(nom, type)
+      })
+      dandy.remove_outputs_after(n_outputs, name)
+
+      // if (!type_is_dandy(type)) {
+      //   dandy.remove_outputs(name)
+      // }
+      this.each_output((nom, i) => {
+        out_slots.push(dandy.put_output_slot(nom, type))
+      })
+    }
   }
 
   get is_start() {
@@ -131,23 +152,18 @@ export class DandyChain {
   }
 
   each_input(f) {
-    const { n_inputs, name } = this
-    for (let i = 0; i < n_inputs; ++i) {
-      const nom = n_inputs === 1 ? name : `${name}${i}`
-      f(nom, i)
-    }
+    const { n_inputs, name, dandy } = this
+    dandy.each_io_name(name, n_inputs, f)
   }
 
   each_output(f) {
-    const { name, n_outputs } = this
-    for (let i = 0; i < n_outputs; ++i) {
-      const nom = n_outputs === 1 ? name : `${name}${i}`
-      f(nom, i)
-    }
+    const { name, n_outputs, dandy } = this
+    dandy.each_io_name(name, n_outputs, f)
   }
 
+  // note there's duplicate code in ImageCollecter for nonchain type inputs
   reconnect_input_connections(links_table) {
-    const {graph } = this.node
+    const { graph } = this.node
     this.each_input((input_name, i) => {
       this.debug_log('reconnect_input_connections', i)
       const links_row = links_table[i]

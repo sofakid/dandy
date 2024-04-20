@@ -12,11 +12,10 @@ class DandyCollector(DandyWithHash):
 class DandyImageCollector(DandyCollector):
   @classmethod
   def DANDY_INPUTS(cls):
-    return DandyOptionalInputs(super(), { 
-    })
+    return DandyOptionalInputs(super(), {})
   
-  RETURN_TYPES = (IMAGE_TYPE, IMAGE_URL_TYPE,)
-  RETURN_NAMES = (IMAGE_NAME, IMAGE_URL_NAME,)
+  RETURN_TYPES = (IMAGE_URL_TYPE, IMAGE_TYPE)
+  RETURN_NAMES = (IMAGE_URL_NAME, IMAGE_NAME)
 
   def run(self, **kwargs):
     urls = list()
@@ -40,7 +39,7 @@ class DandyImageCollector(DandyCollector):
     
     urls = '\n'.join(urls)
     batched, w, h = batch(images)
-    return { 'ui': { 'value': [urls]}, 'result': [batched, urls] } 
+    return { 'ui': { 'value': [urls]}, 'result': [urls, batched] } 
   
 
 class DandyMaskCollector(DandyCollector):
@@ -49,8 +48,8 @@ class DandyMaskCollector(DandyCollector):
     return DandyOptionalInputs(super(), { 
     })
   
-  RETURN_TYPES = (MASK_TYPE, IMAGE_URL_TYPE,)
-  RETURN_NAMES = (MASK_NAME, IMAGE_URL_NAME,)
+  RETURN_TYPES = (IMAGE_URL_TYPE, MASK_TYPE)
+  RETURN_NAMES = (IMAGE_URL_NAME, MASK_NAME)
 
   def run(self, **kwargs):
     urls = list()
@@ -73,7 +72,7 @@ class DandyMaskCollector(DandyCollector):
 
     print("DandyMaskCollector :: Batched masks :: " + str(batched.size(0)))
     
-    return { 'ui': { 'value': [urls]}, 'result': [batched, urls] } 
+    return { 'ui': { 'value': [urls]}, 'result': [urls, batched] } 
 
 
 def flatten(lst):

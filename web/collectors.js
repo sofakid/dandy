@@ -1,5 +1,5 @@
 import { DandyImageUrlChain, DandyIntChain, DandyBooleanChain, DandyFloatChain, DandyStringChain } from "/extensions/dandy/chains.js"
-import { DandyNames, DandyTypes, DandyNode, DandyHashDealer, ComfyTypesList, DandyWidget, ComfyTypes } from "/extensions/dandy/dandymisc.js"
+import { DandyNames, DandyTypes, DandyNode, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
 
 const max_inputs = 100
 
@@ -13,14 +13,31 @@ export class DandyCollector extends DandyNode {
     this.collection = []
     
     const n_inputs_widget = this.n_inputs_widget = this.find_widget('n_inputs')
-    n_inputs_widget.callback = (x) => {
-      if (x >= 0) {
-        const { chain } = this
-        const input_links = this.get_input_connections()
-        chain.n_inputs = x
-        chain.reconnect_input_connections(input_links)
-        node.size = node.computeSize()
+    n_inputs_widget.callback = (n) => {
+      if (n < 1) {
+        n_inputs_widget.value = 1
+        n = 1
       }
+      this.setup_inputs(n, type)
+    }
+  }
+
+  setup_inputs(n) {
+    if (n > 0) {
+      const { node } = this
+      chain.n_inputs = n
+      node.size = node.computeSize()
+    }
+  }
+
+
+  setup_inputs(n) {
+    if (n > 0) {
+      const { chain, node } = this
+      const input_links = this.get_input_connections()
+      chain.n_inputs = n
+      this.reconnect_input_connections(input_links)
+      node.size = node.computeSize()
     }
   }
 
@@ -30,8 +47,8 @@ export class DandyCollector extends DandyNode {
   }
 
   // we can't do this in the chain because the chain thinks it has 2 inputs when it's created
-  get_input_connections() {
-    const { node, type } = this
+  get_input_connections(type) {
+    const { node } = this
     const { graph, inputs } = node
 
     const links_table = []
@@ -65,6 +82,25 @@ export class DandyCollector extends DandyNode {
       })
     }
     return links_table
+  }
+
+  reconnect_input_connections(links_table) {
+    const { graph } = this.node
+    this.each_io_name((input_name, i) => {
+      this.debug_log('reconnect_input_connections', i)
+      const links_row = links_table[i]
+      this.debug_log('reconnect_input_connections links row', i, links_row)
+
+      if (links_row) {
+        links_row.forEach((link) => {
+          const { origin_id, origin_slot, target_id, target_slot } = link
+          this.debug_log('reconnect_input_connections', i, origin_id, origin_slot, target_id, target_slot)
+
+          const origin = graph.getNodeById(origin_id)
+          origin.connect(origin_slot, target_id, target_slot) 
+        })
+      }
+    })
   }
 
   update_hash() {
@@ -103,18 +139,8 @@ export class DandyCollector extends DandyNode {
 
   on_executed(output) {
     const { chain } = this 
-    let value = output.value[0]
-
-    // if (type in ComfyTypesList && Array.isArray(value)) {
-    //   value = value[0]
-    // }
-
-    // if (type in [DandyTypes.IMAGE_URL]) {
-    //   value = value.split('\n')
-    // }
-
+    const value = output.value[0]
     const s = `${value}`.slice(0, 200)
-
     this.debug_log(`ON_EXECUTED :: value: <${s}>, output: `, output)
     
     if (this.last_value !== value) {
@@ -129,38 +155,31 @@ export class DandyImageyCollector extends DandyCollector {
     super(node, app, name, type)
     new DandyImageUrlChain(this, 1, 1)
     
-    this.remove_inputs_and_widgets('n_inputs')
-    
-    const inty_options = {
-      min: 1,
-      max: max_inputs,
-      step: 10,
-      precision: 0,
-    }
+    this.setup_inputs(2)
 
-    const f_imagey_inputs = (n) => {
-      if (n >= 0) {
-        this.remove_inputs(name)
-        for (let i = 0; i < n; ++i) {
-          const nom = `${name}${i}`
-          this.put_input_slot(nom, type)
-        }
-        node.size = node.computeSize()
+    const n_inputs_widget = this.n_inputs_widget = this.find_widget('n_inputs')
+    n_inputs_widget.callback = (n) => {
+      if (n < 1) {
+        n = 1
       }
+      this.setup_inputs(n)
     }
+  }
 
-    const f_url_inputs = (n) => {
-      if (n >= 0) {
-        this.chain.n_inputs = n
-        node.size = node.computeSize()
+  setup_inputs(n) {
+    if (n > 0) {
+      const { node, name, type } = this
+      if (n === 1) {
+        this.rename_input_slot(`${name}0`, name)
+      } else {
+        this.rename_input_slot(name, `${name}0`)
       }
+      this.each_io_name(name, n, (nom, i) => {
+        this.put_input_slot(nom, type)
+      })
+      this.remove_inputs_after(n, name)
+      node.size = node.computeSize()
     }
-
-    node.addWidget('number', `n_${name}_inputs`, 2, f_imagey_inputs, inty_options)
-    node.addWidget('number', 'n_url_inputs', 1, f_url_inputs, inty_options)
-
-    f_imagey_inputs(2)
-    f_url_inputs(1)
   }
 
   init_after_chain() {

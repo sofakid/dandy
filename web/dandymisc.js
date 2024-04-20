@@ -135,6 +135,7 @@ export class DandyNode {
       node.setDirtyCanvas(true, true)
     }
 
+    // litegraph doesn't check for undefined graph, otherwise same code
     node.removeOutput = (slot) => {
       node.disconnectOutput(slot)
       node.outputs.splice(slot, 1)
@@ -160,7 +161,7 @@ export class DandyNode {
         node.onOutputRemoved(slot)
       }
       node.setDirtyCanvas(true, true)
-  };
+    }
 
 
     // if you extend DandyNode, implement on_configure instead of setting it on the node
@@ -264,6 +265,53 @@ export class DandyNode {
 
   }
 
+  each_io_name(name, n, f) {
+    for (let i = 0; i < n; ++i) {
+      const nom = n === 1 ? name : `${name}${i}`
+      f(nom, i)
+    }
+  }
+  
+  _remove_io_after(n, name, i_or_o, f_remover) {
+    const regex = new RegExp(`${name}(\\d*)$`);
+    const get_number = (s) => {
+      const match = s.match(regex)
+      if (match) {
+        this.debug_log(`_remove_io_after :: match:`, match, match[0])
+        return parseInt(match[1])
+      } else {
+        return null
+      }
+    }
+    if (!i_or_o) {
+      this.warn_log("no i_or_o", name)
+      return
+    }
+    const noms = i_or_o.map((x) => x.name).filter((x) => x.match(regex))
+    this.debug_log("_remove_io_after", noms)
+    noms.forEach((nom) => {
+      const d = get_number(nom)
+      this.debug_log(`_remove_io_after :: d: ${d}`)
+      if (d >= n) {
+        f_remover(nom)
+      }
+    })
+  }
+
+  remove_inputs_after(n, name) {
+    this._remove_io_after(n, name, this.node.inputs, (nom) => {
+      this.debug_log(`removing input ${nom}`)
+      this.remove_input_slot(nom)
+    })
+  }
+
+  remove_outputs_after(n, name) {
+    this._remove_io_after(n, name, this.node.outputs, (nom) => {
+      this.debug_log(`removing output ${nom}`)
+      this.remove_output_slot(nom)
+    })
+  }
+
   for_each_chain(f_chain_type) {
     const { chains } = this
     if (chains) {
@@ -275,9 +323,30 @@ export class DandyNode {
     }
   }
 
+  rename_input_slot(from, to) {
+    const { node } = this
+    const i_want_the_object = true
+    const input = node.findInputSlot(from, i_want_the_object)
+    if (input !== -1) {
+      input.name = to
+    }
+  }
+
+  rename_output_slot(from, to) {
+    const { node } = this
+    const i_want_the_object = true
+    const output = node.findOutputSlot(from, i_want_the_object)
+    if (output !== -1) {
+      output.name = to
+    }
+  }
+
   put_input_slot(name, type) {
     const { node } = this
-    this.remove_input_slot(name)
+    const already = node.findInputSlot(name)
+    if (already !== -1) {
+      return already
+    }
     const color = DandyColorTypeMap[type]
     node.addInput(name, type, { color })
     return node.findInputSlot(name)
@@ -285,7 +354,10 @@ export class DandyNode {
 
   put_output_slot(name, type) {
     const { node } = this
-    this.remove_output_slot(name)
+    const already = node.findOutputSlot(name)
+    if (already !== -1) {
+      return already
+    }
     const color = DandyColorTypeMap[type]
     node.addOutput(name, type, { color })
     return node.findOutputSlot(name)
