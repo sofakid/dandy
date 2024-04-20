@@ -1,36 +1,9 @@
-import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay, DandyHashDealer, DandyTypes } from '/extensions/dandy/dandymisc.js'
+import { Mimes, DandyNames, dandy_cash, DandyNode, dandy_delay, DandyHashDealer, DandyTypes,
+         dandy_load_list_of_urls } from '/extensions/dandy/dandymisc.js'
 import { dandy_css_link } from '/extensions/dandy/dandycss.js'
 import { DandySocket } from '/extensions/dandy/socket.js'
 import { DandyChainData } from '/extensions/dandy/chain_data.js'
 import { api } from '/scripts/api.js'
-
-const load_url = async (url) => {
-  try {
-    const response = await fetch(url)
-    if (!response.ok) {
-      this.error_log('Failed to fetch url', url)
-      return ""
-    }
-    return await response.text()
-
-  } catch (error) {
-    this.error_log('Failed to fetch url', url, error)
-    return ""
-  }
-}
-
-const load_list_of_urls = async (urls, f) => {
-  const out = []
-  for (let i = 0; i < urls.length; ++i) {
-    const url = urls[i]      
-    const text = await load_url(url)
-    if (text.length > 0) {
-      const o = f(text)
-      out.push(o)
-    }
-  }
-  return out
-}
 
 export const DandyJsModuleData = (url) => new DandyChainData(url, Mimes.JS_MODULE, DandyTypes.JS)
 export const DandyJsClassicData = (url) => new DandyChainData(url, Mimes.JS, DandyTypes.JS)
@@ -558,9 +531,9 @@ export class DandyTown extends DandyNode {
 
     this.clear_iframe()
     
-    const htmls = await load_list_of_urls(html_urls, (x) => x)
-    const jsons = await load_list_of_urls(json_urls, (x) => JSON.stringify(x))
-    const yamls = await load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
+    const htmls = await dandy_load_list_of_urls(html_urls, (x) => x)
+    const jsons = await dandy_load_list_of_urls(json_urls, (x) => JSON.stringify(x))
+    const yamls = await dandy_load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
 
 
     const { 

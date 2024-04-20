@@ -81,21 +81,14 @@ class DandyWasmLoader(DandyLoader):
 class DandyUrlLoader(DandyLoaderWithHashSocket):
   @classmethod
   def DANDY_INPUTS(cls):
-    return DandyOptionalInputs(super(), { 
-      HTML_NAME: HTML_TYPE_INPUT,
-      CSS_NAME: CSS_TYPE_INPUT,
-      JS_NAME: JS_TYPE_INPUT,
-      WASM_NAME: WASM_TYPE_INPUT,
-      JSON_NAME: JSON_TYPE_INPUT,
-      YAML_NAME: YAML_TYPE_INPUT,
-      IMAGE_URL_NAME: IMAGE_URL_TYPE_INPUT,
-      STRING_NAME: STRING_TYPE_INPUT,
-    })
+    return DandyOptionalInputs(super(), {})
 
-  RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE, STRING_TYPE)
-  RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME, STRING_NAME)
-
+  # RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE, STRING_TYPE)
+  # RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME, STRING_NAME)
+  RETURN_TYPES = (STRING_TYPE,)
+  RETURN_NAMES = (STRING_NAME,)
   def run(self, service_id=None, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None, **kwargs):
     out_string = self.client.request_string(service_id)
-    return (html, css, js, wasm, json, yaml, image_url, out_string)
+    # return (html, css, js, wasm, json, yaml, image_url, out_string)
+    return (out_string,)
 

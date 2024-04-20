@@ -277,7 +277,6 @@ export class DandyNode {
     const get_number = (s) => {
       const match = s.match(regex)
       if (match) {
-        this.debug_log(`_remove_io_after :: match:`, match, match[0])
         return parseInt(match[1])
       } else {
         return null
@@ -288,10 +287,8 @@ export class DandyNode {
       return
     }
     const noms = i_or_o.map((x) => x.name).filter((x) => x.match(regex))
-    this.debug_log("_remove_io_after", noms)
     noms.forEach((nom) => {
       const d = get_number(nom)
-      this.debug_log(`_remove_io_after :: d: ${d}`)
       if (d >= n) {
         f_remover(nom)
       }
@@ -300,14 +297,12 @@ export class DandyNode {
 
   remove_inputs_after(n, name) {
     this._remove_io_after(n, name, this.node.inputs, (nom) => {
-      this.debug_log(`removing input ${nom}`)
       this.remove_input_slot(nom)
     })
   }
 
   remove_outputs_after(n, name) {
     this._remove_io_after(n, name, this.node.outputs, (nom) => {
-      this.debug_log(`removing output ${nom}`)
       this.remove_output_slot(nom)
     })
   }
@@ -574,3 +569,30 @@ export class DandyHashDealer {
   }
 }
 
+export const dandy_load_url = async (url) => {
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      console.error(new Error(`Failed to fetch url: ${url}`))
+      return ""
+    }
+    return await response.text()
+
+  } catch (error) {
+    console.error(error)
+    return ""
+  }
+}
+
+export const dandy_load_list_of_urls = async (urls, f) => {
+  const out = []
+  for (let i = 0; i < urls.length; ++i) {
+    const url = urls[i]      
+    const text = await dandy_load_url(url)
+    if (text.length > 0) {
+      const o = f(text)
+      out.push(o)
+    }
+  }
+  return out
+}

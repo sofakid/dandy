@@ -1,6 +1,8 @@
+import { DandySocket } from "/extensions/dandy/socket.js"
 import { DandyChain, DandyJsChain, DandyHtmlChain, DandyCssChain, DandyJsonChain, 
          DandyYamlChain, DandyWasmChain, DandyImageUrlChain } from "/extensions/dandy/chains.js"
-import { DandyNames, DandyNode, DandyTypes, Mimes, dandy_js_plain_module_toggle } from "/extensions/dandy/dandymisc.js"
+import { DandyHashDealer, DandyIncredibleShrinkingWidget, DandyNames, DandyNode, DandyTypes, Mimes, 
+         dandy_js_plain_module_toggle, dandy_load_url } from '/extensions/dandy/dandymisc.js'
 import { ComfyWidgets } from "/scripts/widgets.js"
 
 const dandy_webroot = "/extensions/dandy/"
@@ -448,15 +450,28 @@ export class DandyUrlLoader extends DandyNode {
     this.yaml_chain = new DandyYamlChain(this, 1, 1)
     this.image_url_chain = new DandyImageUrlChain(this, 1, 1)
 
+    this.hash_dealer = new DandyHashDealer(this)
+    const service_id_widget = this.find_widget(DandyNames.SERVICE_ID)
+    service_id_widget.size = [0, 0]
+    
     dandy_js_plain_module_toggle(this)
-
+    
+    new DandyIncredibleShrinkingWidget(node, -12)
+    
     const cw = ComfyWidgets.STRING(node, '', 
-      ['', { default:'', multiline: true, serialize: true }], app)
-  
+    ['', { default:'', multiline: true, serialize: true }], app)
+    
     cw.widget.callback = (text) => {
       this.for_each_chain((chain, type) => {
         chain.contributions = text
       })
     }
+    
+    const socket = this.socket = new DandySocket(this)
+    socket.on_request_string = async (o) => {
+      o.string = await dandy_load_url(cw.widget.value)
+      socket.deliver_string(o)
+    }
+
   }
 }
