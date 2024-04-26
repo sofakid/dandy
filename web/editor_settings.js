@@ -1,6 +1,19 @@
 import { DandyNode, dandy_delay } from '/extensions/dandy/dandymisc.js'
 import { DandySocket } from "/extensions/dandy/socket.js"
 
+const mandatories = {
+  hasCssTransforms: true,
+  showPrintMargin: false,
+  scrollPastEnd: false,
+}
+
+const default_keyboard = 'ace'
+const default_theme = 'twilight'
+const default_font = 'Courier New'
+const default_options = {}
+
+Object.assign(default_options, mandatories)
+
 export const ace_themes = [
   'ambiance', 
   'chaos',
@@ -224,19 +237,6 @@ export const dandy_settings = () => {
 export const wait_for_DandySettings = async () => {
   await settings.wait_until_ready()
 }
-
-const mandatories = {
-  hasCssTransforms: true,
-  showPrintMargin: false,
-  scrollPastEnd: false,
-}
-
-const default_keyboard = 'ace'
-const default_theme = 'twilight'
-const default_font = 'Courier New'
-const default_options = {}
-
-Object.assign(default_options, mandatories)
 
 const setto_names = []
 const setto = {}

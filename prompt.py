@@ -17,4 +17,4 @@ class DandyPrompt(DandyWithHashSocket):
     prompt = o['output']['prompt']
     tokens = clip.tokenize(prompt)
     cond, pooled = clip.encode_from_tokens(tokens, return_pooled=True)
-    return ([[cond, {"pooled_output": pooled}]], prompt)
+    return ([[cond, { "pooled_output": pooled }]], prompt)

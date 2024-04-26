@@ -1,8 +1,6 @@
 import { DandyImageUrlChain, DandyIntChain, DandyBooleanChain, DandyFloatChain, DandyStringChain } from "/extensions/dandy/chains.js"
 import { DandyNames, DandyTypes, DandyNode, DandyHashDealer } from "/extensions/dandy/dandymisc.js"
 
-const max_inputs = 100
-
 export class DandyCollector extends DandyNode {
   constructor(node, app, name, type) {
     super(node, app)
@@ -18,7 +16,7 @@ export class DandyCollector extends DandyNode {
         n_inputs_widget.value = 1
         n = 1
       }
-      this.setup_inputs(n, type)
+      this.setup_inputs(n)
     }
   }
 
@@ -30,77 +28,9 @@ export class DandyCollector extends DandyNode {
     }
   }
 
-
-  setup_inputs(n) {
-    if (n > 0) {
-      const { chain, node } = this
-      const input_links = this.get_input_connections()
-      chain.n_inputs = n
-      this.reconnect_input_connections(input_links)
-      node.size = node.computeSize()
-    }
-  }
-
   get chain() {
     const { chains, type } = this
     return chains[type][0]
-  }
-
-  // we can't do this in the chain because the chain thinks it has 2 inputs when it's created
-  get_input_connections(type) {
-    const { node } = this
-    const { graph, inputs } = node
-
-    const links_table = []
-
-    if (inputs.length > 0) {
-      inputs.forEach((input, i) => {
-        const links_row = [] 
-        if (input.type !== type) {
-          links_table.push(links_row)
-          return
-        }
-
-        const { link:link_id } = input
-        if (link_id === null) {
-          links_table.push(links_row)
-          return
-        }
-        
-        const link = graph.links[link_id]
-        if (link === undefined || link === null) {
-          this.debug_log(`collecting input_connections: undefined link`)
-          links_table.push(links_row)
-          return
-        }
-      
-        // link can change, clone it
-        const o = {...link}
-        o.target_slot = i
-        links_row.push(o)
-        links_table.push(links_row)
-      })
-    }
-    return links_table
-  }
-
-  reconnect_input_connections(links_table) {
-    const { graph } = this.node
-    this.each_io_name((input_name, i) => {
-      this.debug_log('reconnect_input_connections', i)
-      const links_row = links_table[i]
-      this.debug_log('reconnect_input_connections links row', i, links_row)
-
-      if (links_row) {
-        links_row.forEach((link) => {
-          const { origin_id, origin_slot, target_id, target_slot } = link
-          this.debug_log('reconnect_input_connections', i, origin_id, origin_slot, target_id, target_slot)
-
-          const origin = graph.getNodeById(origin_id)
-          origin.connect(origin_slot, target_id, target_slot) 
-        })
-      }
-    })
   }
 
   update_hash() {

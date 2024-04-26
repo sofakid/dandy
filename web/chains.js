@@ -161,52 +161,6 @@ export class DandyChain {
     dandy.each_io_name(name, n_outputs, f)
   }
 
-  // note there's duplicate code in ImageCollecter for nonchain type inputs
-  reconnect_input_connections(links_table) {
-    const { graph } = this.node
-    this.each_input((input_name, i) => {
-      this.debug_log('reconnect_input_connections', i)
-      const links_row = links_table[i]
-      this.debug_log('reconnect_input_connections links row', i, links_row)
-
-      if (links_row) {
-        links_row.forEach((link) => {
-          const { origin_id, origin_slot, target_id, target_slot } = link
-          this.debug_log('reconnect_input_connections', i, origin_id, origin_slot, target_id, target_slot)
-
-          const origin = graph.getNodeById(origin_id)
-          origin.connect(origin_slot, target_id, target_slot) 
-        })
-      }
-    })
-  }
-
-  reconnect_output_connections(links_table) {
-    const { node } = this
-    this.debug_log("reconnect_output_connections :: links_table: ", links_table)
-    const already = []
-    this.each_output((output_name, i) => {
-      const links_row = links_table[i]
-      this.debug_log("reconnect_output_connections :: links_row: ", links_row)
-
-      if (links_row) {
-        links_row.forEach((link) => {
-          this.debug_log("reconnect_output_connections :: link: ", link)
-          const { origin_slot, target_id, target_slot } = link
-          const sig = `${origin_slot}_${target_id}_${target_slot}`
-          if (sig in already) {
-            this.warn(`reconnect_output_connections :: multiple links for ${sig} found.`)
-            return
-          }
-          already.push(sig)
-          const x = node.connect(origin_slot, target_id, target_slot)
-          this.debug_log("reconnect_output_connections :: created link: ", x)
-        })
-      }
-    })
-  }
-
-
   // f_each_node: (chain) => {}
   follow_chain(f_each_node, seen = [], on_loop_detected = () => {}) {
     const { node, out_slots, type } = this
@@ -313,6 +267,7 @@ export class DandyChain {
     const { node, _contributions, mime, dandy, type, cat_data, input_widgets, 
       in_slots, out_slots, n_outputs } = this
 
+    this.debug_log("update_data")
     cat_data.length = 0
 
     if (using_this_input === false) {
@@ -393,7 +348,7 @@ export class DandyChain {
       this.each_output((output_name, i) => {
         const out_slot = out_slots[i]
         if (out_slot > -1) {
-          //this.debug_log("Setting output", out_slot, cat_data)
+          this.debug_log("Setting output", out_slot, cat_data)
           node.setOutputData(out_slot, cat_data)
           node.triggerSlot(out_slot)
         }

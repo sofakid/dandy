@@ -2,7 +2,7 @@ from .constants import *
 from .dandynodes import *
 from .image import *
     
-class DandyGradient(DandyWithHashSocket):
+class DandyPixiJs(DandyWithHashSocket):
   CATEGORY = DANDY_EXAMPLES_CATEGORY
   OUTPUT_NODE = True
 
@@ -11,6 +11,7 @@ class DandyGradient(DandyWithHashSocket):
   @classmethod
   def DANDY_INPUTS(cls):
     return DandyOptionalInputs(super(), {
+      'image': IMAGE_TYPE_INPUT,
       'width': WIDTH_HEIGHT_INPUT,
       'height': WIDTH_HEIGHT_INPUT,
     })
@@ -18,18 +19,28 @@ class DandyGradient(DandyWithHashSocket):
   RETURN_TYPES = ('IMAGE',)
   RETURN_NAMES = ('image',)
 
-  def run(self, service_id=None, **kwargs):
+  def run(self, service_id=None, image=None, **kwargs):
 
     if service_id == None:
       print('DandyPixiJs :: service_id is None')
       abort_abort_abort()
 
+    # turn tensors into b64 images to send to dandy
+    b64images = []    
+    if image != None:
+      for x in image:
+        b64 = make_b64image(x)
+        b64images.append(b64)
+    kwargs['image'] = b64images
+
     # send the inputs to dandy, dandytown socket.on_sending_input will recive this
     o = self.client.send_input(service_id, kwargs)
     o = o['output']
     b64s = o['captures']
-    b64 = b64s[0]
+    def f(g):
+      return list(map(lambda x: g(x), b64s))
 
-    out_image = make_image_from_b64(b64)
+    out_images = f(make_image_from_b64)
+    out_images_batch, out_width, out_height = batch(out_images)
     
-    return (out_image,)
+    return (out_images_batch,)

@@ -517,7 +517,12 @@ export const dandy_js_plain_module_toggle = (dandy) => {
   const default_classic = false
   const options = { on: 'module js', off: 'classic js' }
   const callback = (x) => {
-    dandy.chains[DandyTypes.JS].mime = x ? Mimes.JS_MODULE : Mimes.JS
+    console.log("WHIPPITYWOO", dandy.chains[DandyTypes.JS])
+    dandy.chains[DandyTypes.JS].forEach((chain) => {
+      console.log("WHIPPITYWOO 222 :: ", chain)
+      chain.mime = x ? Mimes.JS_MODULE : Mimes.JS
+      chain.update_chain()
+    })
   }
   const name = ''
   const widget = dandy.module_toggle_widget = node.addWidget(
@@ -571,7 +576,11 @@ export class DandyHashDealer {
 
 export const dandy_load_url = async (url) => {
   try {
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    })
     if (!response.ok) {
       console.error(new Error(`Failed to fetch url: ${url}`))
       return ""

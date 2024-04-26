@@ -1,8 +1,6 @@
 import { DandyImageUrlChain, DandyIntChain, DandyBooleanChain, DandyFloatChain, DandyStringChain } from "/extensions/dandy/chains.js"
 import { DandyNames, DandyTypes, DandyNode, DandyHashDealer, ComfyTypesList, DandyWidget, ComfyTypes } from "/extensions/dandy/dandymisc.js"
 
-const max_outputs = 100
-
 export class DandySplitter extends DandyNode {
   constructor(node, app, name, type) {
     super(node, app)
@@ -35,46 +33,6 @@ export class DandySplitter extends DandyNode {
     const { n_outputs_widget } = this
     n_outputs_widget.callback(n_outputs_widget.value)
     this.update_hash()
-  }
-
-  
-  get_output_connections() {
-    const { node, type } = this
-    const { graph, outputs } = node
-
-    const links_table = []
-
-    if (outputs.length > 0) {
-      outputs.forEach((output, i) => {
-        const links_row = [] 
-        if (output.type !== type) {
-          links_table.push(links_row)
-          return
-        }
-
-        const { links } = output
-        if (links === null || links.length === 0) {
-          links_table.push(links_row)
-          return
-        }
-        
-        for (let i = 0; i < links.length; ++i) {
-          const link_id = links[i]
-          const link = graph.links[link_id]
-          if (link === undefined) {
-            this.debug_log(`undefined link`)
-            continue
-          }
-
-          // link can change, clone it
-          const o = {...link}
-          links_row.push(o)
-        }
-        links_table.push(links_row)
-      })
-    }
-    this.debug_log('get_output_connections :: links_table: ', links_table)
-    return links_table
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {

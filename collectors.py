@@ -145,6 +145,7 @@ class DandyStringArrayCollector(DandyCollector):
   RETURN_NAMES = (STRING_NAME,)
 
   def run(self, **kwargs):
+    print(f'DandyStringArrayCollector :: kwargs: ${str(kwargs)}')
     x = []
     for key, value in kwargs.items():
       if key.startswith('string') and value != None:

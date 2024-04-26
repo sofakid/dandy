@@ -53,7 +53,7 @@ export class DandyTown extends DandyNode {
       const hash = await hash_f()
       if (hash !== this.canvas_hash) {
         this.canvas_hash = hash
-        api.dispatchEvent(new CustomEvent("graphChanged"))
+        api.dispatchEvent(new CustomEvent('graphChanged'))
       }
     }
     
@@ -62,7 +62,7 @@ export class DandyTown extends DandyNode {
 
 
     socket.on_sending_input = (o) => {
-      this.debug_log("socket.on_sending_input()", o)
+      this.debug_log('socket.on_sending_input()', o)
       const { py_client, input } = o
       const { int, float, boolean, positive, negative, string, image, mask } = input
       const { input_images_urls, input_masks_urls } = this
@@ -112,8 +112,8 @@ export class DandyTown extends DandyNode {
     node.dandy = this
     node.size = [535, 605]
     
-    const width_widget = this.width_widget = this.find_widget("width")
-    const height_widget = this.height_widget = this.find_widget("height")
+    const width_widget = this.width_widget = this.find_widget('width')
+    const height_widget = this.height_widget = this.find_widget('height')
     
     if (width_widget && height_widget) {
       width_widget.callback = () => {
@@ -130,7 +130,7 @@ export class DandyTown extends DandyNode {
     if (this.show_freeze_button) {
       const freeze = () => {
         this.debug_log(`Freezing :: dirty:${this.dirty}`)
-        freeze_widget.label = "Unfreeze"
+        freeze_widget.label = 'Unfreeze'
         this.frozen = true
         this.rendering = false
         if (this.dirty) {
@@ -139,7 +139,7 @@ export class DandyTown extends DandyNode {
       }
       const unfreeze = () => {
         this.debug_log(`Unfreezing :: dirty:${this.dirty}`)
-        freeze_widget.label = "Freeze"
+        freeze_widget.label = 'Freeze'
         this.frozen = false
         this.rendering = false
         if (this.dirty) {
@@ -147,14 +147,14 @@ export class DandyTown extends DandyNode {
         }
       }
   
-      const freeze_widget = this.freeze_widget = node.addWidget("button", "freeze_button", "", () => {
+      const freeze_widget = this.freeze_widget = node.addWidget('button', 'freeze_button', '', () => {
         if (this.frozen) {
           unfreeze()
         } else {
           freeze()
         }
       })
-      freeze_widget.label = "Freeze"
+      freeze_widget.label = 'Freeze'
     }
 
     this.init_widgets_above_content()
@@ -162,7 +162,7 @@ export class DandyTown extends DandyNode {
     const divvy = this.divvy = document.createElement('div')
     divvy.classList.add('dandyMax')
     divvy.id = this.id
-    const iframe_widget = this.iframe_widget = node.addDOMWidget(divvy.id, "divvy", divvy, { serialize: false })
+    const iframe_widget = this.iframe_widget = node.addDOMWidget(divvy.id, 'divvy', divvy, { serialize: false })
 
     // iframe_widget.computeSize = () => {
     //   const { iframe } = this
@@ -177,7 +177,7 @@ export class DandyTown extends DandyNode {
     //   return [w, h]
     // }
 
-    this.debug_log("DandyTown constructed", this)
+    this.debug_log('DandyTown constructed', this)
     this.constructed = true
     //this.reload_iframe()
   }
@@ -189,7 +189,7 @@ export class DandyTown extends DandyNode {
 
     // const { iframe, node } = this
     // if (!iframe) {
-    //   console.log("resize_to_fit :: no iframe")
+    //   console.log('resize_to_fit :: no iframe')
 
     //   return
     // }
@@ -204,21 +204,21 @@ export class DandyTown extends DandyNode {
     //   node.outputs ? node.outputs.length : 1
     // )
     
-    // this.debug_log("resize_to_fit without rows", w, h, rows)
+    // this.debug_log('resize_to_fit without rows', w, h, rows)
     // h += LiteGraph.NODE_TEXT_SIZE * rows
-    // this.debug_log("resize_to_fit with rows", w, h, rows)
+    // this.debug_log('resize_to_fit with rows', w, h, rows)
 
     // node.widgets.forEach((widget) => {
     //   if (widget.computeSize) {
     //     h += widget.computeSize()[1]
     //   } else {
-    //     console.log("WIDGET", widget)
+    //     console.log('WIDGET', widget)
     //   }
     //   h += 4
     // })
     // w += 20
     // h += 10
-    // this.debug_log("resize_to_fit", w, h)
+    // this.debug_log('resize_to_fit', w, h)
     // node.setSize([w, h])
   }
 
@@ -342,14 +342,14 @@ export class DandyTown extends DandyNode {
         negative, 
       } = o_dandy_output
   
-      this.debug_log("capture and deliver 1", dandy_output, typeof dandy_output)
+      this.debug_log('capture and deliver 1', dandy_output, typeof dandy_output)
       
       this.output_int(int)
       this.output_float(float)
       this.output_boolean(boolean)
       this.output_string(string)
      
-      this.debug_log("capture and deliver 2", dandy_output)
+      this.debug_log('capture and deliver 2', dandy_output)
   
       const default_value = (v, d) => v !== undefined ? v : d
       o = {
@@ -362,13 +362,13 @@ export class DandyTown extends DandyNode {
         positive: default_value(positive, []),
         negative: default_value(negative, []),
       }
-      this.debug_log("capture and deliver 3", o, string)
+      this.debug_log('capture and deliver 3', o, string)
     } catch (error) {
       this.debug_log(`Can't parse dandy.ouput`, dandy_output, error)
       this.error_log(`Can't parse dandy.ouput`, dandy_output, error)
     }
 
-    this.debug_log("sending o: ", o)
+    this.debug_log('sending o: ', o)
     socket.thanks(py_client, o)
   }
 
@@ -429,7 +429,7 @@ export class DandyTown extends DandyNode {
     let canvas = document.getElementById(no_canvas_id)
 
     if (!canvas) {
-      canvas = document.createElement("canvas")
+      canvas = document.createElement('canvas')
       canvas.id = no_canvas_id
       divvy.appendChild(canvas)
     }
@@ -440,23 +440,23 @@ export class DandyTown extends DandyNode {
     canvas.width = width > 0 ? width : 10
     canvas.height = height > 0 ? height : 10
 
-    const ctx = canvas.getContext("2d")
+    const ctx = canvas.getContext('2d')
     ctx.globalAlpha = 0.0
-    ctx.fillStyle = "black"
+    ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, width, height)
 
     const p = width / 8
     const q = height / 8
     ctx.globalAlpha = 0.8
-    ctx.fillStyle = "white"
+    ctx.fillStyle = 'white'
     ctx.fillRect(p, q, width - 2 * p, height - 2 * q)
 
     ctx.globalAlpha = 1.0
-    ctx.font = "30px Arial"
-    ctx.fillStyle = "black"
-    ctx.textAlign = "center"
-    ctx.textBaseline = "middle"
-    ctx.fillText("No Canvas Found", width / 2, height / 2)
+    ctx.font = '30px Arial'
+    ctx.fillStyle = 'black'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('No Canvas Found', width / 2, height / 2)
 
     return canvas
   }
@@ -573,7 +573,7 @@ export class DandyTown extends DandyNode {
       }
     }
     const dandy_o_json = JSON.stringify(dandy_o)
-    this.debug_log("dandy_o", dandy_o_json, dandy_o)
+    this.debug_log('dandy_o', dandy_o_json, dandy_o)
     
     const { input_images_urls, input_masks_urls } = this
     const n_input_images = input_images_urls.length
@@ -609,6 +609,7 @@ export class DandyTown extends DandyNode {
     const load_all_images = o_image_urls.map(load_images_map).join('\n')
     const load_all_masks = o_mask_urls.map(load_masks_map).join('\n')
 
+    const n_resources = image_urls.length + image_urls.length + n_input_images + n_input_masks
     // this.debug_log(`load_all_images`, load_all_images)
     const load_images_js = `
     (()=>{
@@ -617,33 +618,29 @@ export class DandyTown extends DandyNode {
       ${load_all_images}
       ${load_all_masks}
 
-      const n_images = ${image_urls.length + image_urls.length + n_input_images + n_input_masks}
-      let i_image = 0
-      const count_image = () => {
-        // console.warn('dandy image counted', i_image)
-        if (++i_image === n_images) {
-          dandy.onload()
-        }
+      
+
+      console.log("DERF")
+      const load_images = () => {
+        const dandy_resources = new DandyResources()
+
+        dandy.image.forEach((image) => {
+          dandy_resources.resource_loaded(image)
+        })
+        
+        dandy.mask.forEach((image) => {
+          dandy_resources.resource_loaded(image)
+        })  
       }
 
-      const image_loaded = (img) => {
-        if (img.complete) {
-          count_image()
-        } else {
-          img.onload = count_image
-          img.onerror = () => {
-            console.error("Failed to load image.", img)
-            count_image()
-          }
-        }
+      if (document.readyState === 'complete') {
+        load_images()
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          load_images()
+        })
       }
 
-      dandy.image.forEach(image_loaded)
-      dandy.mask.forEach(image_loaded)
-
-      if (n_images === 0) {
-        dandy.onload()
-      }
     })();
     `
 
@@ -651,33 +648,83 @@ export class DandyTown extends DandyNode {
     const load_images_blob = new Blob([load_images_js], { type: Mimes.JS })
     const load_images_url = URL.createObjectURL(load_images_blob)
     this.load_images_url = load_images_url
-
-    const iframe_id = `iframe_${++i_iframe}`
-    const dandy_o_js = `const dandy = ${dandy_o_json}
-    dandy.onload = () => {}
-    dandy.continue = () => {
-      window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })
-    }
-    dandy.message = (o) => {
-      o.iframe_id = '${iframe_id}'
-      window.parent.postMessage(o)
-    }
-    `
-    const dandy_o_blob = new Blob([dandy_o_js], { type: Mimes.JS })
-    const dandy_o_url = URL.createObjectURL(dandy_o_blob)
-    this.dandy_o_url = dandy_o_url
-
-    js_data.unshift({ value: dandy_o_url, mime: Mimes.JS })
     js_data.push({ value: load_images_url, mime: Mimes.JS })
 
-    const script_map = (o) => `<script type="${o.mime}" src=${o.value}></script>`
-    const script_tags = js_data.map(script_map).join('')
+
+    const iframe_id = `iframe_${++i_iframe}`
+    const dandy_o_js = `
+      const dandy = ${dandy_o_json}
+      dandy.onload = () => {}
+      dandy.continue = () => {
+        window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })
+      }
+      dandy.message = (o) => {
+        o.iframe_id = '${iframe_id}'
+        window.parent.postMessage(o)
+      }
+      class DandyResources {
+        constructor() {
+          this.n = ${n_resources}
+          this.i = 0
+          if (${n_resources} === 0) {
+            this.dandy_ready()
+          }
+
+        }
+
+        count_resource = () => {
+          this.i++
+          console.log(\`loaded \${this.i} of \${this.n} resources...\`)
+          if (this.i === this.n) {
+            this.dandy_ready()
+          }
+        }
+
+        resource_loaded = (resource) => {
+          console.log('resource_loaded', resource, resource.complete)
+          if (resource.complete) {
+            console.log('resource_loaded resource.complete', resource)
+
+            this.count_resource()
+          } else {
+            console.log('resource_loaded setting onload', resource)
+
+            resource.onload = () => {
+              console.log('resource_loaded :: onload!!!', resource)
+              this.count_resource()
+            }
+            resource.onerror = () => {
+              console.error('Failed to load resource.', resource)
+              this.count_resource()
+            }
+          }
+        }
+
+        dandy_ready = () => {
+          console.log("We runnin up in this bitch")
+          dandy.onload()
+        }
+      }
+
+      console.log("DORF")
+
+
+      `
+    const dandy_o_script = `<script type="${Mimes.JS}">${dandy_o_js}</script>`
+
+    const script_map = (o) => {
+      const qs = o.value.startsWith('blob') ? '' : `?never_cache=${Date.now()}`
+      return `<script type="${o.mime}" src="${o.value}${qs}"></script>`
+    }
+    const script_tags_list = js_data.map(script_map)
+    script_tags_list.unshift(dandy_o_script)
+    const script_tags = script_tags_list.join('')
 
     const css_map = (url) => `<link rel="stylesheet" type="${Mimes.CSS}" href="${url}" />`
-    const css_links = css_urls.map(css_map).join("") + dandy_css_link
+    const css_links = css_urls.map(css_map).join('') + dandy_css_link
 
     const lazy_html = (html) => {
-      const i = html.indexOf("</body>")
+      const i = html.indexOf('</body>')
       if (i === -1) {
         return `<html class="dandyMax"><head></head><body class="dandyMax">${html}</body></html>` 
       }
@@ -685,14 +732,14 @@ export class DandyTown extends DandyNode {
     }
 
     const html_insert_scripts = (html) => {
-      const i = html.indexOf("</body>")
+      const i = html.indexOf('</body>')
       const prefix = i === -1 ? html : html.slice(0, i)
       const suffix = i === -1 ? '' : html.slice(i)
       return `${prefix}${script_tags}${suffix}` 
     }
 
     const html_insert_css = (html) => {
-      const i = html.indexOf("</head>")
+      const i = html.indexOf('</head>')
       const prefix = i === -1 ? html : html.slice(0, i)
       const suffix = i === -1 ? '' : html.slice(i)
       return `${prefix}${css_links}${suffix}` 
@@ -705,7 +752,7 @@ export class DandyTown extends DandyNode {
     let iframe = null
     let iframe_doc = null
     const make_iframe = (html, on_load) => {
-      iframe = document.createElement("iframe")
+      iframe = document.createElement('iframe')
       iframe.id = iframe_id
       this.debug_log(`making iframe<${iframe.id}>...`)
       iframe.classList.add('dandyMax')
@@ -729,10 +776,10 @@ export class DandyTown extends DandyNode {
       if (from_iframe_id === iframe_id) {
         if (dandy_continue) {
           this.rendering = false
-          //this.debug_log("continue listener :: output: ", output)
+          //this.debug_log('continue listener :: output: ', output)
           this.dandy_output = output
         } else {
-          this.debug_log("dandy_message_listener :: event.data: ", event.data)
+          this.debug_log('dandy_message_listener :: event.data: ', event.data)
           this.on_message(event.data)
         }
       } else {

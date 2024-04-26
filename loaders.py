@@ -83,12 +83,10 @@ class DandyUrlLoader(DandyLoaderWithHashSocket):
   def DANDY_INPUTS(cls):
     return DandyOptionalInputs(super(), {})
 
-  # RETURN_TYPES = (HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE, STRING_TYPE)
-  # RETURN_NAMES = (HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME, STRING_NAME)
-  RETURN_TYPES = (STRING_TYPE,)
-  RETURN_NAMES = (STRING_NAME,)
-  def run(self, service_id=None, html=None, css=None, js=None, wasm=None, json=None, yaml=None, image_url=None, **kwargs):
+  RETURN_TYPES = (STRING_TYPE, HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE)
+  RETURN_NAMES = (STRING_NAME, HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME)
+  def run(self, service_id=None, **kwargs):
     out_string = self.client.request_string(service_id)
-    # return (html, css, js, wasm, json, yaml, image_url, out_string)
-    return (out_string,)
+    
+    return (out_string, out_string, out_string, out_string, out_string, out_string, out_string, out_string)
 
