@@ -6,7 +6,7 @@ export default function ()
     const displacementSprite = new PIXI.Sprite(this.resources.map);
 
     this.addFilter('DisplacementFilter', {
-        enabled: true,
+        enabled: false,
         global: true,
         args: { sprite: displacementSprite, scale: 1, width: this.initWidth, height: this.initHeight },
         oncreate(folder)

@@ -277,7 +277,15 @@ export class DandyTown extends DandyNode {
   // ----------------------------------------------------------------
 
   send_message(o) {
-    this.iframe.contentWindow.postMessage(o, '*')
+    const { iframe } = this
+    if (!iframe) {
+      return
+    }
+    const { contentWindow } = iframe
+    if (!contentWindow) {
+      return
+    }
+    contentWindow.postMessage(o, '*')
   }
 
   on_connections_change(i_or_o, index, connected, link_info, input) {

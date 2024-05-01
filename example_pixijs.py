@@ -12,8 +12,6 @@ class DandyPixiJs(DandyWithHashSocket):
   def DANDY_INPUTS(cls):
     return DandyOptionalInputs(super(), {
       'image': IMAGE_TYPE_INPUT,
-      'width': WIDTH_HEIGHT_INPUT,
-      'height': WIDTH_HEIGHT_INPUT,
     })
 
   RETURN_TYPES = ('IMAGE',)
@@ -33,7 +31,11 @@ class DandyPixiJs(DandyWithHashSocket):
         b64images.append(b64)
     kwargs['image'] = b64images
 
-    # send the inputs to dandy, dandytown socket.on_sending_input will recive this
+    _, width, height = batch(image)
+    kwargs['width'] = width
+    kwargs['height'] = height
+
+    # send the inputs to dandy, dandytown socket.on_sending_input will receive this
     o = self.client.send_input(service_id, kwargs)
     o = o['output']
     b64s = o['captures']
