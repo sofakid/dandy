@@ -1,6 +1,7 @@
 import { DandyHtmlChain, DandyJsChain, DandyCssChain, DandyJsonChain, DandyWasmChain, DandyYamlChain, 
-         DandyImageUrlChain, DandyIntChain, DandyFloatChain, DandyBooleanChain, DandyStringChain } from '/extensions/dandy/chains.js'
+  DandyImageUrlChain, DandyIntChain, DandyFloatChain, DandyBooleanChain, DandyStringChain } from '/extensions/dandy/chains.js'
 import { DandyTown } from '/extensions/dandy/dandytown.js'
+import { dandy_load_list_of_urls } from '/extensions/dandy/dandymisc.js'
 
 export class DandyLand extends DandyTown {
   constructor(node, app) {
@@ -22,7 +23,6 @@ export class DandyLand extends DandyTown {
     this.output_float_chain = new DandyFloatChain(this, 0, 1)
     this.output_boolean_chain = new DandyBooleanChain(this, 0, 1)
     this.output_string_chain = new DandyStringChain(this, 0, 1)
-
   }
 
   get show_freeze_button() {

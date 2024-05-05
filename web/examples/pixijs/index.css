@@ -23,8 +23,3 @@ body {
 .lil-gui.enabled .title {
     color: #ea4080;
 }
-#logo img {
-    display: block;
-    margin:8px auto 0;
-    width: 80%;
-}

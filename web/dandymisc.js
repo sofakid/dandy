@@ -555,11 +555,20 @@ export class DandyHashDealer {
     const size = [0, -4]
     this.message = Date.now()
     this._salt = 0
+    this.message_f = async () => {
+      return this.message
+    }
     widget.computeSize = () => size
     widget.size = size
     widget.serializeValue = async () => {
+      this.update_message()
+      console.log(`Serializing hash: ${this.hash}`)
       return this.hash
     }
+  }
+
+  async update_message() {
+    this.message = await this.message_f()
   }
 
   get hash() {
@@ -568,7 +577,7 @@ export class DandyHashDealer {
   }
 
   salt() {
-    if (this._salt++ >= 1000) {
+    if (this._salt++ >= 5000) {
       this._salt = 0
     }
   }

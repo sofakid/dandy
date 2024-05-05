@@ -22,7 +22,7 @@ export class DandyPixiJs extends DandyTown {
   resize_to_fit() {
     const { width, height, node } = this
     let w = width + 285
-    let h = height + 100
+    let h = height + 50
     node.setSize([w, h])
   }
 
@@ -69,8 +69,23 @@ export class DandyPixiJs extends DandyTown {
     if (command === 'save_options') {
       properties.options = o.options
       properties.order = o.order
+      this.hash_dealer.salt()
       return
     }
+  }
 
-  } 
+  on_input() {
+    super.on_input()
+    const { input } = this
+    this.width = input.width
+    this.height = input.height
+    this.resize_to_fit()
+  }
+
+  async make_dandy_o() {
+    const dandy_o = await super.make_dandy_o()
+    dandy_o.width = this.width
+    dandy_o.height = this.height
+    return dandy_o
+  }
 }

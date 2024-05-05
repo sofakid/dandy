@@ -18,12 +18,14 @@ export class DandyTown extends DandyNode {
     super(node, app)
     this.debug_verbose = true
 
-    this.input_int = 0
-    this.input_float = 0.0
-    this.input_boolean = false
-    this.input_string = ''
-    this.input_positive = []
-    this.input_negative = []
+    this.input = {
+      int: 0,
+      float: 0.0,
+      boolean: false,
+      string: '',
+      positive: [],
+      negative: []
+    }
     this.input_images_urls = []
     this.input_masks_urls = []
 
@@ -42,15 +44,13 @@ export class DandyTown extends DandyNode {
     this.canvas_hash = dandy_cash([`${Date.now()}`])
     const hash_dealer = this.hash_dealer = new DandyHashDealer(this)
 
-    const hash_f = async () => {
-      const b64s = await this.get_canvases_b64s()
-      return dandy_cash(b64s)
+    hash_dealer.message_f = async () => {
+      return await this.get_canvases_b64s()
     }
 
-    hash_dealer.widget.serializeValue = hash_f
-    
     const check_for_changes = async () => {
-      const hash = await hash_f()
+      await hash_dealer.update_message()
+      const { hash } = hash_dealer 
       if (hash !== this.canvas_hash) {
         this.canvas_hash = hash
         api.dispatchEvent(new CustomEvent('graphChanged'))
@@ -60,39 +60,11 @@ export class DandyTown extends DandyNode {
     const changes_interval_ms = 15000
     this.changes_interval = setInterval(check_for_changes, changes_interval_ms)
 
-
     socket.on_sending_input = (o) => {
       this.debug_log('socket.on_sending_input()', o)
       const { py_client, input } = o
-      const { int, float, boolean, positive, negative, string, image, mask } = input
-      const { input_images_urls, input_masks_urls } = this
-
-      this.input_int = int
-      this.input_float = float
-      this.input_boolean = boolean
-      this.input_string = string
-      this.input_positive = positive
-      this.input_negative = negative
-      
-      input_images_urls.length = 0
-      if (image) {
-        image.forEach((x, i) => {
-          input_images_urls.push({
-            value: x,
-            id: `image_${i}`
-          })
-        })
-      }
-
-      input_masks_urls.length = 0
-      if (mask) {
-        mask.forEach((x, i) => {
-          input_masks_urls.push({
-            value: x,
-            id: `mask_${i}`
-          })
-        })
-      }
+      this.input = input
+      this.on_input()
 
       if (this.render_on_input) {
         this.render(py_client)
@@ -164,65 +136,39 @@ export class DandyTown extends DandyNode {
     divvy.id = this.id
     const iframe_widget = this.iframe_widget = node.addDOMWidget(divvy.id, 'divvy', divvy, { serialize: false })
 
-    // iframe_widget.computeSize = () => {
-    //   const { iframe } = this
-    //   if (!iframe) {
-    //     return [0, 0]
-    //   }
-    //   const doc = iframe.contentDocument || iframe.contentWindow.document
-
-    //   const w = doc.body.scrollWidth
-    //   const h = doc.body.scrollHeight
-
-    //   return [w, h]
-    // }
-
     this.debug_log('DandyTown constructed', this)
     this.constructed = true
     //this.reload_iframe()
   }
 
-  resize_to_fit() {
-
-
-    // this doesn't work, the nodes current size seems to clip the scrollheight
-
-    // const { iframe, node } = this
-    // if (!iframe) {
-    //   console.log('resize_to_fit :: no iframe')
-
-    //   return
-    // }
-
-    // const doc = iframe.contentDocument || iframe.contentWindow.document
-
-    // let w = doc.body.scrollWidth
-    // let h = doc.body.scrollHeight
-
-    // const rows = Math.max(
-    //   node.inputs ? node.inputs.length : 1,
-    //   node.outputs ? node.outputs.length : 1
-    // )
-    
-    // this.debug_log('resize_to_fit without rows', w, h, rows)
-    // h += LiteGraph.NODE_TEXT_SIZE * rows
-    // this.debug_log('resize_to_fit with rows', w, h, rows)
-
-    // node.widgets.forEach((widget) => {
-    //   if (widget.computeSize) {
-    //     h += widget.computeSize()[1]
-    //   } else {
-    //     console.log('WIDGET', widget)
-    //   }
-    //   h += 4
-    // })
-    // w += 20
-    // h += 10
-    // this.debug_log('resize_to_fit', w, h)
-    // node.setSize([w, h])
-  }
 
   // --- override these -----------------------------------------------
+  on_input() {
+    const { input, input_images_urls, input_masks_urls } = this
+    const { image, mask } = input
+
+    this.input = input
+    
+    input_images_urls.length = 0
+    if (image) {
+      image.forEach((x, i) => {
+        input_images_urls.push({
+          value: x,
+          id: `image_${i}`
+        })
+      })
+    }
+
+    input_masks_urls.length = 0
+    if (mask) {
+      mask.forEach((x, i) => {
+        input_masks_urls.push({
+          value: x,
+          id: `mask_${i}`
+        })
+      })
+    }
+  }
 
   init_widgets_above_content() {
   }
@@ -258,6 +204,9 @@ export class DandyTown extends DandyNode {
   get js_data() {
     return []
   }
+  get image_inputs() {
+
+  }
 
   output_int(int) {
   }
@@ -272,6 +221,38 @@ export class DandyTown extends DandyNode {
   }
 
   on_message(o) {
+  }
+
+  async make_dandy_o() {
+    const { json_urls, yaml_urls, width_widget, height_widget, 
+      input } = this
+    
+    const jsons = await dandy_load_list_of_urls(json_urls, (x) => JSON.stringify(x))
+    const yamls = await dandy_load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
+
+    // image and mask just need to initialized, they will populate
+    return {
+      int: input.int,
+      float: input.float,
+      boolean: input.boolean,
+      string: input.string,
+      positive: input.positive,
+      negative: input.negative,
+      image: [],
+      mask: [],
+      json: jsons,
+      yaml: yamls,
+      width: width_widget ? width_widget.value : 512,
+      height: height_widget ? height_widget.value : 512,
+      output: {
+        int: input.int,
+        float: input.float,
+        boolean: input.boolean,
+        string: input.string,
+        positive: input.positive,
+        negative: input.negative,
+      }
+    }
   }
 
   // ----------------------------------------------------------------
@@ -294,6 +275,7 @@ export class DandyTown extends DandyNode {
       const is_image_slot = link_info.type === 'IMAGE'
       if (is_image_slot && is_input_slot_that_changed) {
         this.input_images_urls.length = 0
+        this.input_masks_urls.length = 0
       }
     }
   }
@@ -317,7 +299,6 @@ export class DandyTown extends DandyNode {
       this.debug_log('delaying...')
       await dandy_delay(ms)
     }
-    this.resize_to_fit()
     await this.capture_and_deliver(py_client)
   }
   
@@ -358,7 +339,6 @@ export class DandyTown extends DandyNode {
       this.output_string(string)
      
       this.debug_log('capture and deliver 2', dandy_output)
-  
       const default_value = (v, d) => v !== undefined ? v : d
       o = {
         py_client,
@@ -539,47 +519,15 @@ export class DandyTown extends DandyNode {
   async reload_iframe_job (when_done) {
     const { divvy, image_urls,
       js_data, html_urls, css_urls, json_urls, yaml_urls,
-      width_widget, height_widget, 
+      width_widget, height_widget, image_inputs
     } = this
 
     this.clear_iframe()
     
     const htmls = await dandy_load_list_of_urls(html_urls, (x) => x)
-    const jsons = await dandy_load_list_of_urls(json_urls, (x) => JSON.stringify(x))
-    const yamls = await dandy_load_list_of_urls(yaml_urls, (x) => jsyaml.load(x))
+    
+    const dandy_o = await this.make_dandy_o()
 
-
-    const { 
-      input_int, 
-      input_float, 
-      input_boolean,
-      input_string, 
-      input_positive,
-      input_negative,
-    } = this
-
-    const dandy_o = {
-      int: input_int,
-      float: input_float,
-      boolean: input_boolean,
-      string: input_string,
-      positive: input_positive,
-      negative: input_negative,
-      image: [],
-      mask: [],
-      json: jsons,
-      yaml: yamls,
-      width: width_widget ? width_widget.value : 512,
-      height: height_widget ? height_widget.value : 512,
-      output: {
-        int: input_int,
-        float: input_float,
-        boolean: input_boolean,
-        string: input_string,
-        positive: input_positive,
-        negative: input_negative,
-      }
-    }
     const dandy_o_json = JSON.stringify(dandy_o)
     this.debug_log('dandy_o', dandy_o_json, dandy_o)
     
@@ -626,9 +574,6 @@ export class DandyTown extends DandyNode {
       ${load_all_images}
       ${load_all_masks}
 
-      
-
-      console.log("DERF")
       const load_images = () => {
         const dandy_resources = new DandyResources()
 
