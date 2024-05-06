@@ -13,9 +13,11 @@ from .dandynodes import *
 def batch(images):
   n = len(images)
 
+
   if n == 0:
     return None, 0, 0
 
+  print(f"BATCHING :: {n} images :: images[0].shape: {images[0].shape}")
   shape_len = len(images[0].shape)
 
   if shape_len == 4: # shape [1, 512, 512, 3] (images)
@@ -37,12 +39,12 @@ def batch(images):
   max_height = max(image.shape[h] for image in images)
   max_width = max(image.shape[w] for image in images)
   
-  if n == 1:
-    return images[0], max_width, max_height
+  # if n == 1:
+  #   return images[0], max_width, max_height
   
   resized_images = []
   for image in images:
-    # print("DandyBatch :: original: " + str(image.shape))
+    print("DandyBatch :: original: " + str(image.shape))
     if image.shape[h] != max_height or image.shape[w] != max_width:
       if shape_len == 4:
           resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
@@ -60,7 +62,7 @@ def batch(images):
       else:
         resized_image = image
     
-    # print("DandyBatch :: resized: " + str(resized_image.shape))
+    print("DandyBatch :: resized: " + str(resized_image.shape))
     resized_images.append(resized_image)
 
   batched_image = torch.cat(resized_images, dim=0)

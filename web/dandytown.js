@@ -41,25 +41,6 @@ export class DandyTown extends DandyNode {
       negative: null,
     })
 
-    this.canvas_hash = dandy_cash([`${Date.now()}`])
-    const hash_dealer = this.hash_dealer = new DandyHashDealer(this)
-
-    hash_dealer.message_f = async () => {
-      return await this.get_canvases_b64s()
-    }
-
-    const check_for_changes = async () => {
-      await hash_dealer.update_message()
-      const { hash } = hash_dealer 
-      if (hash !== this.canvas_hash) {
-        this.canvas_hash = hash
-        api.dispatchEvent(new CustomEvent('graphChanged'))
-      }
-    }
-    
-    const changes_interval_ms = 15000
-    this.changes_interval = setInterval(check_for_changes, changes_interval_ms)
-
     socket.on_sending_input = (o) => {
       this.debug_log('socket.on_sending_input()', o)
       const { py_client, input } = o
@@ -79,6 +60,28 @@ export class DandyTown extends DandyNode {
     this.reloading = false
     this.dirty = false
     this.rendering = false
+
+    this.canvas_hash = dandy_cash([`${Date.now()}`])
+    const hash_dealer = this.hash_dealer = new DandyHashDealer(this)
+
+    hash_dealer.message_f = async () => {
+      if (this.rendering || this.reloading) {
+        return 'busy'
+      }
+      return await this.get_canvases_b64s()
+    }
+
+    const check_for_changes = async () => {
+      await hash_dealer.update_message()
+      const { hash } = hash_dealer 
+      if (hash !== this.canvas_hash) {
+        this.canvas_hash = hash
+        api.dispatchEvent(new CustomEvent('graphChanged'))
+      }
+    }
+    
+    const changes_interval_ms = 15000
+    this.changes_interval = setInterval(check_for_changes, changes_interval_ms)
 
     this.id = `DandyTown_${i_dandy_town}`
     node.dandy = this
@@ -303,9 +306,10 @@ export class DandyTown extends DandyNode {
   }
   
   async capture_and_deliver(py_client) {
-    const { socket } = this
+    const { socket, hash_dealer } = this
     const b64s = await this.get_canvases_b64s()
-    this.canvas_hash = dandy_cash(b64s)
+    hash_dealer.message = b64s
+    this.canvas_hash = hash_dealer.hash
 
     const { dandy_output } = this
 
