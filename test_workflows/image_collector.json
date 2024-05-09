@@ -1,6 +1,6 @@
 {
-  "last_node_id": 110,
-  "last_link_id": 126,
+  "last_node_id": 112,
+  "last_link_id": 133,
   "nodes": [
     {
       "id": 101,
@@ -22,7 +22,7 @@
           "type": "IMAGE",
           "links": [
             117,
-            126
+            131
           ],
           "shape": 3,
           "slot_index": 0
@@ -104,7 +104,6 @@
           "name": "IMAGE",
           "type": "IMAGE",
           "links": [
-            111,
             120
           ],
           "shape": 3,
@@ -137,13 +136,13 @@
         "1": 26
       },
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
           "name": "tensor",
           "type": "*",
-          "link": 122
+          "link": 133
         }
       ],
       "properties": {
@@ -220,75 +219,6 @@
       }
     },
     {
-      "id": 99,
-      "type": "DandyImageCollector",
-      "pos": [
-        718,
-        467
-      ],
-      "size": {
-        "0": 210,
-        "1": 162
-      },
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "image0",
-          "type": "IMAGE",
-          "link": 125
-        },
-        {
-          "name": "image1",
-          "type": "IMAGE",
-          "link": 126
-        },
-        {
-          "name": "image2",
-          "type": "IMAGE",
-          "link": 111
-        },
-        {
-          "name": "image_url0",
-          "type": "DANDY_IMAGE_URL",
-          "link": null
-        },
-        {
-          "name": "image_url1",
-          "type": "DANDY_IMAGE_URL",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "image",
-          "type": "IMAGE",
-          "links": [
-            122,
-            124
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "image_url",
-          "type": "DANDY_IMAGE_URL",
-          "links": null
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "DandyImageCollector"
-      },
-      "widgets_values": [
-        null,
-        3,
-        1,
-        "",
-        ""
-      ]
-    },
-    {
       "id": 103,
       "type": "PreviewImage",
       "pos": [
@@ -307,31 +237,6 @@
           "name": "images",
           "type": "IMAGE",
           "link": 119
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
-    },
-    {
-      "id": 110,
-      "type": "PreviewImage",
-      "pos": [
-        1061,
-        669
-      ],
-      "size": {
-        "0": 828,
-        "1": 289
-      },
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 124
         }
       ],
       "properties": {
@@ -358,7 +263,7 @@
           "type": "IMAGE",
           "links": [
             116,
-            125
+            130
           ],
           "shape": 3,
           "slot_index": 0
@@ -376,6 +281,89 @@
       "widgets_values": [
         "screenshot_20240303_020324.png",
         "image"
+      ]
+    },
+    {
+      "id": 111,
+      "type": "PreviewImage",
+      "pos": [
+        1061,
+        669
+      ],
+      "size": [
+        210,
+        246
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 132
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 112,
+      "type": "DandyImageCollector",
+      "pos": [
+        718,
+        467
+      ],
+      "size": {
+        "0": 210,
+        "1": 98
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image_url",
+          "type": "DANDY_IMAGE_URL",
+          "link": null
+        },
+        {
+          "name": "image0",
+          "type": "IMAGE",
+          "link": 130
+        },
+        {
+          "name": "image1",
+          "type": "IMAGE",
+          "link": 131
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image_url",
+          "type": "DANDY_IMAGE_URL",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            132,
+            133
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyImageCollector"
+      },
+      "widgets_values": [
+        null,
+        2,
+        ""
       ]
     }
   ],
@@ -411,14 +399,6 @@
       67,
       0,
       "STRING"
-    ],
-    [
-      111,
-      102,
-      0,
-      99,
-      2,
-      "IMAGE"
     ],
     [
       116,
@@ -461,14 +441,6 @@
       "IMAGE"
     ],
     [
-      122,
-      99,
-      0,
-      108,
-      0,
-      "*"
-    ],
-    [
       123,
       104,
       0,
@@ -477,28 +449,36 @@
       "*"
     ],
     [
-      124,
-      99,
-      0,
-      110,
-      0,
-      "IMAGE"
-    ],
-    [
-      125,
+      130,
       100,
       0,
-      99,
+      112,
+      1,
+      "IMAGE"
+    ],
+    [
+      131,
+      101,
+      0,
+      112,
+      2,
+      "IMAGE"
+    ],
+    [
+      132,
+      112,
+      1,
+      111,
       0,
       "IMAGE"
     ],
     [
-      126,
-      101,
-      0,
-      99,
+      133,
+      112,
       1,
-      "IMAGE"
+      108,
+      0,
+      "*"
     ]
   ],
   "groups": [],

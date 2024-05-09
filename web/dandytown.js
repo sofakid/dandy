@@ -433,17 +433,14 @@ export class DandyTown extends DandyNode {
     canvas.height = height > 0 ? height : 10
 
     const ctx = canvas.getContext('2d')
-    ctx.globalAlpha = 0.0
     ctx.fillStyle = 'black'
     ctx.fillRect(0, 0, width, height)
 
     const p = width / 8
     const q = height / 8
-    ctx.globalAlpha = 0.8
     ctx.fillStyle = 'white'
     ctx.fillRect(p, q, width - 2 * p, height - 2 * q)
 
-    ctx.globalAlpha = 1.0
     ctx.font = '30px Arial'
     ctx.fillStyle = 'black'
     ctx.textAlign = 'center'
@@ -626,12 +623,11 @@ export class DandyTown extends DandyNode {
           if (${n_resources} === 0) {
             this.dandy_ready()
           }
-
         }
 
         count_resource = () => {
           this.i++
-          console.log(\`loaded \${this.i} of \${this.n} resources...\`)
+          //console.log(\`loaded \${this.i} of \${this.n} resources...\`)
           if (this.i === this.n) {
             this.dandy_ready()
           }
@@ -640,14 +636,14 @@ export class DandyTown extends DandyNode {
         resource_loaded = (resource) => {
           console.log('resource_loaded', resource, resource.complete)
           if (resource.complete) {
-            console.log('resource_loaded resource.complete', resource)
+            //console.log('resource_loaded resource.complete', resource)
 
             this.count_resource()
           } else {
-            console.log('resource_loaded setting onload', resource)
+            //console.log('resource_loaded setting onload', resource)
 
             resource.onload = () => {
-              console.log('resource_loaded :: onload!!!', resource)
+              //console.log('resource_loaded :: onload!!!', resource)
               this.count_resource()
             }
             resource.onerror = () => {
@@ -658,14 +654,9 @@ export class DandyTown extends DandyNode {
         }
 
         dandy_ready = () => {
-          console.log("We runnin up in this bitch")
           dandy.onload()
         }
       }
-
-      console.log("DORF")
-
-
       `
     const dandy_o_script = `<script type="${Mimes.JS}">${dandy_o_js}</script>`
 

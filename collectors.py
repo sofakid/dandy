@@ -1,5 +1,5 @@
 import re
-from .image import make_b64image, batch, make_image_from_b64, make_mask_from_b64, make_b64mask
+from .image import make_b64image, batch_images, batch_masks, make_image_from_b64, make_mask_from_b64, make_b64mask
 from .constants import *
 from .dandynodes import *
 
@@ -18,11 +18,20 @@ class DandyImageCollector(DandyCollector):
   RETURN_NAMES = (IMAGE_URL_NAME, IMAGE_NAME)
 
   def run(self, **kwargs):
-    urls = list()
+    urls = []
     images = []
-    image_input_re = r'image\d*'
+    image_input_re = r'image(?!_url)\d*'
     image_url_input_re = r'image_url\d*'
 
+    for key, value in kwargs.items():
+      if re.match(image_url_input_re, key) and value != None:
+        print("DandyImageCollector :: image_url :: " + str(value)[:80])
+        for url in value.split('\n'):
+          print("DandyImageCollector :: url :: " + str(url)[:80])
+          img = make_image_from_b64(url)
+          images.append(img)
+          urls.append(url)
+    
     for key, value in kwargs.items():
       if re.match(image_input_re, key) and value != None:
         print("DandyImageCollector :: image :: " + str(value.size(0)) + " :: " + str(type(value)))
@@ -31,14 +40,8 @@ class DandyImageCollector(DandyCollector):
           urls.append(make_b64image(img))
           images.append(img)
 
-      if re.match(image_url_input_re, key) and value != None:
-        for url in value:
-          img = make_image_from_b64(url)
-          images.append(img)
-          urls.append(url)
-    
     urls = '\n'.join(urls)
-    batched, w, h = batch(images)
+    batched, w, h = batch_images(images)
     return { 'ui': { 'value': [urls]}, 'result': [urls, batched] } 
   
 
@@ -52,24 +55,31 @@ class DandyMaskCollector(DandyCollector):
   RETURN_NAMES = (IMAGE_URL_NAME, MASK_NAME)
 
   def run(self, **kwargs):
-    urls = list()
+    urls = []
     masks = []
-    mask_input_re = r'mask\d+'
-    image_url_input_re = r'image_url\d+'
+    mask_input_re = r'mask\d*'
+    image_url_input_re = r'image_url\d*'
 
     for key, value in kwargs.items():
+      print("DandyMaskCollector :: key :: " + str(key)[:80])
+      if re.match(image_url_input_re, key) and value != None:
+        print("DandyMaskCollector :: image_url :: " + str(value)) 
+
+        for url in value.split('\n'):
+          msk = make_mask_from_b64(url)
+          masks.append(msk)
+          grey_url = make_b64mask(msk)
+          urls.append(grey_url)
+    
+    for key, value in kwargs.items():
       if re.match(mask_input_re, key) and value != None:
-        print("DandyMaskCollector :: mask :: " + str(value.size(0)) + " :: " + str(type(value)))
+        print("DandyMaskCollector :: mask :: " + str(value.size(0)) 
+              + " :: " + str(type(value)) + " :: " + str(value.shape))
         urls.append(make_b64mask(value))
         masks.append(value)
 
-      if re.match(image_url_input_re, key) and value != None:
-        for url in value:
-          msk = make_mask_from_b64(url)
-          masks.append(msk)
-    
-    batched, w, h = batch(masks)
-
+    batched, w, h = batch_masks(masks)
+    urls = '\n'.join(urls)
     print("DandyMaskCollector :: Batched masks :: " + str(batched.size(0)))
     
     return { 'ui': { 'value': [urls]}, 'result': [urls, batched] } 

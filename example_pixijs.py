@@ -31,7 +31,7 @@ class DandyPixiJs(DandyWithHashSocket):
         b64images.append(b64)
     kwargs['image'] = b64images
 
-    _, width, height = batch(image)
+    _, width, height = batch_images(image)
     kwargs['width'] = width
     kwargs['height'] = height
 
@@ -43,6 +43,6 @@ class DandyPixiJs(DandyWithHashSocket):
       return list(map(lambda x: g(x), b64s))
 
     out_images = f(make_image_from_b64)
-    out_images_batch, out_width, out_height = batch(out_images)
+    out_images_batch, out_width, out_height = batch_images(out_images)
     
     return (out_images_batch,)

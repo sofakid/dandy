@@ -86,8 +86,8 @@ class DandyLand(DandyWithHashSocket):
     out_images = f(make_image_from_b64)
     out_masks = f(make_mask_from_b64)
 
-    out_images_batch, out_width, out_height = batch(out_images)
-    out_masks_batch, mask_width, mask_height = batch(out_masks)
+    out_images_batch, out_width, out_height = batch_images(out_images)
+    out_masks_batch, mask_width, mask_height = batch_masks(out_masks)
     
     out_int = o['int']
     out_float = o['float']

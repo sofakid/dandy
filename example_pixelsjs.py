@@ -44,6 +44,6 @@ class DandyPixelsJs(DandyWithHashSocket):
       return list(map(lambda x: g(x), b64s))
 
     out_images = f(make_image_from_b64)
-    out_images_batch, out_width, out_height = batch(out_images)
+    out_images_batch, out_width, out_height = batch_images(out_images)
     
     return (out_images_batch,)
