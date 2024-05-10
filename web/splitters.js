@@ -95,6 +95,7 @@ export class DandyBooleanSplitter extends DandySplitter {
 export class DandyStringArraySplitter extends DandySplitter {
   constructor(node, app) {
     super(node, app, 'string', 'STRING')
+    this.concat_string_inputs = false
     new DandyStringChain(this, 1, 2)
   }
 }
