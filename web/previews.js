@@ -55,12 +55,11 @@ export class DandyPreview extends DandyEditor {
   on_chain_updated(chain) {
     const { data } = chain
     if (typeof data === 'string') {
-      this.error_log("we don't do things this way anymore")
+      this.error_log("we don't do things this way anymore, not since.. the incident..")
       this.set_text(data)
     }
     else if (Array.isArray(data)) {
       const x = data.map((x, i) => {
-        this.debug_log(`thump thump thump ${i} :: ${x.value}`)
         return `${x.value}`
       }).join(', ')
       this.set_text(x)
@@ -83,6 +82,7 @@ export class DandyPreview extends DandyEditor {
 export class DandyStringPreview extends DandyPreview {
   constructor(node, app) {
     super(node, app, 'string', Mimes.STRING, 'string')
+    this.concat_string_inputs = false
     this.chain = new DandyStringChain(this, 1, 1)
     node.size = NICE_PREVIEW_SIZE
   }

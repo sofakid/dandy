@@ -58,7 +58,7 @@ class DandyWithHash(DandyNode):
   @classmethod
   def IS_CHANGED(cls, hash='None', **kwargs):
     h = f'{hash}'.encode().hex()
-    print(f"{cls.__name__} :: IS_CHANGED: {h}")
+    # print(f"{cls.__name__} :: IS_CHANGED: {h}")
     return h
 
 class DandyWithHashSocket(DandyWithHash):

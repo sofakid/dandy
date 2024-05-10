@@ -313,7 +313,7 @@ export class DandyChain {
       })
     }
     else if (type === DandyTypes.IMAGE_URL) {
-      this.debug_log("UPDATE DATA IMAGE_URLS", )
+      //this.debug_log("UPDATE DATA IMAGE_URLS", )
       let s = contributions_raw
       if (s.is_dandy_chain_data) {
         s = contributions_raw.value
@@ -332,6 +332,17 @@ export class DandyChain {
     contributions.forEach((contribution) => {
       cat_data.push(contribution)
     }) 
+    
+    // we concat strings by default, but not always (StringArrayCollector, DandyTown)
+    if (type === ComfyTypes.STRING && dandy.concat_string_inputs) {
+      this.warn_log("Concatting inputs")
+      let s = ''
+      cat_data.forEach((o) => {
+        s += `${o.value}`
+      })
+      cat_data.length = 0
+      cat_data.push(new DandyChainData(s, mime, type))
+    }
     
     if (n_outputs > 1) {
       const n = Math.min(n_outputs, cat_data.length)
@@ -422,31 +433,25 @@ export class DandyImageUrlChain extends DandyChain {
   }
 }
 // --------------------------------------------------------------------------
-export class DandyPrimativeChain extends DandyChain {
-  constructor(dandy, name, type, mime, n_inputs, n_outputs) {
-    super(dandy, name, type, mime, n_inputs, n_outputs)
-  }
-}
-
-export class DandyStringChain extends DandyPrimativeChain {
+export class DandyStringChain extends DandyChain {
   constructor(dandy, n_inputs, n_outputs) {
     super(dandy, 'string', 'STRING', M.STRING, n_inputs, n_outputs)
   }
 }
 
-export class DandyIntChain extends DandyPrimativeChain {
+export class DandyIntChain extends DandyChain {
   constructor(dandy, n_inputs, n_outputs) {
     super(dandy, 'int', 'INT', M.VALUE, n_inputs, n_outputs)
   }
 }
 
-export class DandyFloatChain extends DandyPrimativeChain {
+export class DandyFloatChain extends DandyChain {
   constructor(dandy, n_inputs, n_outputs) {
     super(dandy, 'float', 'FLOAT', M.VALUE, n_inputs, n_outputs)
   }
 }
 
-export class DandyBooleanChain extends DandyPrimativeChain {
+export class DandyBooleanChain extends DandyChain {
   constructor(dandy, n_inputs, n_outputs) {
     super(dandy, 'boolean', 'BOOLEAN', M.VALUE, n_inputs, n_outputs)
   }

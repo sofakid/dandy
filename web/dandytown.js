@@ -17,6 +17,7 @@ export class DandyTown extends DandyNode {
   constructor(node, app) {
     super(node, app)
     this.debug_verbose = true
+    this.concat_string_inputs = false
 
     this.input = {
       int: 0,

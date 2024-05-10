@@ -1,4 +1,5 @@
 import re
+import torch
 from .image import make_b64image, batch_images, batch_masks, make_image_from_b64, make_mask_from_b64, make_b64mask
 from .constants import *
 from .dandynodes import *
@@ -25,18 +26,14 @@ class DandyImageCollector(DandyCollector):
 
     for key, value in kwargs.items():
       if re.match(image_url_input_re, key) and value != None:
-        print("DandyImageCollector :: image_url :: " + str(value)[:80])
         for url in value.split('\n'):
-          print("DandyImageCollector :: url :: " + str(url)[:80])
           img = make_image_from_b64(url)
           images.append(img)
           urls.append(url)
     
     for key, value in kwargs.items():
       if re.match(image_input_re, key) and value != None:
-        print("DandyImageCollector :: image :: " + str(value.size(0)) + " :: " + str(type(value)))
         for img in value:
-          print("DandyImageCollector :: img  :: " + str(img.size(0)) + " :: " + str(type(img)))
           urls.append(make_b64image(img))
           images.append(img)
 
@@ -61,10 +58,7 @@ class DandyMaskCollector(DandyCollector):
     image_url_input_re = r'image_url\d*'
 
     for key, value in kwargs.items():
-      print("DandyMaskCollector :: key :: " + str(key)[:80])
       if re.match(image_url_input_re, key) and value != None:
-        print("DandyMaskCollector :: image_url :: " + str(value)) 
-
         for url in value.split('\n'):
           msk = make_mask_from_b64(url)
           masks.append(msk)
@@ -73,14 +67,13 @@ class DandyMaskCollector(DandyCollector):
     
     for key, value in kwargs.items():
       if re.match(mask_input_re, key) and value != None:
-        print("DandyMaskCollector :: mask :: " + str(value.size(0)) 
-              + " :: " + str(type(value)) + " :: " + str(value.shape))
-        urls.append(make_b64mask(value))
-        masks.append(value)
+        split_masks = torch.split(value, 1, dim=0)
+        for mask in split_masks:
+          urls.append(make_b64mask(mask))
+          masks.append(mask)
 
     batched, w, h = batch_masks(masks)
     urls = '\n'.join(urls)
-    print("DandyMaskCollector :: Batched masks :: " + str(batched.size(0)))
     
     return { 'ui': { 'value': [urls]}, 'result': [urls, batched] } 
 

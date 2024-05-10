@@ -1,26 +1,36 @@
 {
-  "last_node_id": 88,
-  "last_link_id": 123,
+  "last_node_id": 92,
+  "last_link_id": 133,
   "nodes": [
     {
-      "id": 77,
-      "type": "DandyString",
+      "id": 85,
+      "type": "DandyStringArrayCollector",
       "pos": [
-        297,
-        222
+        1108,
+        397
       ],
       "size": {
-        "0": 266,
-        "1": 115
+        "0": 235.1999969482422,
+        "1": 98
       },
       "flags": {},
-      "order": 0,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {
-          "name": "string",
+          "name": "string0",
           "type": "STRING",
-          "link": null
+          "link": 112
+        },
+        {
+          "name": "string1",
+          "type": "STRING",
+          "link": 113
+        },
+        {
+          "name": "string2",
+          "type": "STRING",
+          "link": 133
         }
       ],
       "outputs": [
@@ -28,88 +38,201 @@
           "name": "string",
           "type": "STRING",
           "links": [
-            110,
-            117
+            115
           ],
+          "shape": 3,
           "slot_index": 0
         }
       ],
       "properties": {
-        "text": "bees",
-        "Node name for S&R": "DandyString",
-        "brand_new_node": false,
-        "filename": ""
+        "Node name for S&R": "DandyStringArrayCollector"
       },
       "widgets_values": [
-        -242580363,
         null,
-        "bees",
-        null,
-        ""
+        3,
+        "",
+        "",
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"(birds)mermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
       ]
     },
     {
-      "id": 82,
-      "type": "DandyStringPreview",
+      "id": 90,
+      "type": "DandyStringArrayCollector",
       "pos": [
-        1124,
-        635
+        2034,
+        250
       ],
       "size": {
-        "0": 408,
-        "1": 239
+        "0": 235.1999969482422,
+        "1": 98
       },
       "flags": {},
-      "order": 4,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
-          "name": "string",
+          "name": "string0",
           "type": "STRING",
-          "link": 108
+          "link": 128
+        },
+        {
+          "name": "string1",
+          "type": "STRING",
+          "link": 129
+        },
+        {
+          "name": "string2",
+          "type": "STRING",
+          "link": 130
         }
       ],
       "outputs": [
         {
           "name": "string",
           "type": "STRING",
-          "links": null,
+          "links": [
+            131
+          ],
+          "shape": 3,
           "slot_index": 0
         }
       ],
       "properties": {
-        "text": "birdssssmermaids",
+        "Node name for S&R": "DandyStringArrayCollector"
+      },
+      "widgets_values": [
+        null,
+        3,
+        "",
+        "",
+        "[{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)mermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 89,
+      "type": "DandyStringCatCollector",
+      "pos": [
+        2036,
+        -37
+      ],
+      "size": {
+        "0": 218.39999389648438,
+        "1": 98
+      },
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string0",
+          "type": "STRING",
+          "link": 124
+        },
+        {
+          "name": "string1",
+          "type": "STRING",
+          "link": 125
+        },
+        {
+          "name": "string2",
+          "type": "STRING",
+          "link": 132
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            127
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyStringCatCollector"
+      },
+      "widgets_values": [
+        null,
+        3,
+        "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)mermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 88,
+      "type": "DandyStringPreview",
+      "pos": [
+        1444,
+        -111
+      ],
+      "size": [
+        386.0892333984375,
+        109.43167114257812
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 120,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            124,
+            128
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "_bees_(birds)",
         "Node name for S&R": "DandyStringPreview",
         "brand_new_node": false,
         "filename": ""
       },
       "widgets_values": [
-        -527965491,
+        -44309572,
         null,
-        "birdssss\nmermaids\n",
+        "bees\nbirdssss\n\n",
         null,
-        "[{\"value\":\"birdssssmermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+        "[{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
       ]
     },
     {
-      "id": 81,
-      "type": "DandyString",
+      "id": 83,
+      "type": "DandyStringPreview",
       "pos": [
-        720,
-        600
+        1429,
+        345
       ],
-      "size": {
-        "0": 230,
-        "1": 113
-      },
+      "size": [
+        466.907470703125,
+        130.52256774902344
+      ],
       "flags": {},
-      "order": 2,
+      "order": 10,
       "mode": 0,
       "inputs": [
         {
           "name": "string",
           "type": "STRING",
-          "link": 107
+          "link": 115
         }
       ],
       "outputs": [
@@ -117,32 +240,211 @@
           "name": "string",
           "type": "STRING",
           "links": [
-            108,
-            113
+            130,
+            132
           ],
           "slot_index": 0
         }
       ],
       "properties": {
-        "text": "mermaids",
-        "Node name for S&R": "DandyString",
+        "text": "_bees_, (birds), _bees_(birds), (birds)mermaids, (birds)",
+        "Node name for S&R": "DandyStringPreview",
         "brand_new_node": false,
         "filename": ""
       },
       "widgets_values": [
-        666854351,
+        -1025284704,
         null,
-        "birdssss\nmermaids",
+        "bees\nbirdssss\n\nbirdssss\nmermaids\n\n",
         null,
-        "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)mermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 91,
+      "type": "DandyStringPreview",
+      "pos": [
+        2347,
+        189
+      ],
+      "size": [
+        414.9075927734375,
+        146.9771728515625
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 131,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "_bees_(birds), _bees_, (birds), _bees_(birds), _bees_, (birds), _bees_(birds), (birds)mermaids, (birds)",
+        "Node name for S&R": "DandyStringPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        -44309572,
+        null,
+        "bees\nbirdssss\n\n",
+        null,
+        "[{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)mermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 92,
+      "type": "DandyStringPreview",
+      "pos": [
+        2346,
+        -89
+      ],
+      "size": [
+        347.816650390625,
+        160.88629150390625
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 127,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "_bees_(birds)_bees_(birds)_bees_(birds)_bees_(birds)_bees_(birds)(birds)mermaids(birds)",
+        "Node name for S&R": "DandyStringPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        -44309572,
+        null,
+        "bees\nbirdssss\n\n",
+        null,
+        "[{\"value\":\"_bees_(birds)_bees_(birds)_bees_(birds)_bees_(birds)_bees_(birds)(birds)mermaids(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 79,
+      "type": "DandyStringPreview",
+      "pos": [
+        1432,
+        128
+      ],
+      "size": [
+        426.2713623046875,
+        116.15902709960938
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 116,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            125,
+            129
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "_bees_, (birds), _bees_(birds)",
+        "Node name for S&R": "DandyStringPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        -44309572,
+        null,
+        "bees\nbirdssss\n\n",
+        null,
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 87,
+      "type": "DandyStringPreview",
+      "pos": [
+        631,
+        -19
+      ],
+      "size": [
+        233.27130126953125,
+        97.43173217773438
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 121,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            123
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "_bees_(birds)",
+        "Node name for S&R": "DandyStringPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        -44309572,
+        null,
+        "bees\nbirdssss\n\n",
+        null,
+        "[{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
       ]
     },
     {
       "id": 84,
       "type": "DandyStringArrayCollector",
       "pos": [
-        758,
-        326
+        718,
+        368
       ],
       "size": {
         "0": 235.1999969482422,
@@ -188,163 +490,17 @@
         3,
         "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
         "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"beesbirdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
-      ]
-    },
-    {
-      "id": 78,
-      "type": "DandyString",
-      "pos": [
-        323,
-        616
-      ],
-      "size": {
-        "0": 226,
-        "1": 123
-      },
-      "flags": {},
-      "order": 1,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "string",
-          "type": "STRING",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "string",
-          "type": "STRING",
-          "links": [
-            107,
-            114,
-            118,
-            122
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "text": "birdssss",
-        "Node name for S&R": "DandyString",
-        "brand_new_node": false,
-        "filename": ""
-      },
-      "widgets_values": [
-        583129805,
-        null,
-        "birdssss",
-        null,
-        ""
-      ]
-    },
-    {
-      "id": 79,
-      "type": "DandyStringPreview",
-      "pos": [
-        1260,
-        88
-      ],
-      "size": {
-        "0": 408,
-        "1": 239
-      },
-      "flags": {},
-      "order": 9,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "string",
-          "type": "STRING",
-          "link": 116,
-          "slot_index": 0
-        }
-      ],
-      "outputs": [
-        {
-          "name": "string",
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "text": "bees, birdssss, beesbirdssss",
-        "Node name for S&R": "DandyStringPreview",
-        "brand_new_node": false,
-        "filename": ""
-      },
-      "widgets_values": [
-        -44309572,
-        null,
-        "bees\nbirdssss\n\n",
-        null,
-        "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"beesbirdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
-      ]
-    },
-    {
-      "id": 85,
-      "type": "DandyStringArrayCollector",
-      "pos": [
-        1108,
-        397
-      ],
-      "size": {
-        "0": 235.1999969482422,
-        "1": 98
-      },
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "string0",
-          "type": "STRING",
-          "link": 112
-        },
-        {
-          "name": "string1",
-          "type": "STRING",
-          "link": 113
-        },
-        {
-          "name": "string2",
-          "type": "STRING",
-          "link": 114
-        }
-      ],
-      "outputs": [
-        {
-          "name": "string",
-          "type": "STRING",
-          "links": [
-            115
-          ],
-          "shape": 3,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "DandyStringArrayCollector"
-      },
-      "widgets_values": [
-        null,
-        3,
-        "",
-        "",
-        "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"beesbirdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"birdssssmermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
       ]
     },
     {
       "id": 86,
       "type": "DandyStringCatCollector",
       "pos": [
-        841,
-        142
+        382,
+        171
       ],
       "size": {
         "0": 218.39999389648438,
@@ -390,31 +546,30 @@
         3,
         "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
         "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
-        "[{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"_bees_\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
         ""
       ]
     },
     {
-      "id": 87,
-      "type": "DandyStringPreview",
+      "id": 77,
+      "type": "DandyString",
       "pos": [
-        315,
-        -266
+        118,
+        411
       ],
-      "size": {
-        "0": 408,
-        "1": 239
-      },
+      "size": [
+        216.725830078125,
+        113.97714233398438
+      ],
       "flags": {},
-      "order": 6,
+      "order": 0,
       "mode": 0,
       "inputs": [
         {
           "name": "string",
           "type": "STRING",
-          "link": 121,
-          "slot_index": 0
+          "link": null
         }
       ],
       "outputs": [
@@ -422,108 +577,161 @@
           "name": "string",
           "type": "STRING",
           "links": [
-            123
+            110,
+            117
           ],
           "slot_index": 0
         }
       ],
       "properties": {
-        "text": "beesbirdssss",
-        "Node name for S&R": "DandyStringPreview",
+        "text": "_bees_",
+        "Node name for S&R": "DandyString",
         "brand_new_node": false,
         "filename": ""
       },
       "widgets_values": [
-        -44309572,
+        -242580363,
         null,
-        "bees\nbirdssss\n\n",
+        "bees",
         null,
-        "[{\"value\":\"beesbirdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+        ""
       ]
     },
     {
-      "id": 88,
-      "type": "DandyStringPreview",
+      "id": 78,
+      "type": "DandyString",
       "pos": [
-        1275,
-        -248
+        251,
+        619
       ],
       "size": {
-        "0": 408,
-        "1": 239
+        "0": 226,
+        "1": 123
       },
       "flags": {},
-      "order": 5,
+      "order": 1,
       "mode": 0,
       "inputs": [
         {
           "name": "string",
           "type": "STRING",
-          "link": 120,
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            107,
+            118,
+            122,
+            133
+          ],
           "slot_index": 0
         }
       ],
-      "outputs": [
-        {
-          "name": "string",
-          "type": "STRING",
-          "links": null
-        }
-      ],
       "properties": {
-        "text": "beesbirdssss",
-        "Node name for S&R": "DandyStringPreview",
+        "text": "(birds)",
+        "Node name for S&R": "DandyString",
         "brand_new_node": false,
         "filename": ""
       },
       "widgets_values": [
-        -44309572,
+        583129805,
         null,
-        "bees\nbirdssss\n\n",
+        "birdssss",
         null,
-        "[{\"value\":\"beesbirdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+        ""
       ]
     },
     {
-      "id": 83,
-      "type": "DandyStringPreview",
+      "id": 81,
+      "type": "DandyString",
       "pos": [
-        1582,
-        392
+        685,
+        619
       ],
       "size": {
-        "0": 408,
-        "1": 239
+        "0": 230,
+        "1": 113
       },
       "flags": {},
-      "order": 10,
+      "order": 2,
       "mode": 0,
       "inputs": [
         {
           "name": "string",
           "type": "STRING",
-          "link": 115
+          "link": 107
         }
       ],
       "outputs": [
         {
           "name": "string",
           "type": "STRING",
-          "links": null
+          "links": [
+            108,
+            113
+          ],
+          "slot_index": 0
         }
       ],
       "properties": {
-        "text": "bees, birdssss, beesbirdssss, birdssssmermaids, birdssss",
+        "text": "mermaids",
+        "Node name for S&R": "DandyString",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        666854351,
+        null,
+        "birdssss\nmermaids",
+        null,
+        "[{\"value\":\"(birds)\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 82,
+      "type": "DandyStringPreview",
+      "pos": [
+        1072,
+        617
+      ],
+      "size": [
+        220.634765625,
+        99.158935546875
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 108
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "(birds)mermaids",
         "Node name for S&R": "DandyStringPreview",
         "brand_new_node": false,
         "filename": ""
       },
       "widgets_values": [
-        -1025284704,
+        -527965491,
         null,
-        "bees\nbirdssss\n\nbirdssss\nmermaids\n\n",
+        "birdssss\nmermaids\n",
         null,
-        "[{\"value\":\"bees\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"beesbirdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"birdssssmermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"birdssss\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+        "[{\"value\":\"(birds)mermaids\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
       ]
     }
   ],
@@ -601,14 +809,6 @@
       "STRING"
     ],
     [
-      114,
-      78,
-      0,
-      85,
-      2,
-      "STRING"
-    ],
-    [
       115,
       85,
       0,
@@ -669,6 +869,78 @@
       87,
       0,
       84,
+      2,
+      "STRING"
+    ],
+    [
+      124,
+      88,
+      0,
+      89,
+      0,
+      "STRING"
+    ],
+    [
+      125,
+      79,
+      0,
+      89,
+      1,
+      "STRING"
+    ],
+    [
+      127,
+      89,
+      0,
+      92,
+      0,
+      "STRING"
+    ],
+    [
+      128,
+      88,
+      0,
+      90,
+      0,
+      "STRING"
+    ],
+    [
+      129,
+      79,
+      0,
+      90,
+      1,
+      "STRING"
+    ],
+    [
+      130,
+      83,
+      0,
+      90,
+      2,
+      "STRING"
+    ],
+    [
+      131,
+      90,
+      0,
+      91,
+      0,
+      "STRING"
+    ],
+    [
+      132,
+      83,
+      0,
+      89,
+      2,
+      "STRING"
+    ],
+    [
+      133,
+      78,
+      0,
+      85,
       2,
       "STRING"
     ]

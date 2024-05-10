@@ -22,7 +22,7 @@ export class DandyCollector extends DandyNode {
 
   setup_inputs(n) {
     if (n > 0) {
-      const { node } = this
+      const { node, chain } = this
       chain.n_inputs = n
       node.size = node.computeSize()
     }
@@ -158,6 +158,7 @@ export class DandyBooleanCollector extends DandyCollector {
 export class DandyStringArrayCollector extends DandyCollector {
   constructor(node, app) {
     super(node, app, 'string', 'STRING')
+    this.concat_string_inputs = false
     new DandyStringChain(this, 2, 1)
   }
 }

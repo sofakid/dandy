@@ -43,61 +43,6 @@
       }
     },
     {
-      "id": 11,
-      "type": "DandyPrompt",
-      "pos": [
-        410,
-        430
-      ],
-      "size": {
-        "0": 350,
-        "1": 130
-      },
-      "flags": {},
-      "order": 2,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 10
-        },
-        {
-          "name": "string",
-          "type": "STRING",
-          "link": null
-        }
-      ],
-      "outputs": [
-        {
-          "name": "conditioning",
-          "type": "CONDITIONING",
-          "links": [
-            11
-          ],
-          "shape": 3,
-          "slot_index": 0
-        },
-        {
-          "name": "string",
-          "type": "STRING",
-          "links": null
-        }
-      ],
-      "properties": {
-        "text": "",
-        "Node name for S&R": "DandyPrompt",
-        "brand_new_node": false
-      },
-      "widgets_values": [
-        null,
-        null,
-        null,
-        null,
-        ""
-      ]
-    },
-    {
       "id": 14,
       "type": "VAEEncode",
       "pos": [
@@ -269,7 +214,7 @@
         "Node name for S&R": "KSampler"
       },
       "widgets_values": [
-        930182352388193,
+        404451380552817,
         "randomize",
         18,
         8,
@@ -279,16 +224,71 @@
       ]
     },
     {
+      "id": 11,
+      "type": "DandyPrompt",
+      "pos": [
+        410,
+        430
+      ],
+      "size": {
+        "0": 350,
+        "1": 130
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 10
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "cartoon",
+        "Node name for S&R": "DandyPrompt",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
       "id": 4,
       "type": "CheckpointLoaderSimple",
       "pos": [
-        10,
-        480
+        -100,
+        498
       ],
-      "size": {
-        "0": 340,
-        "1": 100
-      },
+      "size": [
+        427.72723388671875,
+        98
+      ],
       "flags": {},
       "order": 0,
       "mode": 0,
@@ -328,15 +328,41 @@
       ]
     },
     {
+      "id": 12,
+      "type": "PreviewImage",
+      "pos": [
+        1187,
+        306
+      ],
+      "size": [
+        745.3611293029787,
+        771.6162005615236
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 14,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
       "id": 13,
       "type": "DandyGradient",
       "pos": [
-        236,
-        657
+        20,
+        666
       ],
       "size": [
-        532,
-        652
+        788,
+        780
       ],
       "flags": {
         "collapsed": false
@@ -363,36 +389,10 @@
       "widgets_values": [
         null,
         null,
-        512,
-        512,
+        768,
+        640,
         null
       ]
-    },
-    {
-      "id": 12,
-      "type": "PreviewImage",
-      "pos": [
-        1187,
-        306
-      ],
-      "size": [
-        413.63925781249964,
-        416.14243164062486
-      ],
-      "flags": {},
-      "order": 8,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 14,
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      }
     }
   ],
   "links": [

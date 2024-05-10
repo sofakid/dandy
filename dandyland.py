@@ -103,8 +103,8 @@ class DandyLand(DandyWithHashSocket):
     o['captures'] = 'deleted'
     o['positive'] = 'deleted'
     o['negative'] = 'deleted'
-    for key, value in o.items():
-      print("DandyLand :: run :: " + str(key) + ": " + str(value)[:200])
+    # for key, value in o.items():
+    #   print("DandyLand :: run :: " + str(key) + ": " + str(value)[:200])
 
     print(f'DandyLand :: width: {out_width}, height: {out_height}, string: <{out_string}>')
     return (out_images_batch, out_masks_batch, out_positive, out_negative,

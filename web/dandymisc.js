@@ -103,6 +103,7 @@ export class DandyNode {
   constructor(node, app) {
     this.node = node
     this.app = app
+    this.concat_string_inputs = true
 
     this.debug_verbose = false
     node.serialize_widgets = true
