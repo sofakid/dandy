@@ -3,7 +3,7 @@ import { DandyTown, DandyJsModuleData, DandyJsClassicData } from "/extensions/da
 export class DandyGradient extends DandyTown {
   constructor(node, app) {
     super(node, app)
-    this.debug_verbose = true
+    this.debug_verbose = false
     const { properties } = node
     properties.c1 = 'red'
     properties.c2 = 'blue'

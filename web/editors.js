@@ -416,12 +416,14 @@ export class DandyEditor extends DandyNode {
       chain.update_chain()
     }
   }
- 
+
   set_text(text) {
     const { editor } = this
     editor.setValue(text)
     editor.clearSelection()
     editor.resize()
+    editor.renderer.updateFull()
+    // seems to be a bug in ace editor that's existed since 2015, it won't update if it's off the screen.
     this.apply_text()
   }
 }
@@ -439,34 +441,6 @@ export class DandyJs extends DandyEditor {
   
   init_widgets_above_editor() {
     dandy_js_plain_module_toggle(this)
-  }
-}
-
-export class DandyP5JsSetup extends DandyJs {
-  static default_text = `function setup() {
-  noLoop()
-  createCanvas(dandy.width, dandy.height)
-}`
-  constructor(node, app) {
-    super(node, app, Mimes.JS)
-    node.size = [400, 180]
-    dandy_js_plain_module_toggle(this)
-
-    this.set_text(DandyP5JsSetup.default_text)
-  }
-}
-
-export class DandyP5JsDraw extends DandyJs {
-  static default_text = `function draw() {
-  background(0, 0, 0)
-}`
-
-  constructor(node, app) {
-    super(node, app, Mimes.JS)
-    node.size = [300, 180]
-    dandy_js_plain_module_toggle(this)
-
-    this.set_text(DandyP5JsDraw.default_text)
   }
 }
 
@@ -546,7 +520,7 @@ export class DandyYaml extends DandyEditor {
 export class DandyString extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.STRING)
-    this.debug_verbose = true
+    this.debug_verbose = false
     this.chain = new DandyStringChain(this, 1, 1)
     
     const { editor } = this

@@ -1,0 +1,383 @@
+{
+  "last_node_id": 18,
+  "last_link_id": 5,
+  "nodes": [
+    {
+      "id": 8,
+      "type": "DandyP5JsLoader",
+      "pos": [
+        54,
+        62
+      ],
+      "size": {
+        "0": 290,
+        "1": 80
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "links": [
+            3
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyP5JsLoader"
+      },
+      "widgets_values": [
+        null,
+        "",
+        null
+      ]
+    },
+    {
+      "id": 3,
+      "type": "DandyP5JsSetup",
+      "pos": [
+        53,
+        230
+      ],
+      "size": [
+        400,
+        192
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "links": [
+            2
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "function setup() {\n  noLoop()\n  createCanvas(dandy.width, dandy.height)\n}",
+        "Node name for S&R": "DandyP5JsSetup",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        "[{\"value\":\"blob:http://127.0.0.1:8188/6905bcab-29bb-424f-9208-e2cb967e69e9\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 7,
+      "type": "DandyLand",
+      "pos": [
+        591,
+        79
+      ],
+      "size": {
+        "0": 537.2728271484375,
+        "1": 920.0000610351562
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": null
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": null
+        },
+        {
+          "name": "html",
+          "type": "DANDY_HTML_URLS",
+          "link": null
+        },
+        {
+          "name": "css",
+          "type": "DANDY_CSS_URLS",
+          "link": null
+        },
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": 5
+        },
+        {
+          "name": "wasm",
+          "type": "DANDY_WASM_URLS",
+          "link": null
+        },
+        {
+          "name": "json",
+          "type": "DANDY_JSON_URLS",
+          "link": null
+        },
+        {
+          "name": "yaml",
+          "type": "DANDY_YAML_URLS",
+          "link": null
+        },
+        {
+          "name": "image_url",
+          "type": "DANDY_IMAGE_URL",
+          "link": null
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": null
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "link": null
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            4
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "float",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "width",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "height",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyLand"
+      },
+      "widgets_values": [
+        null,
+        null,
+        512,
+        512,
+        "",
+        null,
+        "",
+        "",
+        "[{\"value\":\"blob:http://127.0.0.1:8188/6905bcab-29bb-424f-9208-e2cb967e69e9\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true},{\"value\":\"blob:http://127.0.0.1:8188/c8177407-a3f3-435a-bbba-0f407b6b3837\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true},{\"value\":\"blob:http://127.0.0.1:8188/1b6d48b7-645f-4700-97eb-80e8537dc22f\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true}]",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 9,
+      "type": "PreviewImage",
+      "pos": [
+        1186,
+        152
+      ],
+      "size": [
+        377.1995636193851,
+        404.08375519104015
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 4
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 6,
+      "type": "DandyP5JsDraw",
+      "pos": [
+        58,
+        496
+      ],
+      "size": [
+        476.771882940674,
+        575.2792426812746
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "links": [
+            5
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "async function draw() {\n  await dandy.await_loaded()\n  background(200)\n  \n  const { width: w, height: h } = dandy\n\n  const colors = ['#FFFFFF', '#000000', '#FF0000', \n                  '#00FF00', '#0000FF', '#FFFF00', \n                  '#FF00FF', '#00FFFF']\n  const n = colors.length\n  \n  for (let i = 0; i < n; ++i) {\n    fill(color(colors[i]))\n    rect(i * w / n, 0, w / n, h)\n  }\n\n  for (let i = 1; i <= n; ++i) {\n    fill(color(colors[n - i]))\n    circle(w/2, h/2, h/((i+2)/1.8))\n  }\n  \n  strokeWeight(2)\n  stroke(0)\n  line(w / 2, 0, w / 2, h)\n  line(0, h / 2, w, h / 2)\n\n  dandy.continue()\n}\n",
+        "Node name for S&R": "DandyP5JsDraw",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        "[{\"value\":\"blob:http://127.0.0.1:8188/6905bcab-29bb-424f-9208-e2cb967e69e9\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true},{\"value\":\"blob:http://127.0.0.1:8188/c8177407-a3f3-435a-bbba-0f407b6b3837\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true}]"
+      ]
+    }
+  ],
+  "links": [
+    [
+      2,
+      3,
+      0,
+      6,
+      0,
+      "DANDY_JS_URLS"
+    ],
+    [
+      3,
+      8,
+      0,
+      3,
+      0,
+      "DANDY_JS_URLS"
+    ],
+    [
+      4,
+      7,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      5,
+      6,
+      0,
+      7,
+      6,
+      "DANDY_JS_URLS"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

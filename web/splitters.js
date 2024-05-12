@@ -4,7 +4,7 @@ import { DandyNames, DandyTypes, DandyNode, DandyHashDealer, ComfyTypesList, Dan
 export class DandySplitter extends DandyNode {
   constructor(node, app, name, type) {
     super(node, app)
-    this.debug_verbose = true
+    this.debug_verbose = false
     this.name = name
     this.type = type
     this.hash_dealer = new DandyHashDealer(this)

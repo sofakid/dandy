@@ -8,7 +8,7 @@ export class DandyPreview extends DandyEditor {
   
   constructor(node, app, name, mime, js_type) {
     super(node, app, mime)
-    this.debug_verbose = true
+    this.debug_verbose = false
     this.chain = null
 
     this.completely_hide_tray()

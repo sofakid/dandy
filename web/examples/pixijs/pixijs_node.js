@@ -3,7 +3,7 @@ import { DandyTown, DandyJsModuleData, DandyJsClassicData } from "/extensions/da
 export class DandyPixiJs extends DandyTown {
   constructor(node, app) {
     super(node, app)
-    this.debug_verbose = true
+    this.debug_verbose = false
     
     node.properties.options = null
     node.properties.order = null

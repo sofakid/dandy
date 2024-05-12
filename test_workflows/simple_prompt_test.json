@@ -1,0 +1,684 @@
+{
+  "last_node_id": 19,
+  "last_link_id": 59,
+  "nodes": [
+    {
+      "id": 12,
+      "type": "DandyStringPreview",
+      "pos": [
+        663,
+        -146
+      ],
+      "size": {
+        "0": 340,
+        "1": 130
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 25
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "donkey\nwearing sunglasses\nOn a farm",
+        "Node name for S&R": "DandyStringPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "[{\"value\":\"donkey\\nwearing sunglasses\\nOn a farm\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "EmptyLatentImage",
+      "pos": [
+        222,
+        249
+      ],
+      "size": {
+        "0": 315,
+        "1": 106
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "type": "KSampler",
+      "pos": [
+        658,
+        161
+      ],
+      "size": {
+        "0": 315,
+        "1": 262
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 11
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 13
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        129905160578768,
+        "randomize",
+        20,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "VAEDecode",
+      "pos": [
+        712,
+        53
+      ],
+      "size": {
+        "0": 210,
+        "1": 46
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 7
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            16
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 15,
+      "type": "PreviewImage",
+      "pos": [
+        1029,
+        -134
+      ],
+      "size": {
+        "0": 520,
+        "1": 539
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 16,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 17,
+      "type": "DandyStringArrayCollector",
+      "pos": [
+        88,
+        -105
+      ],
+      "size": {
+        "0": 235.1999969482422,
+        "1": 78
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string0",
+          "type": "STRING",
+          "link": 58
+        },
+        {
+          "name": "string1",
+          "type": "STRING",
+          "link": 59
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            57
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyStringArrayCollector"
+      },
+      "widgets_values": [
+        null,
+        2,
+        "[{\"value\":\"donkey\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 14,
+      "type": "StaticString",
+      "pos": [
+        -268,
+        19
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [
+            50
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticString"
+      },
+      "widgets_values": [
+        "wearing sunglasses"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "DandyPrompt",
+      "pos": [
+        287,
+        76
+      ],
+      "size": {
+        "0": 296.6799011230469,
+        "1": 108.34016418457031
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 44
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "horror",
+        "Node name for S&R": "DandyPrompt",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 10,
+      "type": "DandyPrompt",
+      "pos": [
+        363,
+        -111
+      ],
+      "size": {
+        "0": 262.7398986816406,
+        "1": 122.96016693115234
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 28
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": 57
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            25
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "text": "On a farm",
+        "Node name for S&R": "DandyPrompt",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "[{\"value\":\"donkey\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true},{\"value\":\"wearing sunglasses\",\"mime\":\"text/text\",\"type\":\"STRING\",\"is_dandy_chain_data\":true}]"
+      ],
+      "color": "#232",
+      "bgcolor": "#353"
+    },
+    {
+      "id": 13,
+      "type": "DandyString",
+      "pos": [
+        -247,
+        -145
+      ],
+      "size": {
+        "0": 276.14996337890625,
+        "1": 95.20016479492188
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": [
+            49
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "donkey",
+        "Node name for S&R": "DandyString",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 4,
+      "type": "CheckpointLoaderSimple",
+      "pos": [
+        -247,
+        177
+      ],
+      "size": {
+        "0": 403,
+        "1": 98
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            44
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "wildlifexAnimals_wildlifexAnimals.safetensors"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      4,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      5,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      10,
+      4,
+      1,
+      10,
+      0,
+      "CLIP"
+    ],
+    [
+      11,
+      10,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      12,
+      4,
+      1,
+      11,
+      0,
+      "CLIP"
+    ],
+    [
+      13,
+      11,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      16,
+      8,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      22,
+      10,
+      1,
+      12,
+      0,
+      "STRING"
+    ],
+    [
+      23,
+      13,
+      0,
+      10,
+      1,
+      "STRING"
+    ],
+    [
+      25,
+      10,
+      1,
+      12,
+      0,
+      "STRING"
+    ],
+    [
+      28,
+      4,
+      1,
+      10,
+      0,
+      "CLIP"
+    ],
+    [
+      37,
+      17,
+      0,
+      10,
+      1,
+      "STRING"
+    ],
+    [
+      39,
+      14,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      43,
+      13,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      44,
+      4,
+      1,
+      11,
+      0,
+      "CLIP"
+    ],
+    [
+      49,
+      13,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      50,
+      14,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      51,
+      13,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      52,
+      14,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      57,
+      17,
+      0,
+      10,
+      1,
+      "STRING"
+    ],
+    [
+      58,
+      13,
+      0,
+      17,
+      0,
+      "STRING"
+    ],
+    [
+      59,
+      14,
+      0,
+      17,
+      1,
+      "STRING"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

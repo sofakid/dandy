@@ -1,0 +1,1311 @@
+{
+  "last_node_id": 26,
+  "last_link_id": 23,
+  "nodes": [
+    {
+      "id": 2,
+      "type": "StaticNumberInt",
+      "pos": [
+        -93,
+        359
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            1
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticNumberInt"
+      },
+      "widgets_values": [
+        1
+      ]
+    },
+    {
+      "id": 1,
+      "type": "DandyIntCollector",
+      "pos": [
+        303,
+        449
+      ],
+      "size": {
+        "0": 210,
+        "1": 78
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int0",
+          "type": "INT",
+          "link": 1
+        },
+        {
+          "name": "int1",
+          "type": "INT",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyIntCollector"
+      },
+      "widgets_values": [
+        null,
+        2,
+        "{\"value\":[1,5],\"mime\":\"value/javascript\"}",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 3,
+      "type": "StaticNumberInt",
+      "pos": [
+        -101,
+        534
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            2
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticNumberInt"
+      },
+      "widgets_values": [
+        5
+      ]
+    },
+    {
+      "id": 5,
+      "type": "StaticNumberFloat",
+      "pos": [
+        -116,
+        722
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            4
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticNumberFloat"
+      },
+      "widgets_values": [
+        3.1
+      ]
+    },
+    {
+      "id": 8,
+      "type": "StaticNumberFloat",
+      "pos": [
+        -134,
+        916
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            6
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticNumberFloat"
+      },
+      "widgets_values": [
+        7.7
+      ]
+    },
+    {
+      "id": 7,
+      "type": "DandyFloatCollector",
+      "pos": [
+        343.3334045410156,
+        735.5555725097656
+      ],
+      "size": {
+        "0": 210,
+        "1": 118
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float0",
+          "type": "FLOAT",
+          "link": 4
+        },
+        {
+          "name": "float1",
+          "type": "FLOAT",
+          "link": 5
+        },
+        {
+          "name": "float2",
+          "type": "FLOAT",
+          "link": 6
+        },
+        {
+          "name": "float3",
+          "type": "FLOAT",
+          "link": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [
+            8
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyFloatCollector"
+      },
+      "widgets_values": [
+        null,
+        4,
+        "{\"value\":[3.1,2.8000000000000003,7.7,2.7],\"mime\":\"value/javascript\"}",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 12,
+      "type": "Logic Boolean",
+      "pos": [
+        186,
+        1392
+      ],
+      "size": {
+        "0": 315,
+        "1": 78
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "NUMBER",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "INT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Logic Boolean"
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 11,
+      "type": "Boolean To Text",
+      "pos": [
+        -141,
+        1145
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Boolean To Text"
+      },
+      "widgets_values": [
+        false
+      ]
+    },
+    {
+      "id": 10,
+      "type": "StaticNumberFloat",
+      "pos": [
+        -128,
+        815
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            5,
+            10
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticNumberFloat"
+      },
+      "widgets_values": [
+        2.8000000000000003
+      ]
+    },
+    {
+      "id": 13,
+      "type": "DandyFloatCollector",
+      "pos": [
+        1180,
+        800
+      ],
+      "size": {
+        "0": 210,
+        "1": 78
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float0",
+          "type": "FLOAT",
+          "link": 9
+        },
+        {
+          "name": "float1",
+          "type": "FLOAT",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [
+            11,
+            13
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyFloatCollector"
+      },
+      "widgets_values": [
+        null,
+        2,
+        "{\"value\":[[3.1,2.8000000000000003,7.7,2.7],2.8000000000000003],\"mime\":\"value/javascript\"}",
+        "{\"value\":[3.1,2.8000000000000003,7.7,2.7],\"mime\":\"value/javascript\"}\n\n",
+        "[{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":7.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}]",
+        ""
+      ]
+    },
+    {
+      "id": 9,
+      "type": "StaticNumberFloat",
+      "pos": [
+        -135,
+        1023
+      ],
+      "size": {
+        "0": 315,
+        "1": 58
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "FLOAT",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            7,
+            12
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "StaticNumberFloat"
+      },
+      "widgets_values": [
+        2.7
+      ]
+    },
+    {
+      "id": 17,
+      "type": "DandyFloatPreview",
+      "pos": [
+        1671,
+        1249
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 18,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 15
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "2.8000000000000003",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 18,
+      "type": "DandyFloatPreview",
+      "pos": [
+        1673,
+        1111
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 14
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "3.1",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 14,
+      "type": "DandyFloatPreview",
+      "pos": [
+        1545,
+        757
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [
+            16
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "3.1, 2.8000000000000003, 7.7, 2.7, 2.8000000000000003",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "[{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":7.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 16,
+      "type": "DandyFloatSplitter",
+      "pos": [
+        1433,
+        1113
+      ],
+      "size": {
+        "0": 210,
+        "1": 78
+      },
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 13,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float0",
+          "type": "FLOAT",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "float1",
+          "type": "FLOAT",
+          "links": [
+            15
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyFloatSplitter"
+      },
+      "widgets_values": [
+        null,
+        2,
+        "[{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":7.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "DandyIntPreview",
+      "pos": [
+        617.7778015136719,
+        468.88893127441406
+      ],
+      "size": [
+        210,
+        68.99998474121094
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "text": "1, 5",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "[{\"value\":1,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "DandyFloatPreview",
+      "pos": [
+        239,
+        1058
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 12
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "2.7",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "id": 6,
+      "type": "DandyFloatPreview",
+      "pos": [
+        704,
+        694
+      ],
+      "size": [
+        289.14269555962517,
+        90.43383501833318
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [
+            9
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "3.1, 2.8000000000000003, 7.7, 2.7",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "[{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":7.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 19,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2036,
+        507
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 19,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 17
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "3.1",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2282,
+        560
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 20,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 18
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "2.8000000000000003",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 22,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2047,
+        628
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 21,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 19
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "7.7",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":7.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 23,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2048,
+        755
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "2.8000000000000003",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 24,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2291,
+        685
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "2.7",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":2.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 25,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2288,
+        818
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 22
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "3.1",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 26,
+      "type": "DandyFloatPreview",
+      "pos": [
+        2054,
+        891
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 23
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "2.8000000000000003",
+        "Node name for S&R": "DandyFloatPreview",
+        "brand_new_node": false,
+        "filename": ""
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 21,
+      "type": "DandyFloatSplitter",
+      "pos": [
+        1779,
+        737
+      ],
+      "size": {
+        "0": 210,
+        "1": 178
+      },
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": 16,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "float0",
+          "type": "FLOAT",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "float1",
+          "type": "FLOAT",
+          "links": [
+            18
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "float2",
+          "type": "FLOAT",
+          "links": [
+            19
+          ],
+          "slot_index": 2
+        },
+        {
+          "name": "float3",
+          "type": "FLOAT",
+          "links": [
+            20
+          ],
+          "slot_index": 3
+        },
+        {
+          "name": "float4",
+          "type": "FLOAT",
+          "links": [
+            21
+          ],
+          "slot_index": 4
+        },
+        {
+          "name": "float5",
+          "type": "FLOAT",
+          "links": [
+            22
+          ],
+          "slot_index": 5
+        },
+        {
+          "name": "float6",
+          "type": "FLOAT",
+          "links": [
+            23
+          ],
+          "slot_index": 6
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyFloatSplitter"
+      },
+      "widgets_values": [
+        null,
+        7,
+        "[{\"value\":3.1,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":7.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.7,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true},{\"value\":2.8000000000000003,\"mime\":\"value/javascript\",\"type\":\"FLOAT\",\"is_dandy_chain_data\":true}]"
+      ]
+    }
+  ],
+  "links": [
+    [
+      1,
+      2,
+      0,
+      1,
+      0,
+      "INT"
+    ],
+    [
+      2,
+      3,
+      0,
+      1,
+      1,
+      "INT"
+    ],
+    [
+      3,
+      1,
+      0,
+      4,
+      0,
+      "INT"
+    ],
+    [
+      4,
+      5,
+      0,
+      7,
+      0,
+      "FLOAT"
+    ],
+    [
+      5,
+      10,
+      0,
+      7,
+      1,
+      "FLOAT"
+    ],
+    [
+      6,
+      8,
+      0,
+      7,
+      2,
+      "FLOAT"
+    ],
+    [
+      7,
+      9,
+      0,
+      7,
+      3,
+      "FLOAT"
+    ],
+    [
+      8,
+      7,
+      0,
+      6,
+      0,
+      "FLOAT"
+    ],
+    [
+      9,
+      6,
+      0,
+      13,
+      0,
+      "FLOAT"
+    ],
+    [
+      10,
+      10,
+      0,
+      13,
+      1,
+      "FLOAT"
+    ],
+    [
+      11,
+      13,
+      0,
+      14,
+      0,
+      "FLOAT"
+    ],
+    [
+      12,
+      9,
+      0,
+      15,
+      0,
+      "FLOAT"
+    ],
+    [
+      13,
+      13,
+      0,
+      16,
+      0,
+      "FLOAT"
+    ],
+    [
+      14,
+      16,
+      0,
+      18,
+      0,
+      "FLOAT"
+    ],
+    [
+      15,
+      16,
+      1,
+      17,
+      0,
+      "FLOAT"
+    ],
+    [
+      16,
+      14,
+      0,
+      21,
+      0,
+      "FLOAT"
+    ],
+    [
+      17,
+      21,
+      0,
+      19,
+      0,
+      "FLOAT"
+    ],
+    [
+      18,
+      21,
+      1,
+      20,
+      0,
+      "FLOAT"
+    ],
+    [
+      19,
+      21,
+      2,
+      22,
+      0,
+      "FLOAT"
+    ],
+    [
+      20,
+      21,
+      3,
+      24,
+      0,
+      "FLOAT"
+    ],
+    [
+      21,
+      21,
+      4,
+      23,
+      0,
+      "FLOAT"
+    ],
+    [
+      22,
+      21,
+      5,
+      25,
+      0,
+      "FLOAT"
+    ],
+    [
+      23,
+      21,
+      6,
+      26,
+      0,
+      "FLOAT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

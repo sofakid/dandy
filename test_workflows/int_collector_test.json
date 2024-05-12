@@ -1,0 +1,969 @@
+{
+  "last_node_id": 18,
+  "last_link_id": 21,
+  "nodes": [
+    {
+      "id": 7,
+      "type": "DandyIntCollector",
+      "pos": [
+        976,
+        244
+      ],
+      "size": {
+        "0": 210,
+        "1": 98
+      },
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int0",
+          "type": "INT",
+          "link": 5
+        },
+        {
+          "name": "int1",
+          "type": "INT",
+          "link": 6
+        },
+        {
+          "name": "int2",
+          "type": "INT",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            7,
+            11
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyIntCollector"
+      },
+      "widgets_values": [
+        null,
+        3,
+        "[{\"value\":2,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]",
+        "[{\"value\":6,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 10,
+      "type": "DandyIntSplitter",
+      "pos": [
+        1479,
+        562
+      ],
+      "size": {
+        "0": 210,
+        "1": 98
+      },
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int0",
+          "type": "INT",
+          "links": [
+            19
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "int1",
+          "type": "INT",
+          "links": [
+            21
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "int2",
+          "type": "INT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyIntSplitter"
+      },
+      "widgets_values": [
+        null,
+        3,
+        "[{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":6,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 11,
+      "type": "DandyIntSplitter",
+      "pos": [
+        1254,
+        111
+      ],
+      "size": {
+        "0": 210,
+        "1": 138
+      },
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int0",
+          "type": "INT",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "int1",
+          "type": "INT",
+          "links": [
+            15
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "int2",
+          "type": "INT",
+          "links": [
+            16
+          ],
+          "slot_index": 2
+        },
+        {
+          "name": "int3",
+          "type": "INT",
+          "links": [
+            17
+          ],
+          "slot_index": 3
+        },
+        {
+          "name": "int4",
+          "type": "INT",
+          "links": [
+            18
+          ],
+          "slot_index": 4
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyIntSplitter"
+      },
+      "widgets_values": [
+        null,
+        5,
+        "[{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":6,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 3,
+      "type": "Seed",
+      "pos": [
+        256,
+        147
+      ],
+      "size": {
+        "0": 315,
+        "1": 142
+      },
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "SEED",
+          "links": null,
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "number",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "float",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            3
+          ],
+          "shape": 3,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Seed"
+      },
+      "widgets_values": [
+        4,
+        "fixed"
+      ]
+    },
+    {
+      "id": 5,
+      "type": "Seed",
+      "pos": [
+        255,
+        353
+      ],
+      "size": {
+        "0": 315,
+        "1": 142
+      },
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "SEED",
+          "links": null,
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "number",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "float",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            4
+          ],
+          "shape": 3,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Seed"
+      },
+      "widgets_values": [
+        5,
+        "fixed"
+      ]
+    },
+    {
+      "id": 9,
+      "type": "Seed",
+      "pos": [
+        254,
+        561
+      ],
+      "size": {
+        "0": 315,
+        "1": 142
+      },
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "outputs": [
+        {
+          "name": "seed",
+          "type": "SEED",
+          "links": null,
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "number",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "float",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            8
+          ],
+          "shape": 3,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Seed"
+      },
+      "widgets_values": [
+        6,
+        "fixed"
+      ]
+    },
+    {
+      "id": 1,
+      "type": "DandyIntPreview",
+      "pos": [
+        618,
+        63
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 3,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            5
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "4",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 6,
+      "type": "DandyIntPreview",
+      "pos": [
+        636,
+        214
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 4,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            6
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "5",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 8,
+      "type": "DandyIntPreview",
+      "pos": [
+        644,
+        359
+      ],
+      "size": [
+        210,
+        69
+      ],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 8,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            9
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "6",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 14,
+      "type": "DandyIntPreview",
+      "pos": [
+        1536,
+        367
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 18,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "5",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 17,
+      "type": "DandyIntPreview",
+      "pos": [
+        1534,
+        249
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 17,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "4",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 4,
+      "type": "DandyIntPreview",
+      "pos": [
+        1198,
+        486
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 7,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [
+            10
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "4, 5, 6",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "[{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true},{\"value\":6,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 15,
+      "type": "DandyIntPreview",
+      "pos": [
+        1747,
+        689
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 21,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "5",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 18,
+      "type": "DandyIntPreview",
+      "pos": [
+        1756,
+        531
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 19,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "4",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 16,
+      "type": "DandyIntPreview",
+      "pos": [
+        1527,
+        126
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 16,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "6",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":6,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 13,
+      "type": "DandyIntPreview",
+      "pos": [
+        1523,
+        9
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 15,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "5",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":5,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    },
+    {
+      "id": 12,
+      "type": "DandyIntPreview",
+      "pos": [
+        1507,
+        -108
+      ],
+      "size": {
+        "0": 210,
+        "1": 69
+      },
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "int",
+          "type": "INT",
+          "link": 14,
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "text": "4",
+        "Node name for S&R": "DandyIntPreview",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        null,
+        "{\"value\":4,\"mime\":\"value/javascript\",\"type\":\"INT\",\"is_dandy_chain_data\":true}"
+      ]
+    }
+  ],
+  "links": [
+    [
+      3,
+      3,
+      3,
+      1,
+      0,
+      "INT"
+    ],
+    [
+      4,
+      5,
+      3,
+      6,
+      0,
+      "INT"
+    ],
+    [
+      5,
+      1,
+      0,
+      7,
+      0,
+      "INT"
+    ],
+    [
+      6,
+      6,
+      0,
+      7,
+      1,
+      "INT"
+    ],
+    [
+      7,
+      7,
+      0,
+      4,
+      0,
+      "INT"
+    ],
+    [
+      8,
+      9,
+      3,
+      8,
+      0,
+      "INT"
+    ],
+    [
+      9,
+      8,
+      0,
+      7,
+      2,
+      "INT"
+    ],
+    [
+      10,
+      4,
+      0,
+      10,
+      0,
+      "INT"
+    ],
+    [
+      11,
+      7,
+      0,
+      11,
+      0,
+      "INT"
+    ],
+    [
+      14,
+      11,
+      0,
+      12,
+      0,
+      "INT"
+    ],
+    [
+      15,
+      11,
+      1,
+      13,
+      0,
+      "INT"
+    ],
+    [
+      16,
+      11,
+      2,
+      16,
+      0,
+      "INT"
+    ],
+    [
+      17,
+      11,
+      3,
+      17,
+      0,
+      "INT"
+    ],
+    [
+      18,
+      11,
+      4,
+      14,
+      0,
+      "INT"
+    ],
+    [
+      19,
+      10,
+      0,
+      18,
+      0,
+      "INT"
+    ],
+    [
+      21,
+      10,
+      1,
+      15,
+      0,
+      "INT"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}

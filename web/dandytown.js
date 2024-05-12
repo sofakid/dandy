@@ -16,7 +16,7 @@ export class DandyTown extends DandyNode {
 
   constructor(node, app) {
     super(node, app)
-    this.debug_verbose = true
+    this.debug_verbose = false
     this.concat_string_inputs = false
 
     this.input = {
@@ -609,7 +609,16 @@ export class DandyTown extends DandyNode {
     const iframe_id = `iframe_${++i_iframe}`
     const dandy_o_js = `
       const dandy = ${dandy_o_json}
+      let dandy_loaded = false
       dandy.onload = () => {}
+      dandy.await_loaded = async () => {
+        const dandy_delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+        while (dandy_loaded === false) {
+          console.log('awaiting dandy_loaded')
+          await dandy_delay(50)
+        }
+        console.log('dandy.await_loaded() done, dandy_loaded:', dandy_loaded)
+      }
       dandy.continue = () => {
         window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })
       }
@@ -656,6 +665,7 @@ export class DandyTown extends DandyNode {
 
         dandy_ready = () => {
           dandy.onload()
+          dandy_loaded = true
         }
       }
       `

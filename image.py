@@ -51,17 +51,18 @@ def batch_images(images):
   if n == 0:
     return None, 0, 0
 
-  # Convert all images to 4D tensors if they are not already
+  # make 4d
   images = [torch.unsqueeze(image, dim=0) if len(image.shape) == 3 else image for image in images]
   h = 1
   w = 2
 
   max_height = max(image.shape[h] for image in images)
   max_width = max(image.shape[w] for image in images)
-  
+  # print(f"Batching :: max_width: {max_width} :: max_height: {max_height} ")
   resized_images = []
   for image in images:
     if image.shape[h] != max_height or image.shape[w] != max_width:
+      # print("Batching :: upscaling :: {image.shape[h]} != {max_height} or {image.shape[w]} != {max_width}")
       resized_image = comfy.utils.common_upscale(image.movedim(-1, 1), max_width, max_height, 'bilinear', 'center').movedim(1, -1)
     else:
       resized_image = image

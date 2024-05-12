@@ -10,7 +10,7 @@ const M = Mimes
 
 export class DandyChain {
   static debug_blobs = false
-  static debug_verbose = true
+  static debug_verbose = false
 
   debug_log(s, ...more) {
     if (DandyChain.debug_verbose) {
@@ -53,7 +53,7 @@ export class DandyChain {
     }
     chains[type].push(this)
 
-    this._contributions = ''
+    this._contributions = null
     this._mime = mime
 
     // these are setters
@@ -289,6 +289,7 @@ export class DandyChain {
             cat_data.push(o)
           }
           if (Array.isArray(in_data)) {
+            //this.debug_log("array input :: ", in_data)
             in_data.forEach(f)
           }
           else {
@@ -322,7 +323,7 @@ export class DandyChain {
         contributions.push(new DandyChainData(url, mime, type))
       })
     }
-    else if (contributions_raw === undefined) {
+    else if (contributions_raw === undefined || contributions_raw === null) {
       // skip it
     }
     else {
@@ -335,7 +336,6 @@ export class DandyChain {
     
     // we concat strings by default, but not always (StringArrayCollector, DandyTown)
     if (type === ComfyTypes.STRING && dandy.concat_string_inputs) {
-      this.warn_log("Concatting inputs")
       let s = ''
       cat_data.forEach((o) => {
         s += `${o.value}`
@@ -350,7 +350,7 @@ export class DandyChain {
         const j = i % n
         const out_slot = out_slots[i]
         if (out_slot > -1) {
-          //this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j])
+          this.debug_log("Setting output, multiple outputs", out_slot, cat_data[j], cat_data)
           node.setOutputData(out_slot, cat_data[j])
           node.triggerSlot(out_slot)
         }

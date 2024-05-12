@@ -4,16 +4,15 @@ import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymis
 import { DandyImageCollector, DandyMaskCollector, DandyIntCollector, DandyBooleanCollector, 
          DandyFloatCollector, DandyStringArrayCollector, DandyStringCatCollector } from "/extensions/dandy/collectors.js"
 import { DandyBooleanSplitter, DandyFloatSplitter, DandyIntSplitter, DandyStringArraySplitter } from "/extensions/dandy/splitters.js"
-import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
-         DandyP5JsDraw, DandyP5JsSetup, DandyString } from "/extensions/dandy/editors.js"
-import { DandyStringPreview, DandyIntPreview,
-        DandyFloatPreview, DandyBooleanPreview } from "/extensions/dandy/previews.js"
+import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, DandyString } from "/extensions/dandy/editors.js"
+import { DandyStringPreview, DandyIntPreview, DandyFloatPreview, DandyBooleanPreview } from "/extensions/dandy/previews.js"
 import { DandyPrompt } from "/extensions/dandy/prompt.js"
 import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
-import { DandyJsLoader, DandyP5JsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
+import { DandyJsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
          DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "/extensions/dandy/loaders.js"
 import { DandySocket } from "/extensions/dandy/socket.js"
+import { DandyP5JsDraw, DandyP5JsSetup, DandyP5JsLoader } from '/extensions/dandy/examples/p5js.js'
 import { DandyGradient } from '/extensions/dandy/examples/gradient_node.js'
 import { DandyPixelsJs } from '/extensions/dandy/examples/pixelsjs_node.js'
 import { DandyPixiJs } from '/extensions/dandy/examples/pixijs/pixijs_node.js'

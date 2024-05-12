@@ -4,7 +4,7 @@ import { DandyNames, DandyTypes, DandyNode, DandyHashDealer } from "/extensions/
 export class DandyCollector extends DandyNode {
   constructor(node, app, name, type) {
     super(node, app)
-    this.debug_verbose = true
+    this.debug_verbose = false
     this.name = name
     this.type = type
     this.hash_dealer = new DandyHashDealer(this)
@@ -18,6 +18,10 @@ export class DandyCollector extends DandyNode {
       }
       this.setup_inputs(n)
     }
+  }
+
+  init_after_chain() {
+
   }
 
   setup_inputs(n) {
@@ -57,7 +61,7 @@ export class DandyCollector extends DandyNode {
 
     if (i_or_o === I) {
       this.last_value = []
-      chain.contributions = []
+      chain.contributions = null
     }
     this.hash_dealer.salt()
     this.update_hash()
@@ -113,6 +117,7 @@ export class DandyImageyCollector extends DandyCollector {
   }
 
   init_after_chain() {
+    super.init_after_chain()
     this.collection_widget = this.find_widget(DandyNames.IMAGE_URL)
     this.collection_widget.value = ''
   }
@@ -162,7 +167,6 @@ export class DandyStringArrayCollector extends DandyCollector {
     new DandyStringChain(this, 2, 1)
   }
 }
-
 
 export class DandyStringCatCollector extends DandyCollector {
   constructor(node, app) {

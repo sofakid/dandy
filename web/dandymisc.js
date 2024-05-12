@@ -563,7 +563,7 @@ export class DandyHashDealer {
     widget.size = size
     widget.serializeValue = async () => {
       this.update_message()
-      console.log(`Serializing hash: ${this.hash}`)
+      // console.log(`Serializing hash: ${this.hash}`)
       return this.hash
     }
   }
