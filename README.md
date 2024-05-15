@@ -145,7 +145,7 @@ The `dandy` object
   await_loaded: async () => {}, // or await this
   continue: () => {},          // call this when done rendering
   message: (o) => {},         // send messages to your dandytown
-                            // like: dandy.message({ command: 'get_options' })
+                             // like: dandy.message({ command: 'get_options' })
 
   // inputs
   int: 0,
