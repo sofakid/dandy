@@ -36,22 +36,25 @@ Dandy works a little differently from standard ComfyUI. In comfy the data flows 
 
 When the page is ready and all the inputs and scripts are loaded, `dandy.onload()` will run. Set it like:
 
-    dandy.onload = () => {
-        // Your code 
-    }
+```javascript
+dandy.onload = () => {
+    // Your code 
+}
+```
 
 If instead you just want to wait in place until everything is loaded before continuing, you can `await dandy.await_loaded()`. You can do both, `onload()` will finish before `await_loaded()` returns.
 
-    const my_render_code = async () => {
-      // wait until input images are loaded
-      await dandy.await_loaded()
-      
-      // render stuff to a canvas
-      
-      // continue the comfy graph
-      dandy.continue()
-    }
-
+```javascript
+const my_render_code = async () => {
+  // wait until input images are loaded
+  await dandy.await_loaded()
+  
+  // render stuff to a canvas
+  
+  // continue the comfy graph
+  dandy.continue()
+}
+```
 If you aren't using input images you don't need to wait for anything, numbers and strings will be there. Like if you just need `dandy.width` and `dandy.height` you don't need to wait.
 
 When you are done rendering, call `dandy.continue()`. If you don't then when you queue the prompt comfy will wait forever at your node. If you don't want to, you can hit the freeze button, it will continue.
