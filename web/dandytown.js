@@ -614,10 +614,8 @@ export class DandyTown extends DandyNode {
       dandy.await_loaded = async () => {
         const dandy_delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
         while (dandy_loaded === false) {
-          console.log('awaiting dandy_loaded')
           await dandy_delay(50)
         }
-        console.log('dandy.await_loaded() done, dandy_loaded:', dandy_loaded)
       }
       dandy.continue = () => {
         window.parent.postMessage({ 'dandy_continue': true, 'iframe_id': '${iframe_id}', 'output': JSON.stringify(dandy.output) })
@@ -644,16 +642,11 @@ export class DandyTown extends DandyNode {
         }
 
         resource_loaded = (resource) => {
-          console.log('resource_loaded', resource, resource.complete)
+          //console.log('resource_loaded', resource, resource.complete)
           if (resource.complete) {
-            //console.log('resource_loaded resource.complete', resource)
-
             this.count_resource()
           } else {
-            //console.log('resource_loaded setting onload', resource)
-
             resource.onload = () => {
-              //console.log('resource_loaded :: onload!!!', resource)
               this.count_resource()
             }
             resource.onerror = () => {

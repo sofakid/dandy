@@ -9,7 +9,6 @@ export default class FilterApp extends PIXI.Application {
     const domElement = document.querySelector('#container');
     const initWidth = dandy.width;
     const initHeight = dandy.height;
-    console.log(`width: ${initWidth}, height: ${initHeight}`)
 
     super();
 
@@ -63,7 +62,7 @@ export default class FilterApp extends PIXI.Application {
 
     gui.root.onFinishChange(() => {
       if (!this.loading) {
-        console.log(`gui.onFinishedChange() ${this.pondFilters}`)
+        // console.log(`gui.onFinishedChange() ${this.pondFilters}`)
         dandy.message({ 
           command: 'save_options', 
           options: this.gui.save(),
@@ -75,7 +74,7 @@ export default class FilterApp extends PIXI.Application {
     window.addEventListener('message', (event) => {
       const { data } = event
       const { command } = data
-      console.log(`index.mjs :: message received: `, data)
+      // console.log(`index.mjs :: message received: `, data)
       if (command === 'delivering_options') {
         const { options, order } = data
         this.loading = true
@@ -86,7 +85,7 @@ export default class FilterApp extends PIXI.Application {
         }, 100)
       }
       else if (command === 'delivering_null_options') {
-        console.log('delivering_null_options, continuing')
+        // console.log('delivering_null_options, continuing')
         dandy.continue()
       }
       
@@ -100,7 +99,7 @@ export default class FilterApp extends PIXI.Application {
     this.apply_filters()
     // let it settle
     setTimeout(() => {
-      console.log("FilterApp :: load_options :: dandy.continue()")
+      // console.log("FilterApp :: load_options :: dandy.continue()")
       dandy.continue()
     }, 150)
   }
