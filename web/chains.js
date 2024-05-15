@@ -308,7 +308,10 @@ export class DandyChain {
 
     const contributions_raw = using_this_input ? using_this_input : _contributions
     const contributions = []
-    if (Array.isArray(contributions_raw)) {
+    if (contributions_raw === undefined || contributions_raw === null) {
+      // skip it
+    }
+    else if (Array.isArray(contributions_raw)) {
       contributions_raw.forEach((contribution) => {
         contributions.push(DandyChainData.wrap_if_needed(contribution, mime, type))
       })
@@ -322,9 +325,6 @@ export class DandyChain {
       s.split('\n').forEach((url) => {
         contributions.push(new DandyChainData(url, mime, type))
       })
-    }
-    else if (contributions_raw === undefined || contributions_raw === null) {
-      // skip it
     }
     else {
       contributions.push(DandyChainData.wrap_if_needed(contributions_raw, mime, type))

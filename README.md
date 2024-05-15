@@ -56,28 +56,27 @@ If you aren't using input images you don't need to wait for anything, numbers an
 
 When you are done rendering, call `dandy.continue()`. If you don't then when you queue the prompt comfy will wait forever at your node. If you don't want to, you can hit the freeze button, it will continue.
 
-
 Images and Masks
 ----------------
 
 In a `DandyLand` or your custom `DandyTown` node, images are collected and loaded as DOM elements, avalible in `dandy.image[]` and `dandy.mask[]`. To output an image or mask, render something to an html `canvas`. It will be collected and sent out the `image` and `mask` outputs. The mask will be converted to greyscale. If you have multiple canvases, you will output a batch, and if they aren't the same size the batching will resize them.
 
-Masks are just greyscale images. 
+Masks are just greyscale images.
+
+There is a type `image_url`, the collector nodes can send the images as base64 urls and send them instead of a batch of image tensors, this avoids the resizing that needs to happen when batching.
 
 Dandy Editors
 -------------
 
 You have editor nodes for JS, HTML, CSS, JSON, YAML, strings, and a prompt.
 
-You can change alot of settings with the Dandy Editor Settings node, fonts, theme, keybindings, etc..
+You can change alot of settings with the `Dandy Editor Settings` node, fonts, theme, keybindings, etc..
 
 F11 makes them fullscreen.
 
 There are preview nodes, these are read-only editors to examine strings, ints, floats, booleans.
 
 If you load and save files, you are uploading and downloading files, it doesn't sync with any files on the filesystem.
-
-You can change editor settings with the `Dandy Editor Settings` node.
 
 Dandy Loaders
 -------------
@@ -102,7 +101,7 @@ Strings have two collectors, `Dandy String Array Collector` and `Dandy String Ca
 
 By default string inputs are concatenated. In the above screenshot we're collecting an array of strings but then the `Dandy Prompt` concatenates them. Except when that wouldn't make sense, like `Dandy String Preview`, `Dandy String Array Collector`, and `Dandy Land`.
 
-The Image and Mask collectors batch them as comfy images, this will resize them all to same size. If you want them unaffected, you can use the image_url output instead. These will also end up in `dandy.image[]` and `dandy.mask[]` as loaded `img` DOM elements.
+The Image and Mask collectors batch them as comfy images, this will resize them all to same size. If you want them unaffected, you can use the `image_url` output instead. These will also end up in `dandy.image[]` and `dandy.mask[]` as loaded `img` DOM elements.
 
 
 Dandy Town
@@ -137,7 +136,7 @@ When you create them some skeleton code is inserted so you can get coding right 
 The `dandy` object
 ------------------
 
-```json
+```javascript
 {
   onload: () => {}              // set this
   await_loaded: async () => {} // or await this
@@ -179,7 +178,7 @@ The `dandy` object
 I suspect this might be better as a single conditioning entry and you use collectors/splitters, we'll see where this one goes.
 
 It serializes the tensors like this:
-```json
+```javascript
 [
   [
     {
@@ -193,3 +192,4 @@ It serializes the tensors like this:
   ]
 ]
 ```
+
