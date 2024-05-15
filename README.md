@@ -22,7 +22,7 @@ On windows this looks something like:
     C:\> cd \ComfyUI_windows_portable\ComfyUI\custom_nodes
     C:\ComfyUI_windows_portable\ComfyUI\custom_nodes> git clone https://github.com/sofakid/dandy.git
     C:\ComfyUI_windows_portable\ComfyUI\custom_nodes> cd dandy
-    C:\ComfyUI_windows_portable\ComfyUI\custom_nodes\dandy> ..\..\..\python_embedded\python.exe -m pip install -r requirements.txt
+    C:\ComfyUI_windows_portable\ComfyUI\custom_nodes\dandy> ..\..\..\python_embeded\python.exe -m pip install -r requirements.txt
 
 Dandy Chains
 ------------
