@@ -13,8 +13,8 @@ dandy.onload = () => {
       { alias: 'background', src: '/extensions/dandy/examples/pixijs/images/displacement_BG.jpg' },
       { alias: 'overlay', src: '/extensions/dandy/examples/pixijs/images/overlay.png' },
       { alias: 'map', src: '/extensions/dandy/examples/pixijs/images/displacement_map.png' },
-      { alias: 'lightmap', src: '/extensions/dandy/examples/pixijs/images/lightmap.png' },
-      { alias: 'colormap', src: '/extensions/dandy/examples/pixijs/images/colormap.png' },
+      // { alias: 'lightmap', src: '/extensions/dandy/examples/pixijs/images/lightmap.png' },
+      //{ alias: 'colormap', src: '/extensions/dandy/examples/pixijs/images/colormap.png' },
     ])
   
     for (const i in filters) {

@@ -52,9 +52,13 @@ export class DandyPixiJs extends DandyTown {
 
       // we don't send options if they aren't configured yet, or if the user hasn't made any changes anyways
       // (we save options whenever they change a value)
-      if (options !== null) {
+      if (options === null) {
+        this.send_message({ command: 'delivering_null_options'})
+      } else {
         this.send_message({ command: 'delivering_options', options, order })
       }
+
+
   }
 
   on_message(o) {

@@ -85,6 +85,11 @@ export default class FilterApp extends PIXI.Application {
           this.loading = false
         }, 100)
       }
+      else if (command === 'delivering_null_options') {
+        console.log('delivering_null_options, continuing')
+        dandy.continue()
+      }
+      
     })
   }
 
@@ -95,6 +100,7 @@ export default class FilterApp extends PIXI.Application {
     this.apply_filters()
     // let it settle
     setTimeout(() => {
+      console.log("FilterApp :: load_options :: dandy.continue()")
       dandy.continue()
     }, 150)
   }

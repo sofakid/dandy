@@ -1,0 +1,396 @@
+{
+  "last_node_id": 24,
+  "last_link_id": 35,
+  "nodes": [
+    {
+      "id": 18,
+      "type": "DandyLand",
+      "pos": [
+        1246,
+        640
+      ],
+      "size": [
+        531.4239555053705,
+        917.6474604492184
+      ],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "link": null
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "link": null
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": null
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": null
+        },
+        {
+          "name": "html",
+          "type": "DANDY_HTML_URLS",
+          "link": null
+        },
+        {
+          "name": "css",
+          "type": "DANDY_CSS_URLS",
+          "link": null
+        },
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": 33
+        },
+        {
+          "name": "wasm",
+          "type": "DANDY_WASM_URLS",
+          "link": null
+        },
+        {
+          "name": "json",
+          "type": "DANDY_JSON_URLS",
+          "link": null
+        },
+        {
+          "name": "yaml",
+          "type": "DANDY_YAML_URLS",
+          "link": null
+        },
+        {
+          "name": "image_url",
+          "type": "DANDY_IMAGE_URL",
+          "link": null
+        },
+        {
+          "name": "int",
+          "type": "INT",
+          "link": null
+        },
+        {
+          "name": "float",
+          "type": "FLOAT",
+          "link": null
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "link": null
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            34
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "int",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "float",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "boolean",
+          "type": "BOOLEAN",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "width",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "height",
+          "type": "FLOAT,INT,NUMBER,STRING",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "string",
+          "type": "STRING",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyLand"
+      },
+      "widgets_values": [
+        null,
+        null,
+        512,
+        512,
+        "",
+        null,
+        "",
+        "",
+        "[{\"value\":\"blob:http://127.0.0.1:8188/5b2ea192-6fe6-4f1d-91ab-b84c2f2eac3e\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true},{\"value\":\"blob:http://127.0.0.1:8188/63a477ee-b37c-4580-b0af-001a14953ffd\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true},{\"value\":\"blob:http://127.0.0.1:8188/0f43e93f-abb7-441e-be9e-24b67b193e8b\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true}]",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        ""
+      ]
+    },
+    {
+      "id": 24,
+      "type": "PreviewImage",
+      "pos": [
+        1822,
+        666
+      ],
+      "size": [
+        271.8289555053707,
+        821.7594604492183
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 34
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 22,
+      "type": "DandyJs",
+      "pos": [
+        404,
+        757
+      ],
+      "size": [
+        406.5589904785156,
+        595.4183959960938
+      ],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": 31
+        }
+      ],
+      "outputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "links": [
+            32
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyJs",
+        "text": "const triangle = (ctx, x, y) => {\r\n  ctx.beginPath()\r\n  ctx.moveTo(x, y)\r\n  ctx.lineTo(x + 50, y + 50)\r\n  ctx.lineTo(x - 50, y + 50)\r\n  ctx.closePath()\r\n  ctx.fill()\r\n  ctx.stroke()\r\n}\r\n\r\nconst square = (ctx, x, y) => {\r\n  ctx.beginPath()\r\n  ctx.rect(x - 25, y - 25, 50, 50)\r\n  ctx.fill()\r\n  ctx.stroke()\r\n}\r\n\r\nconst colours = ['red', 'blue', 'yellow', \r\n  'cyan', 'purple', 'orange']\r\n\r\nconst random_color = () => {\r\n  const i = randy(colours.length)\r\n  return colours[i]\r\n}\r\n\r\nconst colorise = (ctx, fill, stroke) => {\r\n  ctx.fillStyle = fill\r\n  ctx.strokeStyle = stroke\r\n}\r\n\r\nconst random_colorise = (ctx) => {\r\n  colorise(ctx, random_color(), random_color())\r\n}",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        "[{\"value\":\"blob:http://127.0.0.1:8188/5b2ea192-6fe6-4f1d-91ab-b84c2f2eac3e\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true}]"
+      ]
+    },
+    {
+      "id": 20,
+      "type": "DandyJs",
+      "pos": [
+        -51,
+        764
+      ],
+      "size": [
+        423.5589904785156,
+        386.41839599609375
+      ],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": null
+        }
+      ],
+      "outputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "links": [
+            31
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyJs",
+        "text": "const contexts = () => {\n  const a = []\n  for (let i = 0; i < 4; ++i) {\n    const canvas = document.createElement('canvas')\n    canvas.width = dandy.width\n    canvas.height = dandy.height\n    document.body.appendChild(canvas)\n    \n    const ctx = canvas.getContext(\"2d\")\n    a.push(ctx)\n  }\n  \n  return a\n}\n\nconst randy = (n) => {\n  return Math.floor(Math.random() * n)\n}\n"
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 23,
+      "type": "DandyJs",
+      "pos": [
+        845,
+        761
+      ],
+      "size": [
+        377.1639555053707,
+        438.6364604492187
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "link": 32
+        }
+      ],
+      "outputs": [
+        {
+          "name": "js",
+          "type": "DANDY_JS_URLS",
+          "links": [
+            33
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DandyJs",
+        "text": "dandy.onload = () => {\n  \n  const shapes = [triangle, square]\n  const ctxes = contexts()\n  const n = ctxes.length\n  \n  ctxes.forEach((ctx, j) => {\n    ctx.globalAlpha = (j + 1)/n\n    for (let i = 0; i < 500; ++i) {\n      shapes.forEach((shape) => {\n        random_colorise(ctx)\n        const x = randy(dandy.width)\n        const y = randy(dandy.height)\n        shape(ctx, x, y)\n      })\n    }\n  })\n  \n  dandy.continue()\n  console.log(dandy)\n}\n\n\n",
+        "brand_new_node": false
+      },
+      "widgets_values": [
+        null,
+        null,
+        null,
+        false,
+        null,
+        null,
+        "[{\"value\":\"blob:http://127.0.0.1:8188/5b2ea192-6fe6-4f1d-91ab-b84c2f2eac3e\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true},{\"value\":\"blob:http://127.0.0.1:8188/63a477ee-b37c-4580-b0af-001a14953ffd\",\"mime\":\"application/javascript\",\"type\":\"DANDY_JS_URLS\",\"is_dandy_chain_data\":true}]"
+      ]
+    }
+  ],
+  "links": [
+    [
+      5,
+      1,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      31,
+      20,
+      0,
+      22,
+      0,
+      "DANDY_JS_URLS"
+    ],
+    [
+      32,
+      22,
+      0,
+      23,
+      0,
+      "DANDY_JS_URLS"
+    ],
+    [
+      33,
+      23,
+      0,
+      18,
+      6,
+      "DANDY_JS_URLS"
+    ],
+    [
+      34,
+      18,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {},
+  "version": 0.4
+}
