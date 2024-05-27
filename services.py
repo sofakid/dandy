@@ -9,8 +9,11 @@ def get_system_fonts():
 
   out = []
   for font_file in font_paths:
+    try:
       font = font_manager.get_font(font_file)
       out.append(font.family_name)
+    except RuntimeError as e:
+      print(f"Could not load font {font_file}: {e}")
   return out
 
 i_service = 0

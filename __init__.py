@@ -7,7 +7,7 @@ from .p5 import *
 from .prompt import *
 from .collectors import *
 from .splitters import *
-from .socket import launch_server
+from .dandysocket import launch_server
 from .example_gradient import DandyGradient
 from .example_pixelsjs import DandyPixelsJs
 from .example_pixijs import DandyPixiJs
