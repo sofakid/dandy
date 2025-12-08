@@ -11,6 +11,8 @@ DANDY_SPLITTERS_CATEGORY = 'Dandy Splitters'
 DANDY_LOADERS_CATEGORY = 'Dandy Loaders'
 DANDY_PREVIEWS_CATEGORY = 'Dandy Previews'
 
+DANDY_CHILD_PROCESS = '--DANDY_CHILD_PROCESS'
+
 WIDTH_HEIGHT_INPUT = ('INT', {'default': 512, 'min': 10, 'max': MAX_RESOLUTION, 'step': 128})
 N_INPUTS_INPUT = ('INT', {'default': 2, 'min': 1, 'max': MAX_RESOLUTION, 'step': 1})
 N_OUTPUTS_INPUT = ('INT', {'default': 2, 'min': 1, 'max': MAX_RESOLUTION, 'step': 1})
@@ -95,3 +97,7 @@ def abort_abort_abort():
   print('abort abort abort')
   import comfy.model_management
   raise comfy.model_management.InterruptProcessingException
+
+def dandy_is_child():
+  import sys
+  return DANDY_CHILD_PROCESS in sys.argv

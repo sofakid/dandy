@@ -1,6 +1,6 @@
 import traceback
-from .client import DandyServicesClient
-from .constants import *
+from dandy.client import DandyServicesClient
+from dandy.constants import *
 
 def DandyRequiredInputs(cls, inputs):
   dandy_inputs = cls.DANDY_INPUTS()

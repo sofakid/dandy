@@ -2,9 +2,9 @@ import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosedOK
 import json
-from .constants import *
-from .dandynodes import *
-from .image import make_b64image
+from dandy.constants import *
+from dandy.dandynodes import *
+from dandy.image import make_b64image
 
 async def send_data_async(data):
   try:  

@@ -1,8 +1,8 @@
 
 from matplotlib import font_manager
 import json
-from .constants import *
-from .dandynodes import *
+from dandy.constants import *
+from dandy.dandynodes import *
 
 def get_system_fonts():
   font_paths = font_manager.findSystemFonts()

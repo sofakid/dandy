@@ -1,11 +1,16 @@
 import sys
 import os
 
-comfyui_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if comfyui_root not in sys.path:
-    sys.path.insert(0, comfyui_root)
+# Fix for Windows portable embedded Python - add custom_nodes to sys.path for package imports
+dandy_path = os.path.dirname(__file__)
+custom_nodes_path = os.path.dirname(dandy_path)
+comfyui_root = os.path.dirname(custom_nodes_path)
 
-print(f"Dandy init :: Added ComfyUI root to sys.path: {comfyui_root}")
+if comfyui_root not in sys.path:
+  sys.path.insert(0, comfyui_root)
+
+if custom_nodes_path not in sys.path:
+  sys.path.insert(0, custom_nodes_path)
 
 from .editors import *
 from .previews import *
@@ -109,14 +114,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyP5JsDraw": "Dandy p5.js Draw",
 }
 
-# if mp.current_process().name == 'MainProcess':
-#   print("DandySocket :: launching server")
-#   launch_server()
-
-# if __name__ != '__mp_main__':
-#   print("DandySocket :: launching server")
-#   launch_server()
-
-# When run via -m or directly in child, __name__ == 'dandy.dandysocket' or '__main__'
-if __name__ not in ('__main__', 'dandy.dandysocket'):
-    launch_server()
+if not dandy_is_child() and not hasattr(sys, '_dandy_server_launched'):
+  sys._dandy_server_launched = True
+  launch_server()
