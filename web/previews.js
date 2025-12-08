@@ -13,10 +13,12 @@ export class DandyPreview extends DandyEditor {
 
     this.completely_hide_tray()
     
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/text')
-    this.set_text("")
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/text')
+      this.set_text("")
+    })
 
     const { socket } = this
     socket.on_sending_input = (o) => {

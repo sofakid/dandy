@@ -248,6 +248,30 @@ export class DandyNode {
     })
   }
 
+  is_in_graph() {
+    const { node } = this
+    return node && node.graph
+  }
+
+  add_dom_widget(name, type, element, options, when_inserted) {
+    const widget = this.node.addDOMWidget(name, type, element, options)
+
+    if (when_inserted) {
+      const check = () => {
+        if (this.is_in_graph()) {
+          if (element.isConnected || document.contains(element)) {
+            when_inserted(widget, element)
+          } else {
+            requestAnimationFrame(check)
+          }
+        }
+      }
+      requestAnimationFrame(check)
+    }
+
+    return widget
+  }
+
   on_configure(info) {
     // this.warn_log(`default on_configure running`)
   }

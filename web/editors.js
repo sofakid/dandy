@@ -268,6 +268,7 @@ export class DandyEditor extends DandyNode {
     this.editor = null
     this.div_widget = null
     this.chain = null
+    this.when_editor_ready_q = []
     
     const node_type = 'dandy_editor'
     const editor_id = `${node_type}_${DandyEditor.i_editor++}`
@@ -293,49 +294,63 @@ export class DandyEditor extends DandyNode {
     
     this.button_bar = new DandyEditorTopBar(this, dandy_div)
 
-    const div_widget = node.addDOMWidget(dandy_div.id, "div", dandy_div)
+    const div_widget = this.add_dom_widget(dandy_div.id, "div", dandy_div, {}, () => { this.on_editor_ready() })
 
-    const editor_pre = this.editor_pre = document.createElement('pre')
-    editor_pre.classList.add(this.editor_class)
-    editor_pre.id = editor_id
-    editor_pre.classList.add('dandyEditorPre')
-    
-    dandy_div.appendChild(editor_pre)
-    
-    div_widget.dandy_div = dandy_div
-    div_widget.editor_pre = editor_pre
-    this.div_widget = div_widget
-
-    const editor = ace.edit(editor_id)
-    this.editor = editor
-
-    dandy_div.addEventListener("keyup", (event) => {
-      if (event.key === "F11" && editor.isFocused()) {
-        this.toggleFullscreen()
+    this.when_editor_ready(() => {
+      const editor_pre = this.editor_pre = document.createElement('pre')
+      editor_pre.classList.add(this.editor_class)
+      editor_pre.id = editor_id
+      editor_pre.classList.add('dandyEditorPre')
+      
+      dandy_div.appendChild(editor_pre)
+      
+      div_widget.dandy_div = dandy_div
+      div_widget.editor_pre = editor_pre
+      this.div_widget = div_widget
+  
+      const editor = ace.edit(editor_id)
+      this.editor = editor
+  
+      dandy_div.addEventListener("keyup", (event) => {
+        if (event.key === "F11" && editor.isFocused()) {
+          this.toggleFullscreen()
+        }
+      })
+  
+      const settings = dandy_settings()
+      settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
+      settings.register_dandy(this)
+      
+      editor_pre.addEventListener('resize', (event) => {
+        editor.resize()
+      })
+  
+      let typingTimer
+      const oneSecond = 1000
+  
+      const handleTextChange = () => {
+        clearTimeout(typingTimer)
+  
+        typingTimer = setTimeout(() => {
+          this.apply_text()
+        }, oneSecond)
       }
-    })
+  
+      const editor_session = editor.getSession()
+      editor_session.on('change', handleTextChange)
+    })  
+  }
 
-    const settings = dandy_settings()
-    settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
-    settings.register_dandy(this)
-    
-    editor_pre.addEventListener('resize', (event) => {
-      editor.resize()
-    })
-
-    let typingTimer
-    const oneSecond = 1000
-
-    const handleTextChange = () => {
-      clearTimeout(typingTimer)
-
-      typingTimer = setTimeout(() => {
-        this.apply_text()
-      }, oneSecond)
+  when_editor_ready(f) {
+    if (this.editor) {
+      f()
+    } else {
+      this.when_editor_ready_q.push(f)
     }
+  }
 
-    const editor_session = editor.getSession()
-    editor_session.on('change', handleTextChange)
+  on_editor_ready() {
+    this.when_editor_ready_q.forEach(f => f())
   }
 
   completely_hide_tray() {
@@ -387,13 +402,13 @@ export class DandyEditor extends DandyNode {
     // restore saved text if it exists
     const { button_bar, node } = this
     const { properties } = node
-    const { text, filename } = properties
+    const { text = "", filename = "" } = properties
     properties.brand_new_node = false
-    if (text !== undefined) {
+
+    this.when_editor_ready(() => {
       this.set_text(text)
-    } else {
-      this.set_text("")
-    }
+    })
+
     // this.debug_log(`Editor configured`, node)
     button_bar.set_filename(filename)
   }
@@ -434,11 +449,13 @@ export class DandyJs extends DandyEditor {
     this.chain = new DandyJsChain(this, 1, 1)
     node.size = [400, 300]
     
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/javascript')
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/javascript')
+    })
   }
-  
+    
   init_widgets_above_editor() {
     dandy_js_plain_module_toggle(this)
   }
@@ -457,11 +474,13 @@ export class DandyHtml extends DandyEditor {
     this.chain = new DandyHtmlChain(this, 0, 1)
     node.size = [700, 280]
 
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/html')
-
-    this.set_text(DandyHtml.default_text)
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/html')
+      this.set_text(DandyHtml.default_text)
+    })
+      
   }
 }
 
@@ -478,11 +497,12 @@ export class DandyCss extends DandyEditor {
     this.chain = new DandyCssChain(this, 1, 1)
     node.size = [300, 280]
 
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/css')
-
-    this.set_text(DandyCss.default_text)
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/css')
+      this.set_text(DandyCss.default_text)
+    })
   }
 }
 
@@ -495,11 +515,12 @@ export class DandyJson extends DandyEditor {
     this.chain = new DandyJsonChain(this, 1, 1)
     node.size = [300, 280]
     
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/json')
-
-    this.set_text(DandyJson.default_text)
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/json')
+      this.set_text(DandyJson.default_text)
+    })
   }
 
 }
@@ -510,10 +531,12 @@ export class DandyYaml extends DandyEditor {
     this.chain = new DandyYamlChain(this, 1, 1)
     node.size = [300, 280]
     
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/yaml')
-    this.set_text("")
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/yaml')
+      this.set_text("")
+    })
   }
 }
 
@@ -523,10 +546,12 @@ export class DandyString extends DandyEditor {
     this.debug_verbose = false
     this.chain = new DandyStringChain(this, 1, 1)
     
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode('ace/mode/text')
-    this.set_text("")
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode('ace/mode/text')
+      this.set_text("")
+    })
 
     const { socket, chain } = this
     socket.on_sending_input = (o) => {

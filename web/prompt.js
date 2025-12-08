@@ -9,10 +9,12 @@ export class DandyPrompt extends DandyEditor {
     const input_string_chain = this.input_string_chain = new DandyStringChain(this, 1, 0)
     const output_string_chain = this.output_string_chain = new DandyStringChain(this, 0, 1)
     
-    const { editor } = this
-    const editor_session = editor.getSession()
-    editor_session.setMode(dandy_stable_diffusion_mode)
-    this.set_text("")
+    this.when_editor_ready(() => {
+      const { editor } = this
+      const editor_session = editor.getSession()
+      editor_session.setMode(dandy_stable_diffusion_mode)
+      this.set_text("")
+    })
 
     const socket = this.socket = new DandySocket(this)
     socket.on_request_string = (o) => {
