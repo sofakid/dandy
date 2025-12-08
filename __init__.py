@@ -1,4 +1,12 @@
-import multiprocessing as mp
+import sys
+import os
+
+comfyui_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if comfyui_root not in sys.path:
+    sys.path.insert(0, comfyui_root)
+
+print(f"Dandy init :: Added ComfyUI root to sys.path: {comfyui_root}")
+
 from .editors import *
 from .previews import *
 from .loaders import *
@@ -101,6 +109,14 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyP5JsDraw": "Dandy p5.js Draw",
 }
 
-if mp.current_process().name == 'MainProcess':
-  print("DandySocket :: launching server")
-  launch_server()
+# if mp.current_process().name == 'MainProcess':
+#   print("DandySocket :: launching server")
+#   launch_server()
+
+# if __name__ != '__mp_main__':
+#   print("DandySocket :: launching server")
+#   launch_server()
+
+# When run via -m or directly in child, __name__ == 'dandy.dandysocket' or '__main__'
+if __name__ not in ('__main__', 'dandy.dandysocket'):
+    launch_server()

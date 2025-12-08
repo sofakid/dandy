@@ -1,4 +1,5 @@
-import multiprocessing as mp
+import subprocess
+import threading
 import asyncio
 import websockets
 import atexit
@@ -8,8 +9,8 @@ import sys
 from .constants import *
 from .services import DandyService
 
-### Spawned Process ================================================================
-async def start_service(ws, path):
+### Child Process ================================================================
+async def start_service(ws):
   service = DandyService(ws)
   await service.run_loop()
   
@@ -32,17 +33,41 @@ def run_server():
   
 ### Main Process ================================================================
 def launch_server():
-  script_path = os.path.abspath(__file__)
-  dandy_module_path = os.path.dirname(script_path)
-  custom_nodes_path = os.path.dirname(dandy_module_path)
+    print("DandySocket :: launching server")
 
-  sys.path.append(custom_nodes_path)
-  ctx = mp.get_context('spawn')
-  q = ctx.Queue()
-  server_process = ctx.Process(target=run_server)
-  server_process.start()
+    dandy_path = os.path.dirname(__file__)
+    custom_nodes_path = os.path.dirname(dandy_path)
 
-  def shutdown():
-    server_process.join()
+    env = os.environ.copy()
+    if 'PYTHONPATH' in env:
+        env['PYTHONPATH'] = custom_nodes_path + os.pathsep + env['PYTHONPATH']
+    else:
+        env['PYTHONPATH'] = custom_nodes_path
 
-  atexit.register(shutdown)
+    server_process = subprocess.Popen(
+        [sys.executable, '-u', '-m', 'dandy.dandysocket'],
+        cwd=custom_nodes_path,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        bufsize=1,
+        universal_newlines=True
+    )
+
+    def stream_output():
+        for line in server_process.stdout:
+            print("DandySocket child :: " + line.rstrip())
+
+    threading.Thread(target=stream_output, daemon=True).start()
+
+    def shutdown():
+        print("DandySocket :: terminating server")
+        server_process.terminate()
+        server_process.wait(timeout=5)
+
+    atexit.register(shutdown)
+
+
+# only in the child
+if __name__ in ('__main__', 'dandy.dandysocket'):
+    run_server()
