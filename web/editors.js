@@ -418,32 +418,36 @@ export class DandyEditor extends DandyNode {
   }
 
   apply_text() {
-    const { editor, node, chain, hash_dealer } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-
-    hash_dealer.message = text
-
-    if (chain) {
-      this.text_blob = new Blob([text], { type: this.mimetype })
-      if (this.text_url !== null) {
-        URL.revokeObjectURL(this.text_url)
+    this.when_editor_ready(() => {
+      const { editor, node, chain, hash_dealer } = this
+      const { properties } = node
+      const text = editor.getValue()
+      properties.text = text
+  
+      hash_dealer.message = text
+  
+      if (chain) {
+        this.text_blob = new Blob([text], { type: this.mimetype })
+        if (this.text_url !== null) {
+          URL.revokeObjectURL(this.text_url)
+        }
+        this.text_url = URL.createObjectURL(this.text_blob)
+        chain.contributions = this.text_url
+        chain.update_chain()
       }
-      this.text_url = URL.createObjectURL(this.text_blob)
-      chain.contributions = this.text_url
-      chain.update_chain()
-    }
+    })
   }
 
   set_text(text) {
-    const { editor } = this
-    editor.setValue(text)
-    editor.clearSelection()
-    editor.resize()
-    editor.renderer.updateFull()
-    // seems to be a bug in ace editor that's existed since 2015, it won't update if it's off the screen.
-    this.apply_text()
+    this.when_editor_ready(() => {
+      const { editor } = this
+      editor.setValue(text)
+      editor.clearSelection()
+      editor.resize()
+      editor.renderer.updateFull()
+      // seems to be a bug in ace editor that's existed since 2015, it won't update if it's off the screen.
+      this.apply_text()
+    })
   }
 }
 
@@ -576,23 +580,27 @@ export class DandyString extends DandyEditor {
   }
 
   on_settings_applied() {
-    const { editor } = this
-    editor.setOption('showGutter', false)
-    editor.setOption('wrap', 'free')
-    editor.setOption('indentedSoftWrap', false)
+    this.when_editor_ready(() => {
+      const { editor } = this
+      editor.setOption('showGutter', false)
+      editor.setOption('wrap', 'free')
+      editor.setOption('indentedSoftWrap', false)
+    })
   }
 
   apply_text() {
-    const { editor, node, chain, hash_dealer } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-
-    hash_dealer.message = text
-
-    if (chain) {
-      chain.contributions = text
-      chain.update_chain()
-    }
+    this.when_editor_ready(() => {
+      const { editor, node, chain, hash_dealer } = this
+      const { properties } = node
+      const text = editor.getValue()
+      properties.text = text
+  
+      hash_dealer.message = text
+  
+      if (chain) {
+        chain.contributions = text
+        chain.update_chain()
+      }
+    })
   }
 }

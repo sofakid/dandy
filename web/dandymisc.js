@@ -200,7 +200,7 @@ export class DandyNode {
       this.on_execution_start()
     }
 
-    node.onExecuted = (output) => {
+    node.onNodeExecuted = (output) => {
       this.on_executed(output)      
     }
 

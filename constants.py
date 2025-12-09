@@ -101,17 +101,3 @@ def abort_abort_abort():
 def dandy_is_child():
   import sys
   return DANDY_CHILD_PROCESS in sys.argv
-
-def DANDY_AUTO_OUTPUTS(*names):
-    import builtins
-    g = builtins.__dict__.copy()
-    g.update(globals())
-    out = {}
-    for name in names:
-        if not name:  # hidden outputs
-            continue
-        key = name.upper() + "_TYPE"
-        typ = g.get(key) or g.get("DANDY_" + key)
-        if typ:
-            out[name] = {"type": typ}
-    return out

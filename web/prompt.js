@@ -74,13 +74,15 @@ export class DandyPrompt extends DandyEditor {
   }
 
   apply_text() {
-    const { editor, node, input_string_chain } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-
-    const input_strings = input_string_chain.values
-    this.do_cat(input_strings)
+    this.when_editor_ready(() => {
+      const { editor, node, input_string_chain } = this
+      const { properties } = node
+      const text = editor.getValue()
+      properties.text = text
+  
+      const input_strings = input_string_chain.values
+      this.do_cat(input_strings)
+    })
   }
 
   do_cat(input_strings) {

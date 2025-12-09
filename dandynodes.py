@@ -2,6 +2,21 @@ import traceback
 from dandy.client import DandyServicesClient
 from dandy.constants import *
 
+
+def DANDY_AUTO_OUTPUTS(*names):
+    import builtins
+    g = builtins.__dict__.copy()
+    g.update(globals())
+    out = {}
+    for name in names:
+        if not name:  # hidden outputs
+            continue
+        key = name.upper() + "_TYPE"
+        typ = g.get(key) or g.get("DANDY_" + key)
+        if typ:
+            out[name] = {"type": typ}
+    return out
+
 def DandyRequiredInputs(cls, inputs):
   dandy_inputs = cls.DANDY_INPUTS()
   dandy_inputs['required'].update(inputs)

@@ -47,11 +47,13 @@ export class DandyPreview extends DandyEditor {
   }
 
   on_settings_applied() {
-    const { editor } = this
-    editor.setOption('readOnly', true)
-    editor.setOption('showGutter', false)
-    editor.setOption('wrap', 'free')
-    editor.setOption('indentedSoftWrap', false)
+    this.when_editor_ready(() => {
+      const { editor } = this
+      editor.setOption('readOnly', true)
+      editor.setOption('showGutter', false)
+      editor.setOption('wrap', 'free')
+      editor.setOption('indentedSoftWrap', false)
+    })
   }
 
   on_chain_updated(chain) {
@@ -73,11 +75,13 @@ export class DandyPreview extends DandyEditor {
   }
 
   apply_text() {
-    const { editor, node, hash_dealer } = this
-    const { properties } = node
-    const text = editor.getValue()
-    properties.text = text
-    hash_dealer.message = text
+    this.when_editor_ready(() => {
+      const { editor, node, hash_dealer } = this
+      const { properties } = node
+      const text = editor.getValue()
+      properties.text = text
+      hash_dealer.message = text
+    })
   }
 }
 
