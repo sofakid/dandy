@@ -2,6 +2,9 @@ import asyncio
 import websockets
 from websockets.exceptions import ConnectionClosedOK
 import json
+import asyncio
+import nest_asyncio
+
 from dandy.constants import *
 from dandy.dandynodes import *
 from dandy.image import make_b64image
@@ -39,7 +42,12 @@ class DandyServicesClient:
     pass
 
   def send_data(self, data):
-    return asyncio.run(send_data_async(data))
+    nest_asyncio.apply()
+
+    async def f():
+        return await send_data_async(data)
+
+    return asyncio.get_event_loop().run_until_complete(f()) 
 
   def request_captures(self, js_client,
                        int, float, boolean, string, 

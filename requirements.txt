@@ -1,2 +1,3 @@
 websockets
+nest_asyncio
 matplotlib

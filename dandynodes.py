@@ -29,6 +29,12 @@ class DandyNode:
   def DANDY_INPUTS(cls):
     return { 'required': {}, 'hidden': {}, 'optional': {} }
   
+  @classmethod
+  def OUTPUT_TYPES(cls):
+    if hasattr(cls, "RETURN_NAMES") and cls.RETURN_NAMES:
+      return DANDY_AUTO_OUTPUTS(*cls.RETURN_NAMES)
+    return {}
+  
   FUNCTION = 'execute'
   OUTPUT_NODE = True
   CATEGORY = DANDY_CATEGORY
