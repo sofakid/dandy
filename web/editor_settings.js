@@ -98,145 +98,6 @@ const collect_monospace_fonts = (system_fonts) => {
   return monospaced.sort()
 }
 
-// --------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------
-
-export class DandySettings {
-
-  constructor() {
-    this.dandies = []
-    this.options = {}
-    this.key_o = 'DandyEditorSettings'
-    this.key_fonts = 'DandyFonts'
-    this.ace_keyboard = null
-    this.fonts = null
-    
-    const socket = this.socket = new DandySocket()
-    socket.on_delivering_fonts = (fonts) => {
-      console.log("DandySettings :: Fonts delivered.")
-      this.fonts = collect_monospace_fonts(fonts)
-      this.save_fonts_to_local_storage()
-    }
-
-    const f = async () => {
-      await socket.get_service_id()
-      this.load_fonts_from_local_storage()
-      if (this.fonts === null) {
-        this.reload_fonts()
-      }
-    }
-    f()
-    
-    this.load_from_local_storage()
-  }
-
-  async wait_until_ready() {
-    while (this.fonts === null) {
-      const ms = 50
-      await dandy_delay(ms)
-    }
-  }
-
-  reload_fonts() {
-    this.socket.request_fonts()
-  }
-
-  learn_default_ace_keyboard(o_handler) {
-    this.ace_keyboard = o_handler
-  }
-
-  load_fonts_from_local_storage() {
-    const { key_fonts } = this
-    const so = localStorage.getItem(key_fonts)
-    if (so !== null) {
-      const o = JSON.parse(so)
-      this.fonts = o
-    } else {
-      this.fonts = null
-    }
-  }
-
-  save_fonts_to_local_storage() {
-    const { key_fonts, fonts } = this
-    if (fonts) {
-      const so = JSON.stringify(fonts)
-      localStorage.setItem(key_fonts, so)
-    }
-  }
-
-  load_from_local_storage() {
-    const { key_o } = this
-    const so = localStorage.getItem(key_o)
-    if (so !== null) {
-      const o = JSON.parse(so)
-      const dont_save = false
-      this.set_options(o, dont_save)
-    } else {
-      const save = true
-      this.set_options(default_options, save)
-    }
-  }
-
-  save_to_local_storage() {
-    const { key_o, options } = this
-    const o = {}
-    Object.entries(options).forEach(([name, value]) => {
-      if (name === 'keyboardHandler' && typeof value === 'object') {
-        o[name] = 'ace'
-      } else {
-        o[name] = value
-      }
-    })
-    const so = JSON.stringify(options)
-    localStorage.setItem(key_o, so)
-  }
-
-  register_dandy(dandy) {
-    this.dandies.push(dandy)
-    this.apply_options(dandy)
-  }
-  
-  unregister_dandy(dandy) {
-    this.dandies = this.dandies.filter((x) => x !== dandy)
-  }
-  
-  set_options(options, save=true) {
-    this.options = options
-    if (save) {
-      this.save_to_local_storage()
-    }
-    this.dandies.forEach((dandy) => {
-      this.apply_options(dandy)
-    })
-  }
-
-  apply_options(dandy) {
-    const { editor } = dandy
-    const { options } = this
-    const { keyboardHandler } = options  
-    
-    if (keyboardHandler === 'ace/keyboard/ace') {
-      options.keyboardHandler = settings.ace_keyboard
-    }
-
-    editor.setOptions(options)
-    dandy.on_settings_applied(options)
-  }
-}
-
-// --------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------------
-
-const settings = new DandySettings()
-export const dandy_settings = () => {
-  return settings
-}
-
-export const wait_for_DandySettings = async () => {
-  await settings.wait_until_ready()
-}
 
 const setto_names = []
 const setto = {}
@@ -325,6 +186,144 @@ setty_combo('newLineMode', 'auto', ['auto', 'unix', 'windows'])
 setty_combo('wrap', 'off', ['off', 'free'])
 setty_booly('indentedSoftWrap', true)
 setty_combo('foldStyle', 'markbegin', ['markbegin', 'markbeginend', 'manual'])
+
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+
+export class DandySettings {
+
+  constructor() {
+    this.dandies = []
+    this.options = {}
+    this.key_o = 'DandyEditorSettings'
+    this.key_fonts = 'DandyFonts'
+    this.ace_keyboard = null
+    this.fonts = null
+    
+    const socket = this.socket = new DandySocket()
+    socket.on_delivering_fonts = (fonts) => {
+      console.log('DandySettings :: Fonts delivered.')
+      this.fonts = collect_monospace_fonts(fonts)
+      this.save_fonts_to_local_storage()
+    }
+
+    const f = async () => {
+      await socket.get_service_id()
+      this.load_fonts_from_local_storage()
+      if (this.fonts === null) {
+        this.reload_fonts()
+      }
+    }
+    f()
+    
+    this.load_from_local_storage()
+    this.save_to_local_storage()
+  }
+
+  async wait_until_ready() {
+    while (this.fonts === null) {
+      const ms = 50
+      await dandy_delay(ms)
+    }
+  }
+
+  reload_fonts() {
+    this.socket.request_fonts()
+  }
+
+  learn_default_ace_keyboard(o_handler) {
+    this.ace_keyboard = o_handler?.$id || 'ace'
+  }
+
+  load_fonts_from_local_storage() {
+    const { key_fonts } = this
+    const so = localStorage.getItem(key_fonts)
+    if (so !== null) {
+      const o = JSON.parse(so)
+      this.fonts = o
+    } else {
+      this.fonts = null
+    }
+  }
+
+  save_fonts_to_local_storage() {
+    const { key_fonts, fonts } = this
+    if (fonts) {
+      const so = JSON.stringify(fonts)
+      localStorage.setItem(key_fonts, so)
+    }
+  }
+
+  load_from_local_storage() {
+    const { key_o } = this
+    const so = localStorage.getItem(key_o)
+    if (so !== null) {
+      const o = JSON.parse(so)
+      const dont_save = false
+      this.set_options(o, dont_save)
+    } else {
+      const save = true
+      this.set_options(default_options, save)
+    }
+  }
+
+  save_to_local_storage() {
+    const { key_o, options } = this
+    const so = JSON.stringify(options)
+    localStorage.setItem(key_o, so)
+  }
+
+  register_dandy(dandy) {
+    this.dandies.push(dandy)
+    this.apply_options(dandy)
+  }
+  
+  unregister_dandy(dandy) {
+    this.dandies = this.dandies.filter((x) => x !== dandy)
+  }
+  
+  set_options(options, save=true) {
+    this.options = options
+    if (save) {
+      this.save_to_local_storage()
+    }
+    this.dandies.forEach((dandy) => {
+      this.apply_options(dandy)
+    })
+  }
+
+  apply_options(dandy) {
+    const { editor } = dandy
+    const { options } = this
+    const { ace_keyboard } = settings
+    
+    // ace needs these ones special to load and find them
+    const ace_options = {
+      ...options,
+      theme: `ace/theme/${options.theme}`,
+      keyboardHandler: `ace/keyboard/${ace_keyboard || "ace"}`
+    }
+
+    editor.setKeyboardHandler(ace_options.keyboardHandler)
+    editor.setOptions(ace_options)
+
+    dandy.on_settings_applied(options)
+  }
+}
+
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------
+
+const settings = new DandySettings()
+export const dandy_settings = () => {
+  return settings
+}
+
+export const wait_for_DandySettings = async () => {
+  await settings.wait_until_ready()
+}
 
 // --------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------
@@ -439,19 +438,7 @@ export class DandyEditorSettings extends DandyNode {
 
   load_from_settings() {
     const { options } = this
-    Object.entries(settings.options).forEach(([name, value]) => {
-      let v = null
-      if (name === 'keyboardHandler') {
-        if (typeof value === 'object' || value === 'ace') {
-          v = 'ace'
-        } else {
-          v = value.slice('ace/keyboard/'.length)
-        }
-      } else if (name === 'theme') {
-        v = value.slice('ace/theme/'.length)
-      } else {
-        v = value
-      }
+    Object.entries(settings.options).forEach(([name, v]) => {
       const widget = this[`${name}_widget`]
       if (widget) {
         widget.value = v
@@ -475,21 +462,8 @@ export class DandyEditorSettings extends DandyNode {
   }
 
   apply_settings() {
-    const { options } = this
-
-    const o = {}
+    const o = { ...this.options }
     
-    setto_names.forEach((name) => {
-      const s = options[name]
-      if (name === 'keyboardHandler') {
-        o[name] = `ace/keyboard/${s}`
-      } else if (name === 'theme') {
-        o[name] = `ace/theme/${s}`
-      } else {
-        o[name] = s
-      }
-    })
-
     Object.entries(mandatories).forEach(([name, value]) => {
       o[name] = value
     })

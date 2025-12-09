@@ -3,7 +3,7 @@ import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlC
          DandyStringChain,} from "/extensions/dandy/chains.js"
 import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, 
          DandyNames, DandyHashDealer, DandyIncredibleShrinkingWidget } from "/extensions/dandy/dandymisc.js"
-import { ace_themes, ace_keyboards, dandy_settings } from "/extensions/dandy/editor_settings.js"
+import { ace_themes, ace_keyboards, dandy_settings, wait_for_DandySettings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
 
@@ -317,10 +317,14 @@ export class DandyEditor extends DandyNode {
         }
       })
   
-      const settings = dandy_settings()
-      settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
-      settings.register_dandy(this)
-      
+      const when_settings_ready = async () => {
+        await wait_for_DandySettings()
+        const settings = dandy_settings()
+        settings.learn_default_ace_keyboard(editor.getKeyboardHandler())
+        settings.register_dandy(this)
+      }
+      when_settings_ready();
+
       editor_pre.addEventListener('resize', (event) => {
         editor.resize()
       })
