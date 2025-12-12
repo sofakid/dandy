@@ -9,6 +9,10 @@ export class DandyPrompt extends DandyEditor {
     const input_string_chain = this.input_string_chain = new DandyStringChain(this, 1, 0)
     const output_string_chain = this.output_string_chain = new DandyStringChain(this, 0, 1)
     
+    // this is weird and i don't like it
+    input_string_chain.cat_strategy = '\n'
+    //output_string_chain.cat_strategy = '\n'
+
     this.when_editor_ready(() => {
       const { editor } = this
       const editor_session = editor.getSession()
@@ -89,7 +93,7 @@ export class DandyPrompt extends DandyEditor {
     const { output_string_chain, node } = this
     const { properties } = node
     input_strings.push(properties.text)
-    const cat = input_strings.join('\n')
+    const cat = input_strings.join('\n') // this is cheesy, need a cat strategy
     output_string_chain.contributions = cat
     this.rehash()
     return cat

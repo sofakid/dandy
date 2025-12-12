@@ -42,6 +42,7 @@ export class DandyChain {
     this.data = []
     this.key = `${n_inputs}:${type}:${n_outputs}`
     this.is_mutating_io = false
+    this.cat_strategy = ''
 
     const { node, app } = this
 
@@ -364,7 +365,7 @@ export class DandyChain {
 
   update_data(using_this_input = false) {
     const { node, _contributions, mime, dandy, type, data, input_widgets, 
-      in_slots, out_slots, n_outputs } = this
+      in_slots, out_slots, n_outputs, cat_strategy } = this
     const { graph } = node
 
     if (!graph || graph.is_loading) {
@@ -443,10 +444,7 @@ export class DandyChain {
     
     // we concat strings by default, but not always (StringArrayCollector, DandyTown)
     if (type === ComfyTypes.STRING && dandy.concat_string_inputs) {
-      let s = ''
-      data.forEach((o) => {
-        s += `${o.value}`
-      })
+      const s = data.map((o) => `${o.value}`).join(cat_strategy)
       data.length = 0
       data.push(new DandyChainData(s, mime, type))
     }
