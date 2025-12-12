@@ -2,7 +2,7 @@ import { DandyEditor } from "/extensions/dandy/editors.js"
 import { DandyStringChain, DandyIntChain, DandyFloatChain, DandyBooleanChain } from "/extensions/dandy/chains.js"
 import { Mimes } from "/extensions/dandy/dandymisc.js"
 
-const NICE_PREVIEW_SIZE = [340, 130]
+const NICE_PREVIEW_SIZE = [280, 100]
 
 export class DandyPreview extends DandyEditor {
   
@@ -27,15 +27,15 @@ export class DandyPreview extends DandyEditor {
       const value = input[name]
 
       const f = (x) => {
-        chain.output_update_ignoring_input(x) // outputting a catted string, wrong
+        chain.output_update_ignoring_input(x)
         this.set_text(x)
       }
       if (value !== undefined) {
         if (typeof value === js_type) {
-          chain.output_update_ignoring_input(value) // outputting a catted string, wrong
+          chain.output_update_ignoring_input(value)
           this.set_text(`${value}`)
         } else if (Array.isArray(value)) {
-          chain.output_update_ignoring_input(value) // outputting a catted string, wrong
+          chain.output_update_ignoring_input(value)
           this.set_text(value.map((x) => `${x}`).filter((x) => x !== '').join(', '))
         } else {
           this.error_log(`got invalid ${name}`, value)
@@ -55,17 +55,12 @@ export class DandyPreview extends DandyEditor {
       editor.setOption('indentedSoftWrap', false)
     })
   }
-
+  
   on_chain_updated(chain) {
     const { data } = chain
-    if (typeof data === 'string') {
-      this.error_log("we don't do things this way anymore, not since.. the incident..")
-      this.set_text(data)
-    }
-    else if (Array.isArray(data)) {
-      const x = data.map((x, i) => {
-        return `${x.value}`
-      }).join(', ')
+    
+    if (Array.isArray(data)) {
+      const x = data.map((y, i) => `${y.value}`).join(', ')
       this.set_text(x)
     }
     else {

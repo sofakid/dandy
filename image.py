@@ -7,7 +7,7 @@ from PIL.PngImagePlugin import PngInfo
 import numpy as np
 import comfy.utils
 
-from .constants import *
+from .common import *
 from .dandynodes import *
 
 def batch_masks(masks):

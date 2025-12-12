@@ -1,5 +1,4 @@
-from .dandynodes import DandyWithHash
-from .constants import *
+from .common import *
 from .dandynodes import *
 from .editors import DandyEditor
 
@@ -26,19 +25,19 @@ class DandyIntPreview(DandyPreview):
   RETURN_NAMES = (INT_NAME,)
 
   def run(self, **kwargs):
-    int = kwargs.get('int', 0)
-    service_id = kwargs.get('service_id', '0')
-    print(f'DandyIntPreview :: int: {str(int)}, service_id: ${str(service_id)}')
-    o = self.client.send_input(service_id, kwargs)
-    return (int,)
-
+    kw = dict(kwargs)
+    int = kw['int'] = dandy_flatten(kw.get('int', 0))
+    service_id = kw.get('service_id', '0')
+    o = self.client.send_input(service_id, kw)
+    return ui_and_result(int)
 
 class DandyFloatPreview(DandyPreview):
   RETURN_TYPES = (FLOAT_TYPE,)
   RETURN_NAMES = (FLOAT_NAME,)
 
   def run(self, **kwargs):
-    float = kwargs.get('float', 0)
+    kw = dict(kwargs)
+    float = kw['float'] = dandy_flatten(kw.get('float', 0.0))
     service_id = kwargs.get('service_id', '0')
     print(f'DandyFloatPreview :: float: {str(float)}, service_id: ${str(service_id)}')
     o = self.client.send_input(service_id, kwargs)
@@ -50,7 +49,8 @@ class DandyBooleanPreview(DandyPreview):
   RETURN_NAMES = (BOOLEAN_NAME,)
   
   def run(self, **kwargs):
-    boolean = kwargs.get('boolean', False)
+    kw = dict(kwargs)
+    boolean = kw['boolean'] = dandy_flatten(kw.get('boolean', False))
     service_id = kwargs.get('service_id', '0')
     print(f'DandyBooleanPreview :: boolean: {str(boolean)}, service_id: ${str(service_id)}')
     o = self.client.send_input(service_id, kwargs)

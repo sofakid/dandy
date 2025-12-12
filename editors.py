@@ -1,5 +1,4 @@
-from .dandynodes import DandyWithHash
-from .constants import *
+from .common import *
 from .dandynodes import *
 
 class DandyEditor(DandyWithHashSocket):
@@ -43,7 +42,6 @@ class DandyCss(DandyEditor):
   def run(self, css=None, **kwargs):
     return (css,)
 
-  
 class DandyJson(DandyEditor):
   @classmethod
   def DANDY_INPUTS(cls):
@@ -82,6 +80,29 @@ class DandyString(DandyEditor):
     service_id = kwargs.get('service_id', '0')
     print(f'DandyString :: string: {str(string)}, service_id: ${str(service_id)}')
     o = self.client.send_input(service_id, kwargs)
-    out_string = o['output']['string']
-    return (out_string,)
+    out = o['output']['string']
+    return (out,)
 
+class DandyInt(DandyEditor):
+  RETURN_TYPES = (INT_TYPE,)
+  RETURN_NAMES = (INT_NAME,)
+  
+  def run(self, **kwargs):
+    kw = dict(kwargs)
+    kw['int'] = dandy_flatten(kw.get('int'))
+    service_id = kw.get('service_id', '0')
+    o = self.client.send_input(service_id, kw)
+    out = dandy_flatten(o['output']['int'])
+    return (out,)
+
+class DandyFloat(DandyEditor):
+  RETURN_TYPES = (FLOAT_TYPE,)
+  RETURN_NAMES = (FLOAT_NAME,)
+  
+  def run(self, **kwargs):
+    kw = dict(kwargs)
+    kw['float'] = dandy_flatten(kw.get('float'))
+    service_id = kw.get('service_id', '0')
+    o = self.client.send_input(service_id, kw)
+    out = dandy_flatten(o['output']['float'])
+    return (out,)

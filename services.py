@@ -1,7 +1,6 @@
-
 from matplotlib import font_manager
 import json
-from dandy.constants import *
+from dandy.common import *
 from dandy.dandynodes import *
 
 def get_system_fonts():

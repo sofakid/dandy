@@ -4,7 +4,8 @@ import { DandyWidget, DandyTypes, dandy_delay } from "/extensions/dandy/dandymis
 import { DandyImageCollector, DandyMaskCollector, DandyIntCollector, DandyBooleanCollector, 
          DandyFloatCollector, DandyStringArrayCollector, DandyStringCatCollector } from "/extensions/dandy/collectors.js"
 import { DandyBooleanSplitter, DandyFloatSplitter, DandyIntSplitter, DandyStringArraySplitter } from "/extensions/dandy/splitters.js"
-import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, DandyString } from "/extensions/dandy/editors.js"
+import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, DandyString, 
+         DandyInt, DandyFloat } from "/extensions/dandy/editors.js"
 import { DandyStringPreview, DandyIntPreview, DandyFloatPreview, DandyBooleanPreview } from "/extensions/dandy/previews.js"
 import { DandyPrompt } from "/extensions/dandy/prompt.js"
 import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
@@ -27,7 +28,10 @@ const dandy_nodes = {
   "Dandy Yaml": DandyYaml,
   "Dandy Html": DandyHtml,
   "Dandy Css": DandyCss,
+
   "Dandy String": DandyString,
+  "Dandy Int": DandyInt,
+  "Dandy Float": DandyFloat,
 
   "Dandy Int Preview": DandyIntPreview,
   "Dandy Float Preview": DandyFloatPreview,
@@ -118,7 +122,7 @@ const ext = {
     if (klass) {
       node.dandy = new klass(node, app)
     }
-	}
+	},
 }
 
 app.registerExtension(ext)

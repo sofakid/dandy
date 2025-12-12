@@ -1,7 +1,7 @@
 import re
 import torch
 from .image import make_b64image, batch_images, batch_masks, make_image_from_b64, make_mask_from_b64, make_b64mask
-from .constants import *
+from .common import *
 from .dandynodes import *
 
 class DandyCollector(DandyWithHash):
@@ -78,15 +78,6 @@ class DandyMaskCollector(DandyCollector):
     return { 'ui': { 'value': [urls]}, 'result': [urls, batched] } 
 
 
-def flatten(lst):
-  flattened = []
-  for x in lst:
-    if isinstance(x, list):
-      flattened.extend(flatten(x))
-    else:
-      flattened.append(x)
-  return flattened
-
 def string_cat(lst):
   cat = ""
   for x in lst:
@@ -109,7 +100,7 @@ class DandyIntCollector(DandyCollector):
         print("Value" + str(value))
         x.append(value)
 
-    x = flatten(x)
+    x = dandy_flatten(x)
 
     return ui_and_result(x)
 
@@ -124,7 +115,7 @@ class DandyFloatCollector(DandyCollector):
       if key.startswith('float') and value != None:
         x.append(value)
 
-    x = flatten(x)
+    x = dandy_flatten(x)
     return ui_and_result(x)
 
 
@@ -139,7 +130,7 @@ class DandyBooleanCollector(DandyCollector):
       if key.startswith('boolean') and value != None:
         x.append(value)
 
-    x = flatten(x)
+    x = dandy_flatten(x)
     return ui_and_result(x)
 
 
@@ -154,7 +145,7 @@ class DandyStringArrayCollector(DandyCollector):
       if key.startswith('string') and value != None:
         x.append(value)
 
-    x = flatten(x)
+    x = dandy_flatten(x)
     return ui_and_result(x)
 
 class DandyStringCatCollector(DandyCollector):

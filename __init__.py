@@ -35,6 +35,8 @@ NODE_CLASS_MAPPINGS = {
   "DandyCss": DandyCss,
   "DandyHtml": DandyHtml,
   "DandyString": DandyString,
+  "DandyInt": DandyInt,
+  "DandyFloat": DandyFloat,
   "DandyIntPreview": DandyIntPreview,
   "DandyFloatPreview": DandyFloatPreview,
   "DandyBooleanPreview": DandyBooleanPreview,
@@ -76,6 +78,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
   "DandyJson": "Dandy Json",
   "DandyYaml": "Dandy Yaml",
   "DandyString": "Dandy String",
+  "DandyInt": "Dandy Int",
+  "DandyFloat": "Dandy Float",
 
   "DandyStringPreview": "Dandy String Preview",
   "DandyIntPreview": "Dandy Int Preview",

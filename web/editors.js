@@ -1,11 +1,13 @@
 import { DandySocket } from "/extensions/dandy/socket.js"
 import { DandyJsChain, DandyCssChain, DandyHtmlChain, DandyJsonChain, DandyYamlChain, 
-         DandyStringChain,} from "/extensions/dandy/chains.js"
+         DandyStringChain, DandyIntChain, DandyFloatChain } from "/extensions/dandy/chains.js"
 import { Mimes, DandyNode, dandy_js_plain_module_toggle, dandy_stable_diffusion_mode, 
          DandyNames, DandyHashDealer, DandyIncredibleShrinkingWidget } from "/extensions/dandy/dandymisc.js"
 import { ace_themes, ace_keyboards, dandy_settings, wait_for_DandySettings } from "/extensions/dandy/editor_settings.js"
 
 const dandy_webroot = "/extensions/dandy/"
+
+const NICE_SMALL_EDITOR_SIZE = [340, 130]
 
 export const init_DandyEditors = async () => {
   // comfyui will try to load these if we leave them as .js files.
@@ -548,11 +550,12 @@ export class DandyYaml extends DandyEditor {
   }
 }
 
-export class DandyString extends DandyEditor {
-  constructor(node, app) {
-    super(node, app, Mimes.STRING)
+class DandyPrimativeEditor extends DandyEditor {
+  constructor(node, app, mimetype, io_key) {
+    super(node, app, mimetype)
     this.debug_verbose = false
-    this.chain = new DandyStringChain(this, 1, 1)
+    this.chain = null
+    this.io_key = io_key
     
     this.when_editor_ready(() => {
       const { editor } = this
@@ -561,22 +564,36 @@ export class DandyString extends DandyEditor {
       this.set_text("")
     })
 
-    const { socket, chain } = this
+    const { socket } = this
     socket.on_sending_input = (o) => {
-      const { input, py_client } = o
-      const { string } = input
-      
-      let out_string = ''
-      if (string !== undefined) {
-        out_string += string
-      }
-      const text = editor.getValue()
-      out_string += text
-      chain.output_update_ignoring_input(out_string)
-      const output = { 'string': out_string }
-      socket.thanks(py_client, output)
+      this.when_editor_ready(() => {
+        const { input, py_client } = o
+        const { chain, io_key } = this
+        const input_data = this.cast(input[io_key])
+        //this.warn_log("on socket: input_data", input_data, input, io_key)
+        const output_data = this.collect_and_output(input_data)
+        chain.output_update_ignoring_input(output_data)
+        const output = {}
+        output[io_key] = output_data
+        socket.thanks(py_client, output)
+      })
     }
-    node.size = [300, 180]
+    node.size = NICE_SMALL_EDITOR_SIZE
+  }
+
+  cast(data) {
+    return data
+  }
+
+  collect_and_output(input_data) {
+    const { editor } = this
+    const out = []
+    if (input_data !== undefined) {
+      out.push(input_data)
+    }
+    const data = this.cast(editor.getValue())
+    out.push(data)
+    return out
   }
 
   on_settings_applied() {
@@ -593,14 +610,73 @@ export class DandyString extends DandyEditor {
       const { editor, node, chain, hash_dealer } = this
       const { properties } = node
       const text = editor.getValue()
+      const data = this.cast(text)
+
       properties.text = text
   
-      hash_dealer.message = text
+      hash_dealer.message = data
   
       if (chain) {
-        chain.contributions = text
+        chain.contributions = data
         chain.update_chain()
       }
     })
+  }
+}
+
+export class DandyString extends DandyPrimativeEditor {
+  constructor(node, app) {
+    super(node, app, Mimes.STRING, 'string')
+    this.debug_verbose = false
+    this.chain = new DandyStringChain(this, 1, 1)
+  }
+  
+  collect_and_output(input_data) {
+    const { editor } = this
+    let out_string = ''
+    if (input_data !== undefined) {
+      out_string += input_data
+    }
+    const text = editor.getValue()
+    out_string += text
+    return out_string
+  }
+}
+
+export class DandyInt extends DandyPrimativeEditor {
+  constructor(node, app) {
+    super(node, app, Mimes.INT, 'int')
+    this.debug_verbose = false
+    this.chain = new DandyIntChain(this, 1, 1)
+  }
+
+  cast(data) {
+    const a = `${data}`
+      .split(',')
+      .map((s, i) => parseInt(s, 10))
+      .filter((x) => !isNaN(x))
+    
+    return a.length === 0 ? undefined :
+           a.length === 1 ? a[0] :
+           a
+  }
+}
+
+export class DandyFloat extends DandyPrimativeEditor {
+  constructor(node, app) {
+    super(node, app, Mimes.FLOAT, 'float')
+    this.debug_verbose = false
+    this.chain = new DandyFloatChain(this, 1, 1)
+  }
+
+  cast(data) {
+    const a = `${data}`
+      .split(',')
+      .map((s, i) => parseFloat(s))
+      .filter((x) => !isNaN(x))
+    
+    return a.length === 0 ? undefined :
+           a.length === 1 ? a[0] :
+           a
   }
 }

@@ -61,7 +61,7 @@ export class DandyCollector extends DandyNode {
 
     if (i_or_o === I) {
       this.last_value = []
-      chain.contributions = null
+      chain.contributions = []
     }
     this.hash_dealer.salt()
     this.update_hash()

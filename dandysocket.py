@@ -23,7 +23,7 @@ if dandy_path not in sys.path:
   sys.path.insert(0, dandy_path)
 
 # we can't use relative paths because this file is run as a script and a module
-from dandy.constants import *
+from dandy.common import *
 from dandy.services import DandyService
 
 ### Child Process ================================================================

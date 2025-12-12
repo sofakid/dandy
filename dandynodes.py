@@ -1,6 +1,6 @@
 import traceback
 from dandy.client import DandyServicesClient
-from dandy.constants import *
+from dandy.common import *
 
 
 def DANDY_AUTO_OUTPUTS(*names):

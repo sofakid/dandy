@@ -101,3 +101,16 @@ def abort_abort_abort():
 def dandy_is_child():
   import sys
   return DANDY_CHILD_PROCESS in sys.argv
+
+def dandy_flatten(lst):
+  if not isinstance(lst, list):
+    print("buh --------------")
+    return lst
+  print('ooo ------------')
+  flattened = []
+  for x in lst:
+    if isinstance(x, list):
+      flattened.extend(dandy_flatten(x))
+    else:
+      flattened.append(x)
+  return flattened

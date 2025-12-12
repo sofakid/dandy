@@ -80,6 +80,55 @@ export const type_is_dandy = (type) => {
 }
 export const dandy_stable_diffusion_mode = 'ace/mode/dandy_stable_diffusion'
 
+
+class DandyWorkspaceMinion {
+  
+  constructor() {
+    this.fire_after_config = null
+    this.configured_dandys = []
+    this.is_configuring = false 
+  }
+
+  mark_as_configuring() {
+    this.is_configuring = true
+  }
+
+  done_configuring(dandy) {
+    const ms = 100
+    const { configured_dandys } = this
+    configured_dandys.push(dandy)
+    
+    if (this.fire_after_config) {
+      clearTimeout(this.fire_after_config)
+    }
+
+    this.fire_after_config = setTimeout(() => {
+      this.fire_after_config = null
+      this.is_configuring = false
+      this.update_first_nodes_chains()
+      configured_dandys.length = 0
+    }, ms)
+  }
+
+  update_first_nodes_chains() {
+    const { configured_dandys } = this
+    const first_of_chains = new Set()
+
+    configured_dandys.forEach((dandy) => {
+      dandy.for_each_chain((chain) => {
+        first_of_chains.add(chain.find_first())
+      })
+    })
+
+    first_of_chains.forEach((chain) => {
+      chain.update_data()
+      chain.update_chain()
+    })
+  }
+}
+
+const minion = new DandyWorkspaceMinion()
+
 export class DandyNode {
 
   debug_log(s, ...more) {
@@ -105,12 +154,14 @@ export class DandyNode {
     this.app = app
     this.concat_string_inputs = true
 
-    this.debug_verbose = false
+    this.debug_verbose = true
     node.serialize_widgets = true
 
     if (node.properties === undefined) {
       node.properties = {}
     }
+  
+    minion.mark_as_configuring()
 
     // litegraph doesn't check for undefined graph, otherwise same code
     node.removeInput = (slot) => {
@@ -167,6 +218,8 @@ export class DandyNode {
 
     // if you extend DandyNode, implement on_configure instead of setting it on the node
     node.onConfigure = (info) => {
+      minion.done_configuring(this)
+
       // LiteGraph will reconfigure the widgets even if options.serialize is false
       // the values it puts in any chains widget are invalid by now
       this.for_each_chain((chain, type) => {
@@ -180,19 +233,34 @@ export class DandyNode {
     }
 
     node.onConnectionsChange = (i_or_o, index, connected, link_info, input) => {
-      if (link_info) {
-        const { chains } = this
-        if (chains) {
-          const our_chains = chains[link_info.type]
-          if (our_chains) {
-            our_chains.forEach((chain) => {
-              if (chain) {
-                chain.update_chain()
-              }
-            })
+
+      if (!this.graph_is_configuring) {
+        this.debug_log("CONNECTION CHANGE", {
+          title: this.node.title || this.node.type,
+          i_or_o: i_or_o === 1 ? "INPUT" : "OUTPUT",
+          index,
+          connected,
+          link_info_id: link_info?.id,
+          link_info_target: link_info?.target_id,
+          link_info_origin: link_info?.origin_id,
+          has_link_info: !!link_info
+        })
+  
+        if (link_info) {
+          const { chains } = this
+          if (chains) {
+            const our_chains = chains[link_info.type]
+            if (our_chains) {
+              our_chains.forEach((chain) => {
+                if (chain) {
+                  chain.update_chain()
+                }
+              })
+            }
           }
         }
       }
+
       this.on_connections_change(i_or_o, index, connected, link_info, input)
     }
 
@@ -209,6 +277,10 @@ export class DandyNode {
     }
 
     this.fix_widget_values()
+  }
+
+  get graph_is_configuring() {
+    return minion.is_configuring
   }
 
   fix_widget_values() {
@@ -639,3 +711,5 @@ export const dandy_load_list_of_urls = async (urls, f) => {
   }
   return out
 }
+
+
