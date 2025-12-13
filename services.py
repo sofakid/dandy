@@ -25,10 +25,11 @@ def next_service_id():
 services = {}
 
 class DandyService:
-  def __init__(self, ws):
+  def __init__(self, ws, dandy_token):
     self.id = next_service_id()
     self.ws = ws
     self.ws.max_size = MAX_DANDY_SOCKET_MSG
+    self.dandy_token = dandy_token
     services[self.id] = self
  
   async def send(self, o):
@@ -37,7 +38,25 @@ class DandyService:
 
   async def run_loop(self):
     async for msg in self.ws:
-      #print("DandyService :: msg recieved: " + str(msg)[:200])
+      # print("DandyService :: msg recieved: " + str(msg)[:200])
+      o = json.loads(msg)
+      if o['command'] == 'ding_dong':
+        # this is not a debug message, this is a signal to the main process
+        # to deliver the token over comfyui's websocket
+        print(DANDY_DING_DONG)
+        # drop the socket
+        return
+      
+      try:
+        dandy_token = o[DANDY_TOKEN_KEY]
+      except KeyError:
+        print('DandyService.run_loop() :: dandy_token not found, dropping connection.\n' + str(o) )
+        return
+      
+      if dandy_token != self.dandy_token:
+        print('DandyService.run_loop() :: dandy_token incorrect, dropping connection.')
+        return
+
       await self.run_command(msg)
 
   async def run_command(self, msg):

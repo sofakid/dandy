@@ -102,7 +102,7 @@ filters.sort()
 export class DandyPixelsJs extends DandyTown {
   constructor(node, app) {
     super(node, app)
-    this.debug_verbose = true
+    this.debug_verbose = false
 
     this.input_string = default_filter
     this.reload_iframe()

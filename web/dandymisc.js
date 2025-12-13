@@ -154,7 +154,7 @@ export class DandyNode {
     this.app = app
     this.concat_string_inputs = true
 
-    this.debug_verbose = true
+    this.debug_verbose = false
     node.serialize_widgets = true
 
     if (node.properties === undefined) {

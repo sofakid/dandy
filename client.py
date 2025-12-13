@@ -13,23 +13,35 @@ async def send_data_async(data):
   try:  
     async with websockets.connect('ws://localhost:' + str(DANDY_WS_PORT)) as websocket:
       websocket.max_size=MAX_DANDY_SOCKET_MSG
-      print('DandyServicesClient :: get_service_id ')
+      dandy_token = dandy_token_store.token
+      # print('DandyServicesClient :: get_service_id ')
 
-      await websocket.send('{ "command": "get_service_id" }')
+
+      get_service_id_msg = json.dumps({
+        "command": "get_service_id", 
+        "dandy_token": dandy_token 
+      })
+
+      await websocket.send(get_service_id_msg)
       
       response = await websocket.recv()
-      print('DandyServicesClient :: get_service_id response: ' + response)
+      # print('DandyServicesClient :: get_service_id response: ' + response)
 
       o = json.loads(response)
       pyc = o['service_id']
-      data['py_client'] = pyc
-
-      s = json.dumps(data)
-      print('DandyServicesClient :: send_message(): ' + s[:200])
+    
+      out_data = {
+        'py_client': pyc,
+        'dandy_token': dandy_token, 
+        **data 
+      }
+      
+      s = json.dumps(out_data)
+      # print('DandyServicesClient :: send_message(): ' + s[:200])
 
       await websocket.send(s)
       response = await websocket.recv()
-      print('DandyServicesClient :: response: ' + response[:200])
+      # print('DandyServicesClient :: response: ' + response[:200])
 
       return json.loads(response)
   except ConnectionClosedOK:

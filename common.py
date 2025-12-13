@@ -12,6 +12,8 @@ DANDY_LOADERS_CATEGORY = 'Dandy Loaders'
 DANDY_PREVIEWS_CATEGORY = 'Dandy Previews'
 
 DANDY_CHILD_PROCESS = '--DANDY_CHILD_PROCESS'
+DANDY_DING_DONG = 'DANDY_DING_DONG'
+DANDY_TOKEN_KEY = 'dandy_token'
 
 WIDTH_HEIGHT_INPUT = ('INT', {'default': 512, 'min': 10, 'max': MAX_RESOLUTION, 'step': 128})
 N_INPUTS_INPUT = ('INT', {'default': 2, 'min': 1, 'max': MAX_RESOLUTION, 'step': 1})
@@ -104,9 +106,7 @@ def dandy_is_child():
 
 def dandy_flatten(lst):
   if not isinstance(lst, list):
-    print("buh --------------")
     return lst
-  print('ooo ------------')
   flattened = []
   for x in lst:
     if isinstance(x, list):
@@ -114,3 +114,9 @@ def dandy_flatten(lst):
     else:
       flattened.append(x)
   return flattened
+
+class DandyTokenStore:
+  def __init__(self):
+    self.token = ""
+  
+dandy_token_store = DandyTokenStore()

@@ -8,11 +8,11 @@ import { init_DandyEditors, DandyJs, DandyHtml, DandyYaml, DandyCss, DandyJson, 
          DandyInt, DandyFloat } from "/extensions/dandy/editors.js"
 import { DandyStringPreview, DandyIntPreview, DandyFloatPreview, DandyBooleanPreview } from "/extensions/dandy/previews.js"
 import { DandyPrompt } from "/extensions/dandy/prompt.js"
-import { DandyEditorSettings, wait_for_DandySettings } from '/extensions/dandy/editor_settings.js'
+import { DandyEditorSettings, wait_for_DandySettings, new_dandy_settings } from '/extensions/dandy/editor_settings.js'
 import { DandyLand } from "/extensions/dandy/dandyland.js"
 import { DandyJsLoader, DandyCssLoader, DandyHtmlLoader, DandyJsonLoader, 
          DandyYamlLoader, DandyWasmLoader, DandyUrlLoader } from "/extensions/dandy/loaders.js"
-import { DandySocket } from "/extensions/dandy/socket.js"
+import { DandySocket, init_dandy_sockets } from "/extensions/dandy/socket.js"
 import { DandyP5JsDraw, DandyP5JsSetup, DandyP5JsLoader } from '/extensions/dandy/examples/p5js.js'
 import { DandyGradient } from '/extensions/dandy/examples/gradient_node.js'
 import { DandyPixelsJs } from '/extensions/dandy/examples/pixelsjs_node.js'
@@ -70,25 +70,26 @@ const dandy_nodes = {
   "Dandy Prompt": DandyPrompt,
 }
 
-const initDandy = async () => {
+const init_dandy = async () => {
   load_dandy_css(document)
-  const socket = new DandySocket()
-  await socket.get_service_id()
+  await init_dandy_sockets(app)
+  new_dandy_settings()
   await wait_for_DandySettings()
   await init_DandyEditors()
   await dandy_delay(200)
 }
 
+
 // -----------------------------------------------------------------------------------
 const ext = {
 	// Unique name for the extension
 	name: extension_name,
-	init: async (app) => {
+	init: async () => {
 		// Any initial setup to run as soon as the page loads
-    await initDandy()
+    await init_dandy()
 	},
-	setup: async (app) => {
-		// Any setup to run after the app is created
+	setup: async () => {
+    // Any setup to run after the app is created
 	},
 	addCustomNodeDefs: async (defs, app) => {
 		// Add custom node definitions
@@ -125,7 +126,13 @@ const ext = {
 	},
 }
 
-app.registerExtension(ext)
+
+if (window.dandy_loaded) {
+  console.warn("Dandy :: Extension already loaded :: aborting")
+} else {
+  window.dandy_loaded = true
+  app.registerExtension(ext)
+}
 
 
 

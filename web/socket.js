@@ -30,16 +30,16 @@ const connectWebSocket = () => {
   })
 }
 
-export class DandySocket {
+class DandySocketDoor {
   debug_log(s, ...more) {
     if (this.debug_verbose) {
       console.log(`${this.constructor.name} :: ${s}`, ...more)
     }
   }
+
   log(s, ...more) {
     console.log(`${this.constructor.name} :: ${s}`, ...more)
   }
-  
 
   warn_log(s, ...more) {
     console.warn(`${this.constructor.name} :: ${s}`, ...more)
@@ -49,22 +49,131 @@ export class DandySocket {
     console.error(`${this.constructor.name} :: ${s}`, ...more)
   }
 
+  constructor() {
+    this.socket = null
+    this.dandy_token = null
+  }
+
+  prepare(app) {
+    app.api.addEventListener("dandy_token", (e) => {
+      this.dandy_token = e.detail.dandy_token
+      if (this.socket !== null) {
+        this.socket.close()
+        this.socket = null
+      }
+    })
+  }
+
+  ring_doorbell() {
+    connectWebSocket()
+      .then((socket) => {
+        this.socket = socket
+        this.debug_log("ringing doorbell..")
+        this.socket.send('{ "command": "ding_dong" }')
+      })
+      .catch((error) => {
+          this.error_log("Failed to establish WebSocket connection:", error)
+      })
+  }
+  
+  async wait_patiently() {
+    for (let i = 1; this.dandy_token === null; ++i) {
+      const ms = 7 * i
+      const a_while = 10000
+      if (i === a_while) {
+        this.error_log("DandySocket isn't getting its service_id...")
+        --i
+      }
+      await dandy_delay(ms)
+    }
+  }
+
+  async on_open(f) {
+    await this.wait_patiently()
+    f()
+  }
+}
+
+const door = new DandySocketDoor()
+
+export const init_dandy_sockets = async (app) => {
+  door.prepare(app)
+  door.ring_doorbell()
+  await door.wait_patiently()
+}  
+
+export class DandySocket {
+  debug_log(s, ...more) {
+    if (this.debug_verbose) {
+      console.log(`${this.constructor.name} :: ${s}`, ...more)
+    }
+  }
+
+  log(s, ...more) {
+    console.log(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
+  warn_log(s, ...more) {
+    console.warn(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
+  error_log(s, ...more) {
+    console.error(`${this.constructor.name} :: ${s}`, ...more)
+  }
+
+  dandy_token = null
+
   constructor(dandy=null) {
     this.socket = null
     this._service_id = null
     this.debug_verbose = false
+    this.initialized = false
+
+    this.debug_log("new DandySocket")
 
     if (dandy !== null) {
       const service_widget = dandy.service_widget = dandy.find_widget(DandyNames.SERVICE_ID)
       service_widget.serializeValue = async () => {
         this.debug_log(`Serializing service_id...`)
+        while (this.initialized === false) {
+          await dandy_delay(50)
+        }
         return await this.get_service_id()
       }
     }
+    
+    this.on_request_captures = (o) => {
+      this.warn_log("default on_request_captures()")
+    }
 
+    this.on_request_string = (o) => {
+      this.warn_log("default on_request_string()")
+    }
+
+    this.on_sending_input = (o) => {
+      this.warn_log("default on_sending_input()")
+    }
+
+    this.on_delivering_fonts = (fonts) => {
+      this.warn_log("default on_delivering_fonts()")
+    }
+
+    this.on_delivering_images = () => {
+      this.warn_log("default on_delivering_images()")
+    }
+
+    this.on_delivering_masks = () => {
+      this.warn_log("default on_delivering_masks()")
+    }
+
+    door.on_open(() => { this.init_websocket() })
+  }
+
+  init_websocket() {
     connectWebSocket()
       .then((socket) => {
         this.socket = socket
+
         socket.addEventListener('message', (event) => {
           this.debug_log('recv: ', event.data.slice(0, 200))
           const response = JSON.parse(event.data)
@@ -90,43 +199,24 @@ export class DandySocket {
           if (command === 'sending_input') {
             this.on_sending_input(response)
           }
-          
         })
         
+        this.debug_log("Sending get_service_id")
         this.send({ 'command': 'get_service_id' })
       })
       .catch((error) => {
           this.error_log("Failed to establish WebSocket connection:", error)
       })
 
-    this.on_request_captures = (o) => {
-      this.warn_log("default on_request_captures()")
-    }
-
-    this.on_request_string = (o) => {
-      this.warn_log("default on_request_string()")
-    }
-
-    this.on_sending_input = (o) => {
-      this.warn_log("default on_sending_input()")
-    }
-
-    this.on_delivering_fonts = (fonts) => {
-      this.warn_log("default on_delivering_fonts()")
-    }
-
-    this.on_delivering_images = () => {
-      this.warn_log("default on_delivering_images()")
-    }
-
-    this.on_delivering_masks = () => {
-      this.warn_log("default on_delivering_masks()")
-    }
+    this.initialized = true
   }
 
-  send(o) {
-    this.debug_log('send: ' + JSON.stringify(o))//.slice(0, 80))
-    this.socket.send(JSON.stringify(o))
+  send(obj) {
+    door.on_open(() => {
+      const o = { dandy_token: door.dandy_token, ...obj }
+      //this.debug_log('send: ' + JSON.stringify(o), door.dandy_token)//.slice(0, 80))
+      this.socket.send(JSON.stringify(o))
+    })
   }
 
   async wait_until_up() {

@@ -5,6 +5,8 @@ import websockets
 import atexit
 import os
 import sys
+import uuid
+
 
 # Fix for Windows portable embedded Python in child subprocess
 # We have to do this before the from imports 
@@ -26,9 +28,13 @@ if dandy_path not in sys.path:
 from dandy.common import *
 from dandy.services import DandyService
 
+DANDY_TOKEN = str(uuid.uuid4())
+
 ### Child Process ================================================================
 async def start_service(ws):
-  service = DandyService(ws)
+  dandy_token = sys.argv[2]
+  # print("DandySocket :: new DandySevice(), token: " + str(dandy_token))
+  service = DandyService(ws, dandy_token)
   await service.run_loop()
   
 async def start_server():
@@ -47,10 +53,21 @@ def run_server():
     asyncio.run(start_server())
   except Exception:
     pass
-  
+
 ### Main Process ================================================================
+def broadcast_dandy_token():
+  from server import PromptServer
+  o = { DANDY_TOKEN_KEY: DANDY_TOKEN }
+  PromptServer.instance.send_sync(DANDY_TOKEN_KEY, o)
+
 def launch_server():
   print("DandySocket :: launching server")
+
+  # a few tokens get created as the loading of the files is a bit complex.
+  # the one we launch the server with, is the offical one.
+  # it is sent as a argument to the server, and saved here in
+  # dandy_token_store for the python clients
+  dandy_token_store.token = DANDY_TOKEN
 
   dandy_path = os.path.dirname(__file__)  # custom_nodes/dandy
   custom_nodes_path = os.path.dirname(dandy_path)
@@ -59,7 +76,7 @@ def launch_server():
 
   env = os.environ.copy()
   server_process = subprocess.Popen(
-    [sys.executable, '-u', script_path, DANDY_CHILD_PROCESS],
+    [sys.executable, '-u', script_path, DANDY_CHILD_PROCESS, DANDY_TOKEN],
     cwd=custom_nodes_path,
     env=env,
     stdout=subprocess.PIPE,
@@ -70,7 +87,11 @@ def launch_server():
 
   def stream_output():
     for line in server_process.stdout:
-      print("DandySocket child :: " + line.rstrip())
+      s = line.rstrip()
+      if (s == DANDY_DING_DONG):
+        broadcast_dandy_token()
+      else:
+        print("DandySocket child :: " + s)
 
   threading.Thread(target=stream_output, daemon=True).start()
 

@@ -9,6 +9,7 @@ export class DandyPrompt extends DandyEditor {
     const input_string_chain = this.input_string_chain = new DandyStringChain(this, 1, 0)
     const output_string_chain = this.output_string_chain = new DandyStringChain(this, 0, 1)
     
+    this.debug_verbose = false
     // this is weird and i don't like it
     input_string_chain.cat_strategy = '\n'
     //output_string_chain.cat_strategy = '\n'

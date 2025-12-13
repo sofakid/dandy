@@ -1,6 +1,5 @@
 from .common import *
 from .dandynodes import *
-from .client import DandyServicesClient
 from .image import *
     
 def serialize_with_tensors(o):

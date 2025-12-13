@@ -316,7 +316,11 @@ export class DandySettings {
 // --------------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------------
 
-const settings = new DandySettings()
+let settings = null
+export const new_dandy_settings = () => {
+  settings = new DandySettings()
+}
+
 export const dandy_settings = () => {
   return settings
 }
