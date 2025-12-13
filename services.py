@@ -28,7 +28,7 @@ class DandyService:
   def __init__(self, ws, dandy_token):
     self.id = next_service_id()
     self.ws = ws
-    self.ws.max_size = MAX_DANDY_SOCKET_MSG
+    # self.ws.max_size = MAX_DANDY_SOCKET_MSG
     self.dandy_token = dandy_token
     services[self.id] = self
  

@@ -10,12 +10,11 @@ from dandy.dandynodes import *
 from dandy.image import make_b64image
 
 async def send_data_async(data):
-  try:  
-    async with websockets.connect('ws://localhost:' + str(DANDY_WS_PORT)) as websocket:
-      websocket.max_size=MAX_DANDY_SOCKET_MSG
+  try:
+    url = f"ws://localhost:{DANDY_WS_PORT}"
+    async with websockets.connect(url, max_size=MAX_DANDY_SOCKET_MSG) as websocket:
       dandy_token = dandy_token_store.token
       # print('DandyServicesClient :: get_service_id ')
-
 
       get_service_id_msg = json.dumps({
         "command": "get_service_id", 

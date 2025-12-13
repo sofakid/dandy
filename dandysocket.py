@@ -39,7 +39,7 @@ async def start_service(ws):
   
 async def start_server():
   print("DandySocket :: starting server")
-  async with websockets.serve(start_service, 'localhost', DANDY_WS_PORT):
+  async with websockets.serve(start_service, 'localhost', DANDY_WS_PORT, max_size=MAX_DANDY_SOCKET_MSG):
     try:
       await asyncio.Future()
     except asyncio.CancelledError:
