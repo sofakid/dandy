@@ -81,7 +81,7 @@ BOOLEAN_TYPE_INPUT = (BOOLEAN_TYPE, { 'default': '' })
 
 STRING_NAME = 'string'
 STRING_TYPE = 'STRING'
-STRING_TYPE_INPUT = (STRING_TYPE, { 'default': '' })
+STRING_TYPE_INPUT = (STRING_TYPE, { 'default': '', 'forceInput': False })
 
 IMAGE_NAME = 'image'
 IMAGE_TYPE = 'IMAGE'

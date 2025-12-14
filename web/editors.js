@@ -283,11 +283,14 @@ export class DandyEditor extends DandyNode {
       }
     }
     
+    this.log("NODE", node)
     this.hash_dealer = new DandyHashDealer(this)
     const socket = this.socket = new DandySocket(this)
     socket.on_sending_input = () => {}
     const service_id_widget = this.find_widget(DandyNames.SERVICE_ID)
     service_id_widget.size = [0, 0]
+    const hash_widget = this.find_widget(DandyNames.HASH)
+    hash_widget.size = [0, 0]
     this.init_widgets_above_editor()
     new DandyIncredibleShrinkingWidget(node, -15)
 
@@ -457,6 +460,7 @@ export class DandyJs extends DandyEditor {
   constructor(node, app) {
     super(node, app, Mimes.JS)
     this.chain = new DandyJsChain(this, 1, 1)
+
     node.size = [400, 300]
     
     this.when_editor_ready(() => {

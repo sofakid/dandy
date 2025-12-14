@@ -15,7 +15,7 @@ async def send_data_async(data):
     async with websockets.connect(url, max_size=MAX_DANDY_SOCKET_MSG) as websocket:
       dandy_token = dandy_token_store.token
       # print('DandyServicesClient :: get_service_id ')
-
+  
       get_service_id_msg = json.dumps({
         "command": "get_service_id", 
         "dandy_token": dandy_token 

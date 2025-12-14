@@ -78,10 +78,7 @@ class DandyWasmLoader(DandyLoader):
     return (wasm,)
 
 class DandyUrlLoader(DandyLoaderWithHashSocket):
-  @classmethod
-  def DANDY_INPUTS(cls):
-    return DandyOptionalInputs(super(), {})
-
+  
   RETURN_TYPES = (STRING_TYPE, HTML_TYPE, CSS_TYPE, JS_TYPE, WASM_TYPE, JSON_TYPE, YAML_TYPE, IMAGE_URL_TYPE)
   RETURN_NAMES = (STRING_NAME, HTML_NAME, CSS_NAME, JS_NAME, WASM_NAME, JSON_NAME, YAML_NAME, IMAGE_URL_NAME)
   def run(self, service_id=None, **kwargs):

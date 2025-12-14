@@ -608,15 +608,12 @@ export class DandyIncredibleShrinkingWidget extends DandyWidget {
   }
 }
 
-
 export const dandy_js_plain_module_toggle = (dandy) => {
-  const { node } = dandy // don't put chains in this it's not there yet
+  const { node } = dandy
   const default_classic = false
   const options = { on: 'module js', off: 'classic js' }
   const callback = (x) => {
-    console.log("WHIPPITYWOO", dandy.chains[DandyTypes.JS])
     dandy.chains[DandyTypes.JS].forEach((chain) => {
-      console.log("WHIPPITYWOO 222 :: ", chain)
       chain.mime = x ? Mimes.JS_MODULE : Mimes.JS
       chain.update_chain()
     })

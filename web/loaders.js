@@ -399,8 +399,8 @@ export class DandyUrlLoader extends DandyNode {
     
     new DandyIncredibleShrinkingWidget(node, -12)
     
-    const cw = ComfyWidgets.STRING(node, '', 
-    ['', { default:'', multiline: true, serialize: true }], app)
+    const cw = ComfyWidgets.STRING(node, 'url', 
+    ["STRING", { multiline: true, default: "" }], app)
     
     cw.widget.callback = (text) => {
       this.for_each_chain((chain, type) => {

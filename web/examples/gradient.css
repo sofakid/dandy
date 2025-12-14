@@ -14,6 +14,10 @@ input {
   background-color: rgba(0, 0, 0, 0);
 }
 
+.dandyMax {
+  background-color: #353535;
+}
+
 .clr-field {
   width: 100%;
 }
