@@ -104,12 +104,13 @@ export class DandyPixelsJs extends DandyTown {
     super(node, app)
     this.debug_verbose = false
 
-    this.input_string = default_filter
+    this.input.string = default_filter
     this.reload_iframe()
   }
 
-  // this will run in the DandyTown constructor, before we make the iframe, so that the widgets will render above it
-  // if we did this in our constructor it would render below the content
+  // this will run in the DandyTown constructor, before we make the iframe, 
+  // so that the widgets will render above it.
+  // if we did this in our constructor it would render below the content.
   init_widgets_above_content() {
     const { node } = this
     
@@ -118,7 +119,8 @@ export class DandyPixelsJs extends DandyTown {
     this.remove_widgets(filter_input_name)
     this.filter_widget = node.addWidget('combo', filter_input_name, default_filter, 
       (x) => {
-        this.input_string = x
+        console.warn("PIXELS NODE WIDGET", x)
+        this.input.string = x
         this.reload_iframe()
       }, { values: filters })
   }

@@ -4,7 +4,7 @@
 if (typeof dandy !== 'undefined') {
   dandy.onload = () => {
     const img = dandy.image[0]
-    console.log("PIXELS ", img, dandy.string, dandy)
+    //console.log("PIXELS ", img, dandy.string, dandy)
     if (img) {
       const filter = dandy.string
       const canvas = document.createElement('canvas')
@@ -16,12 +16,11 @@ if (typeof dandy !== 'undefined') {
       ctx.drawImage(img, 0, 0)
       const image_data = ctx.getImageData(0, 0, w, h)
       const filtered = pixelsJS.filterImgData(image_data, filter)
-      console.log("PIXELS  FILTERED:", filtered)
-      // ctx.putImageData(new ImageData(filtered.data, w, h), 0, 0)
+      //console.log("PIXELS  FILTERED:", filtered)
       ctx.putImageData(filtered, 0, 0)
   
       document.body.appendChild(canvas)
-      dandy.continue()
     }
+    dandy.continue()
   }
 }
